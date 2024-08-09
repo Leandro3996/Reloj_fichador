@@ -1,0 +1,19 @@
+{% extends "reloj_fichador/base.html" %}
+
+{% block title %}Lista de Registros{% endblock %}
+
+{% block content %}
+<h2>Lista de Registros</h2>
+<h3>Entradas</h3>
+<ul>
+    {% for entrada in entradas %}
+        <li>{{ entrada.operario.nombre }} {{ entrada.operario.apellido }} - {{ entrada.fecha }} {{ entrada.hora }}</li>
+    {% endfor %}
+</ul>
+<h3>Salidas</h3>
+<ul>
+    {% for salida in salidas %}
+        <li>{{ salida.operario.nombre }} {{ salida.operario.apellido }} - {{ salida.fecha }} {{ salida.hora }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

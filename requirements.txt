@@ -1,0 +1,9 @@
+asgiref==3.8.1
+chardet==5.2.0
+Django==5.0.7
+mysqlclient==2.2.4
+pillow==10.2.0
+reportlab==4.1.0
+setuptools==72.1.0
+sqlparse==0.5.1
+tzdata==2024.1
