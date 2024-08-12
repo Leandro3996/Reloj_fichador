@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Reloj Fichador{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'reloj_fichador/css/styles.css' %}">
@@ -8,22 +10,34 @@
 <body>
     <header>
         <h1>Reloj Fichador</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'reloj_fichador:home' %}">Inicio</a></li>
-                <li><a href="{% url 'reloj_fichador:registrar_entrada' %}">Registrar Entrada</a></li>
-                <li><a href="{% url 'reloj_fichador:registrar_salida_transitoria' %}">Salida Transitoria</a></li>
-                <li><a href="{% url 'reloj_fichador:registrar_entrada_transitoria' %}">Entrada Transitoria</a></li>                
-                <li><a href="{% url 'reloj_fichador:registrar_salida' %}">Registrar Salida</a></li>
-                <li><a href="{% url 'reloj_fichador:lista_registros' %}">Lista de Registros</a></li>
-            </ul>
-        </nav>
     </header>
     <main>
-        {% block content %}{% endblock %}
+        <div class="menu-container">
+            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_entrada' %}'">Entrada (Q)</button>
+            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_salida_transitoria' %}'">Salida transitoria (V)</button>
+            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_entrada_transitoria' %}'">Entrada transitoria (M)</button>
+            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_salida' %}'">Salida (P)</button>
+        </div>
+
+        <div class="dni-container">
+            <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI">
+            <button class="accept-button" onclick="handleDni()">Aceptar</button>
+        </div>
     </main>
     <footer>
         <p>&copy; 2024 Reloj Fichador</p>
     </footer>
+
+    <script>
+        function handleDni() {
+            var dni = document.getElementById('dni').value;
+            if (dni) {
+                // Aquí podrías agregar la lógica para manejar el DNI, por ejemplo, redirigir o validar.
+                alert("DNI ingresado: " + dni);
+            } else {
+                alert("Por favor, ingrese un número de DNI.");
+            }
+        }
+    </script>
 </body>
 </html>
