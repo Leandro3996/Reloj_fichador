@@ -5,39 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Reloj Fichador{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'reloj_fichador/css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <style>
+        .menu-button.active {
+            background-color: #4CAF50; /* Verde, o el color que prefieras */
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Reloj Fichador</h1>
     </header>
     <main>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="menu-container">
-            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_entrada' %}'">Entrada (Q)</button>
-            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_salida_transitoria' %}'">Salida transitoria (V)</button>
-            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_entrada_transitoria' %}'">Entrada transitoria (M)</button>
-            <button class="menu-button" onclick="location.href='{% url 'reloj_fichador:registrar_salida' %}'">Salida (P)</button>
+            <!-- Aquí se definen los botones para cada tipo de movimiento -->
+            <button class="menu-button" onclick="setTipoMovimiento('entrada')">Entrada (Q)</button>
+            <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida transitoria (V)</button>
+            <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada transitoria (M)</button>
+            <button class="menu-button" onclick="setTipoMovimiento('salida')">Salida (P)</button>
         </div>
 
         <div class="dni-container">
-            <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI">
-            <button class="accept-button" onclick="handleDni()">Aceptar</button>
+            <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento' 'entrada' %}">
+                {% csrf_token %}
+                <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
+                <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required>
+                <button type="submit" class="accept-button">Aceptar</button>
+            </form>
         </div>
+        {% if error %}
+            <div class="error-message">
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
     </main>
     <footer>
         <p>&copy; 2024 Reloj Fichador</p>
     </footer>
 
     <script>
-        function handleDni() {
-            var dni = document.getElementById('dni').value;
-            if (dni) {
-                // Aquí podrías agregar la lógica para manejar el DNI, por ejemplo, redirigir o validar.
-                alert("DNI ingresado: " + dni);
-            } else {
-                alert("Por favor, ingrese un número de DNI.");
-            }
+        function setTipoMovimiento(tipo) {
+            // Eliminar la clase active de todos los botones
+            document.querySelectorAll('.menu-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Establece el tipo de movimiento en el campo oculto
+            document.getElementById('tipo_movimiento').value = tipo;
+
+            // Cambia la acción del formulario según el tipo de movimiento
+            document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento' 'entrada' %}".replace('entrada', tipo);
+
+            // Añade la clase active al botón correcto
+            document.querySelector(`.menu-button[onclick="setTipoMovimiento('${tipo}')"]`).classList.add('active');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dniInput = document.getElementById('dni');
+
+            document.addEventListener('keydown', function(event) {
+                switch (event.key.toUpperCase()) {
+                    case 'Q':
+                        setTipoMovimiento('entrada');
+                        break;
+                    case 'V':
+                        setTipoMovimiento('salida_transitoria');
+                        break;
+                    case 'M':
+                        setTipoMovimiento('entrada_transitoria');
+                        break;
+                    case 'P':
+                        setTipoMovimiento('salida');
+                        break;
+                }
+                document.querySelector(`.menu-button[onclick="setTipoMovimiento('${event.key.toLowerCase()}')"]`).click();
+            });
+
+            // Enfocar automáticamente el campo DNI al cargar la página
+            dniInput.focus();
+
+            // Reestablecer el enfoque al campo DNI cada vez que intenta perderlo
+            dniInput.addEventListener('blur', function() {
+                setTimeout(() => dniInput.focus(), 10);
+            });
+
+            // Asegurar que solo se puedan ingresar números
+            dniInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
     </script>
 </body>
 </html>

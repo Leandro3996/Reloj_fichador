@@ -5,4 +5,13 @@
 {% block content %}
 <h2>Bienvenido al Reloj Fichador</h2>
 <p>Seleccione una opción del menú para continuar.</p>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
 {% endblock %}

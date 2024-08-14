@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Operario(models.Model):
     dni = models.IntegerField(unique=True)
     nombre = models.CharField(max_length=20)
@@ -8,47 +9,30 @@ class Operario(models.Model):
     seg_apellido = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        # Construyendo el nombre completo considerando nombres y apellidos secundarios
+        full_name = f"{self.nombre}"
+        if self.seg_nombre:
+            full_name += f" {self.seg_nombre}"
+        full_name += f" {self.apellido}"
+        if self.seg_apellido:
+            full_name += f" {self.seg_apellido}"
 
-class Entrada(models.Model):
+        return f"{self.dni} - {full_name}"
+
+class RegistroDiario(models.Model):
+    TIPO_MOVIMIENTO = [
+        ('entrada', 'Entrada'),
+        ('sal_transitoria', 'Salida Transitoria'),
+        ('ent_transitoria', 'Entrada Transitoria'),
+        ('salida', 'Salida'),
+    ]
+
+    id_registro = models.AutoField(primary_key=True)
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
-    hora = models.TimeField(auto_now_add=True)
+    hora_fichada = models.DateTimeField(auto_now_add=True)
+    tipo_movimiento = models.CharField(max_length=20, choices=TIPO_MOVIMIENTO)
 
     def __str__(self):
-        return f"Entrada de {self.operario} en {self.fecha}"
+        return f"{self.operario} - {self.tipo_movimiento} - {self.hora_fichada.strftime('%Y/%m/%d %H:%M:%S')}"
 
-class SalidaTra(models.Model):
-    operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
-    hora = models.TimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Salida transitoria de {self.operario} en {self.fecha}"
-
-class EntradaTra(models.Model):
-    operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
-    hora = models.TimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Entrada transitoria de {self.operario} en {self.fecha}"
-
-class Salida(models.Model):
-    operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
-    hora = models.TimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Salida de {self.operario} en {self.fecha}"
-
-class HorasMensual(models.Model):
-    dni = models.IntegerField()
-    operario = models.CharField(max_length=40)
-    horas_del_mes = models.IntegerField()
-    horas_trabajadas = models.IntegerField()
-    horas_extras = models.IntegerField()
-
-    def __str__(self):
-        return f"Horas mensuales de {self.operario} (DNI: {self.dni})"
 

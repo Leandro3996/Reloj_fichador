@@ -22,8 +22,8 @@ header {
 }
 
 .menu-button {
-    padding: 15px 20px;
-    font-size: 16px;
+    padding: 30px 50px;
+    font-size: 18px;
     color: #fff;
     background-color: #00bcd4;
     border: none;
@@ -76,3 +76,13 @@ footer {
     width: 100%;
     bottom: 0;
 }
+
+.menu-button.active {
+    background-color: #4CAF50; /* Verde, o el color que prefieras */
+    color: white;
+}
+
+.messages .error {
+    text-transform: uppercase;
+}
+
