@@ -37,7 +37,7 @@
         </div>
 
         <div class="dni-container">
-            <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento' 'entrada' %}">
+            <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento_tipo' 'entrada' %}">
                 {% csrf_token %}
                 <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
                 <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required>
@@ -65,7 +65,7 @@
             document.getElementById('tipo_movimiento').value = tipo;
 
             // Cambia la acción del formulario según el tipo de movimiento
-            document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento' 'entrada' %}".replace('entrada', tipo);
+            document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento_tipo' 'placeholder_tipo' %}".replace('placeholder_tipo', tipo);
 
             // Añade la clase active al botón correcto
             document.querySelector(`.menu-button[onclick="setTipoMovimiento('${tipo}')"]`).classList.add('active');
@@ -89,7 +89,6 @@
                         setTipoMovimiento('salida');
                         break;
                 }
-                document.querySelector(`.menu-button[onclick="setTipoMovimiento('${event.key.toLowerCase()}')"]`).click();
             });
 
             // Enfocar automáticamente el campo DNI al cargar la página
