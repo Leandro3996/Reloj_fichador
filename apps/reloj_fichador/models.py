@@ -35,4 +35,61 @@ class RegistroDiario(models.Model):
     def __str__(self):
         return f"{self.operario} - {self.tipo_movimiento} - {self.hora_fichada.strftime('%Y/%m/%d %H:%M:%S')}"
 
+class Entrada(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    hora_entrada = models.DateTimeField(auto_now_add=True)
+    tipo_movimiento = models.CharField(max_length=20)
+    manual_auto = models.CharField(max_length=20)
 
+class Salida(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    hora_salida = models.DateTimeField(auto_now_add=True)
+    tipo_movimiento = models.CharField(max_length=20)
+    manual_auto = models.CharField(max_length=20)
+
+class Entrada_transitoria(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    hora_entrada_trans = models.DateTimeField(auto_now_add=True)
+    tipo_movimiento = models.CharField(max_length=20)
+    manual_auto = models.CharField(max_length=20)
+
+class Salida_transitoria(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    hora_salida_trans = models.DateTimeField(auto_now_add=True)
+    tipo_movimiento = models.CharField(max_length=20)
+    manual_auto = models.CharField(max_length=20)
+
+class Licencias(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    descripcion = models.CharField(max_length=250)
+    certificado = models.ImageField()
+
+class Horas_trabajadas(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    # añadir función
+class Horas_feriado(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    #añadir función
+class Horas_extras(models.Model):
+    dni = models.IntegerField(unique=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    # añadir función
+
+class Horas_totales(models.Model):
+    mes_actual = models.CharField(max_length=20)
+    horas_totales = models.IntegerField(max_length=3)
