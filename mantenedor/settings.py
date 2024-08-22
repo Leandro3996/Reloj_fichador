@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.reloj_fichador',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [

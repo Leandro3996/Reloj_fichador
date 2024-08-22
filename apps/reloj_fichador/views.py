@@ -44,16 +44,32 @@ def registrar_movimiento_tipo(request, tipo):
     except Operario.DoesNotExist:
         return render(request, 'reloj_fichador/base.html', {'error': 'Operario no encontrado'.upper()})
 
-
-def validar_secuencia_movimiento(operario, nuevo_movimiento):
+def validar_secuencia_movimiento(operario, nuevo_movimiento, is_admin=False):
     ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
+
     if ultimo_registro:
+        print(
+            f"Último registro para el operario {operario.dni}: {ultimo_registro.tipo_movimiento} - {ultimo_registro.hora_fichada}")
+
+        # Definir las transiciones válidas
         transiciones_validas = {
             'entrada': ['salida', 'salida_transitoria'],
             'salida_transitoria': ['entrada_transitoria'],
             'entrada_transitoria': ['salida'],
             'salida': ['entrada']
         }
+
+        # Verificar si el nuevo movimiento es válido
         es_valido = nuevo_movimiento in transiciones_validas.get(ultimo_registro.tipo_movimiento, [])
+        print(f"Nuevo movimiento: {nuevo_movimiento}, Es válido: {es_valido}")
+
+        # Permitir inconsistencia si es un admin
+        if is_admin:
+            return True, ultimo_registro.tipo_movimiento
+
+        # Retornar si el movimiento es válido o no
         return es_valido, ultimo_registro.tipo_movimiento
-    return nuevo_movimiento == 'entrada', None  # Asumir que 'entrada' es válida si no hay registros previos
+    else:
+        print(f"No se encontraron registros previos para el operario {operario.dni}.")
+        # Si no hay un último registro, solo 'entrada' es válida
+        return nuevo_movimiento == 'entrada', None

@@ -1,11 +1,15 @@
+from rangefilter.filters import DateRangeFilter
 from django.contrib import admin
-from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales, Area, Horario
+from django.db import models
+from django.contrib.admin.widgets import AdminSplitDateTime
+from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_extras, Horas_totales, Area, Horario
+from datetime import timedelta
 
 @admin.register(Operario)
 class OperarioAdmin(admin.ModelAdmin):
-    list_display = ('dni', 'nombre', 'apellido', 'get_areas')
-    list_filter = ('areas',)
-    search_fields = ('dni', 'nombre', 'apellido')
+    list_display = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico', 'get_areas',)
+    list_filter = ('areas', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico',)
+    search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico',)
     filter_horizontal = ('areas',)
 
     def get_areas(self, obj):
@@ -14,27 +18,55 @@ class OperarioAdmin(admin.ModelAdmin):
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(admin.ModelAdmin):
-    list_display = ('operario', 'tipo_movimiento', 'hora_fichada')
+    list_display = ('operario', 'tipo_movimiento', 'hora_fichada','origen_fichada')
     list_filter = ('tipo_movimiento',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
+    fields = ('operario', 'tipo_movimiento', 'hora_fichada')
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si es una nueva instancia
+            obj.origen_fichada = 'Manual'
+        super().save_model(request, obj, form, change)
+
+    formfield_overrides = {
+        models.DateTimeField: {'widget': AdminSplitDateTime},
+    }
 
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(admin.ModelAdmin):
-    list_display = ('operario', 'fecha', 'horas_trabajadas')
+    list_display = ('operario', 'fecha', 'get_horas_trabajadas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    list_filter = ('fecha',)
+    list_filter = ('fecha',('fecha', DateRangeFilter))
 
-@admin.register(Horas_feriado)
-class HorasFeriadoAdmin(admin.ModelAdmin):
-    list_display = ('operario', 'fecha', 'horas_feriado')
-    search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    list_filter = ('fecha',)
+    def get_horas_trabajadas(self, obj):
+        # Convertir timedelta a formato horas y minutos
+        total_seconds = obj.horas_trabajadas.total_seconds()
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+
+    get_horas_trabajadas.short_description = 'Horas Trabajadas'
+
+    def recalcular_horas_trabajadas(self, request, queryset):
+        for obj in queryset:
+            Horas_trabajadas.calcular_horas_trabajadas(obj.operario, obj.fecha)
+        self.message_user(request, "Horas trabajadas recalculadas con éxito.")
+
+    recalcular_horas_trabajadas.short_description = "Recalcular horas trabajadas seleccionadas"
 
 @admin.register(Horas_extras)
 class HorasExtrasAdmin(admin.ModelAdmin):
-    list_display = ('operario', 'mes', 'horas_extras')
+    list_display = ('operario', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    list_filter = ('mes',)
+    list_filter = ('fecha',('fecha', DateRangeFilter))
+
+    def get_horas_extras(self, obj):
+        # Convertir timedelta a formato horas y minutos
+        total_seconds = obj.horas_extras.total_seconds()
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+
+    get_horas_extras.short_description = 'Horas Extras'
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(admin.ModelAdmin):
