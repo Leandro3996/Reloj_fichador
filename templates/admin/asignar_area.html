@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h2>Asignar área a los operarios seleccionados</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div>
+      <label for="area">Seleccionar área:</label>
+      <select name="area" id="area">
+        {% for area in areas %}
+          <option value="{{ area.id }}">{{ area.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <input type="submit" name="apply" value="Asignar área">
+    </div>
+  </form>
+{% endblock %}

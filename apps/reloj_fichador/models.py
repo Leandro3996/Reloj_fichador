@@ -31,17 +31,17 @@ class Operario(models.Model):
     fecha_nacimiento = models.DateField(null=True, blank=True)
     fecha_ingreso_empresa = models.DateField(null=True, blank=True)
     titulo_tecnico = models.BooleanField(default=False)
+    activo = models.BooleanField(default=True)  # Nuevo campo
 
     def __str__(self):
-        # Construyendo el nombre completo considerando nombres y apellidos secundarios
         full_name = f"{self.nombre}"
         if self.seg_nombre:
             full_name += f" {self.seg_nombre}"
         full_name += f" {self.apellido}"
         if self.seg_apellido:
             full_name += f" {self.seg_apellido}"
-
         return f"{self.dni} - {full_name}"
+
 
 class RegistroDiario(models.Model):
     TIPO_MOVIMIENTO = [

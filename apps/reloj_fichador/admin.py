@@ -1,20 +1,76 @@
 from rangefilter.filters import DateRangeFilter
 from django.contrib import admin
+from django.shortcuts import render
 from django.db import models
 from django.contrib.admin.widgets import AdminSplitDateTime
 from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_extras, Horas_totales, Area, Horario
+from django.urls import path
 from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
+
+class ActivoInactivoFilter(admin.SimpleListFilter):
+    title = _('Activo/Inactivo')
+    parameter_name = 'activo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', _('Activo')),
+            ('0', _('Inactivo')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == '1':
+            return queryset.filter(activo=True)
+        elif self.value() == '0':
+            return queryset.filter(activo=False)
+        return queryset
 
 @admin.register(Operario)
 class OperarioAdmin(admin.ModelAdmin):
-    list_display = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico', 'get_areas',)
-    list_filter = ('areas', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico',)
-    search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa','titulo_tecnico',)
+    list_display = (
+    'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo')
+    list_filter = ('areas',('fecha_nacimiento', DateRangeFilter), ('fecha_ingreso_empresa',DateRangeFilter), 'titulo_tecnico', ActivoInactivoFilter)
+    search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico')
     filter_horizontal = ('areas',)
+    actions = ['asignar_area']
 
     def get_areas(self, obj):
         return ", ".join([area.nombre for area in obj.areas.all()])
+
     get_areas.short_description = 'Áreas'
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset
+
+    # Acción personalizada para asignar área
+    def asignar_area(self, request, queryset):
+        if 'apply' in request.POST:
+            area_id = request.POST.get('area')
+            if not area_id:
+                self.message_user(request, "No se seleccionó ninguna área.", level='error')
+                return
+
+            try:
+                area = Area.objects.get(id=area_id)
+                print(f"Área seleccionada: {area.nombre}")  # Depuración: confirmar el área seleccionada
+            except Area.DoesNotExist:
+                self.message_user(request, "El área seleccionada no existe.", level='error')
+                return
+
+            for operario in queryset:
+                print(f"Asignando área a operario: {operario.nombre}")  # Depuración: confirmación de operario
+                operario.areas.add(area)  # Asignar el área seleccionada al operario
+                operario.save()  # Guardar los cambios en la base de datos
+                print(f"Área '{area.nombre}' asignada a {operario.nombre}")  # Depuración: confirmación de asignación
+
+            self.message_user(request, f"Área '{area.nombre}' asignada a {queryset.count()} operario(s).")
+            return
+        else:
+            areas = Area.objects.all()
+            return render(request, 'admin/asignar_area.html', {'operarios': queryset, 'areas': areas})
+
+    asignar_area.short_description = "Asignar área a los operarios seleccionados"
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(admin.ModelAdmin):
