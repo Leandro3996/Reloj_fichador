@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
-from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales
+from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales, Licencia
+from django import forms
 from django.http import HttpResponse
 
 
@@ -94,3 +95,8 @@ def validar_secuencia_movimiento(operario, nuevo_movimiento, is_admin=False):
         print(f"No se encontraron registros previos para el operario {operario.dni}.")
         # Si no hay un último registro, solo 'entrada' es válida
         return nuevo_movimiento == 'entrada', None
+
+class LicenciaForm(forms.ModelForm):
+    class Meta:
+        model = Licencia
+        fields = ['archivo', 'descripcion']

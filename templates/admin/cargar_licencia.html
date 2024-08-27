@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Cargar Licencia para {{ registro_asistencia.operario }}</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">Cargar Licencia</button>
+  </form>
+
+  <br>
+  <a href="{% url 'admin:reloj_fichador_registroasistencia_changelist' %}">Volver a la lista de registros</a>
+{% endblock %}

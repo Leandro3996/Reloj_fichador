@@ -86,3 +86,132 @@ footer {
     text-transform: uppercase;
 }
 
+/* Fondo y contenedor principal */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.login-container {
+    display: flex;
+    width: 900px;
+    height: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.login-image {
+    flex: 1;
+    background-image: url("{% static 'images/login-background.jpg' %}");
+    background-size: cover;
+    background-position: center;
+}
+
+.login-form {
+    flex: 1;
+    background-color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form header h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #4CAF50;
+    text-align: center;
+}
+
+.input-container {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.input-container input:focus {
+    border-color: #4CAF50;
+}
+
+.accept-button {
+    padding: 15px;
+    font-size: 16px;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.accept-button:hover {
+    background-color: #43A047;
+}
+
+.messages .error {
+    text-transform: uppercase;
+    color: red;
+    margin-top: 20px;
+}
+
+.menu-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.menu-button {
+    padding: 15px 30px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: #43A047;
+}
+
+footer {
+    text-align: center;
+    padding: 10px 0;
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+    }
+
+    .login-image {
+        height: 200px;
+    }
+
+    .login-form {
+        padding: 20px;
+    }
+}

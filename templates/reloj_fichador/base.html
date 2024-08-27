@@ -7,67 +7,81 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
+        /* Estilo para el estado activo de los botones */
         .menu-button.active {
-            background-color: #4CAF50; /* Verde, o el color que prefieras */
+            background-color: #4CAF50;
             color: white;
+        }
+
+        /* Mensaje del autor en la esquina inferior derecha */
+        .autor-message {
+            position: absolute;
+            bottom: 10px; /* Ajusta el margen inferior */
+            right: 10px; /* Ajusta el margen derecho */
+            color: white;
+            font-size: 14px;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+            padding: 5px 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Reloj Fichador</h1>
-    </header>
-    <main>
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="{{ message.tags }}">
-                {{ message }}
-            </div>
-            {% endfor %}
+    <div class="login-container">
+        <div class="login-image">
+            <!-- Imagen de fondo -->
         </div>
-        {% endif %}
+        <div class="login-form">
+            <header>
+                <h1>Control Horarios</h1>
+            </header>
+            <main>
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
-        <div class="menu-container">
-            <!-- Aquí se definen los botones para cada tipo de movimiento -->
-            <button class="menu-button" onclick="setTipoMovimiento('entrada')">Entrada (Q)</button>
-            <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida transitoria (V)</button>
-            <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada transitoria (M)</button>
-            <button class="menu-button" onclick="setTipoMovimiento('salida')">Salida (P)</button>
-        </div>
+                <div class="menu-container">
+                    <!-- Aquí se definen los botones para cada tipo de movimiento -->
+                    <button class="menu-button" onclick="setTipoMovimiento('entrada')">Entrada (Q)</button>
+                    <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida transitoria (V)</button>
+                    <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada transitoria (M)</button>
+                    <button class="menu-button" onclick="setTipoMovimiento('salida')">Salida (P)</button>
+                </div>
 
-        <div class="dni-container">
-            <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento_tipo' 'entrada' %}">
-                {% csrf_token %}
-                <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
-                <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required>
-                <button type="submit" class="accept-button">Aceptar</button>
-            </form>
+                <div class="input-container">
+                    <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento_tipo' 'entrada' %}">
+                        {% csrf_token %}
+                        <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
+                        <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required>
+                        <button type="submit" class="accept-button">Aceptar</button>
+                    </form>
+                </div>
+                {% if error %}
+                    <div class="error-message">
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
+            </main>
+            <footer>
+                <p>&copy; 2024 Control Horarios</p>
+            </footer>
         </div>
-        {% if error %}
-            <div class="error-message">
-                <p>{{ error }}</p>
-            </div>
-        {% endif %}
-    </main>
-    <footer>
-        <p>&copy; 2024 Reloj Fichador</p>
-    </footer>
+    </div>
 
     <script>
         function setTipoMovimiento(tipo) {
-            // Eliminar la clase active de todos los botones
             document.querySelectorAll('.menu-button').forEach(button => {
                 button.classList.remove('active');
             });
 
-            // Establece el tipo de movimiento en el campo oculto
             document.getElementById('tipo_movimiento').value = tipo;
-
-            // Cambia la acción del formulario según el tipo de movimiento
             document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento_tipo' 'placeholder_tipo' %}".replace('placeholder_tipo', tipo);
-
-            // Añade la clase active al botón correcto
             document.querySelector(`.menu-button[onclick="setTipoMovimiento('${tipo}')"]`).classList.add('active');
         }
 
@@ -91,19 +105,39 @@
                 }
             });
 
-            // Enfocar automáticamente el campo DNI al cargar la página
             dniInput.focus();
-
-            // Reestablecer el enfoque al campo DNI cada vez que intenta perderlo
             dniInput.addEventListener('blur', function() {
                 setTimeout(() => dniInput.focus(), 10);
             });
 
-            // Asegurar que solo se puedan ingresar números
             dniInput.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
+
+            // Lista de imágenes de fondo
+            const images = [
+                "{% static 'images/login-background1.jpg' %}",
+                "{% static 'images/login-background2.jpg' %}",
+                "{% static 'images/login-background3.jpg' %}"
+            ];
+
+            let currentIndex = 0;
+
+            function changeBackground() {
+                // Cambiar la imagen de fondo
+                document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+
+                // Actualizar el índice para la próxima imagen
+                currentIndex = (currentIndex + 1) % images.length; // Vuelve al inicio cuando llegue al final
+            }
+
+            // Cambiar la imagen cada 5 minutos (300000 ms)
+            setInterval(changeBackground, 60000); // Cambia el tiempo según tu preferencia (en milisegundos)
         });
     </script>
+
+    <div class="autor-message">
+        <p>Leandro Pizarro</p>        
+    </div>
 </body>
 </html>

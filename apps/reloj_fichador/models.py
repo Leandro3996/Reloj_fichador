@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, F, ExpressionWrapper, fields
 from django.utils import timezone
 from django.utils.timezone import is_naive, make_aware
 from django.core.exceptions import ValidationError
@@ -21,10 +21,6 @@ class Area(models.Model):
 
     def __str__(self):
         return self.nombre
-
-
-from django.db import models
-
 
 class Operario(models.Model):
     dni = models.IntegerField(unique=True)
@@ -56,10 +52,19 @@ def validate_file_extension(value):
 class Licencia(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE, related_name='licencias')
     archivo = models.FileField(upload_to='licencias/', validators=[validate_file_extension])
+    descripcion = models.TextField(blank=True, null=True)
     fecha_subida = models.DateField(auto_now_add=True)
+    fecha_inicio = models.DateField(null=True, blank=True)  # Fecha de inicio de la licencia
+    fecha_fin = models.DateField(null=True, blank=True)  # Fecha de fin de la licencia
+
+    @property
+    def duracion(self):
+        if self.fecha_inicio and self.fecha_fin:
+            return (self.fecha_fin - self.fecha_inicio).days
+        return None
 
     def __str__(self):
-        return f"Licencia {self.archivo.name} para {self.operario.nombre}"
+        return f"Licencia {self.archivo.name} para {self.operario.nombre} ({self.duracion} días)"
 
 class RegistroDiario(models.Model):
     TIPO_MOVIMIENTO = [
@@ -110,13 +115,6 @@ class RegistroDiario(models.Model):
         except AttributeError as e:
             # Manejar específicamente el caso de un error en las horas trabajadas
             raise ValidationError(f"Error al calcular horas: {str(e)}. Verifique la secuencia de fichadas.")
-
-class Licencias(models.Model):
-    dni = models.IntegerField(unique=True)
-    nombre = models.CharField(max_length=20)
-    apellido = models.CharField(max_length=20)
-    descripcion = models.CharField(max_length=250)
-    certificado = models.ImageField()
 
 class Horas_trabajadas(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)

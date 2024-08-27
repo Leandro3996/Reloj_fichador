@@ -1,6 +1,6 @@
 from rangefilter.filters import DateRangeFilter
 from django.contrib import admin
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db import models
 from django.contrib.admin.widgets import AdminSplitDateTime
 from django.core.management.base import BaseCommand
@@ -10,6 +10,8 @@ from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_extras, Ho
 from django.urls import path, reverse
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
+from .forms import LicenciaForm
+
 
 
 class Command(BaseCommand):
@@ -47,6 +49,9 @@ class ActivoInactivoFilter(admin.SimpleListFilter):
 class LicenciaInline(admin.TabularInline):
     model = Licencia
     extra = 1
+    fields = ['archivo', 'fecha_subida']
+    readonly_fields = ['fecha_subida']
+
 
 @admin.register(Operario)
 class OperarioAdmin(admin.ModelAdmin):
@@ -222,14 +227,14 @@ class AreaAdmin(admin.ModelAdmin):
 @admin.register(RegistroAsistencia)
 class RegistroAsistenciaAdmin(admin.ModelAdmin):
     list_display = (
-    'operario', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones')
+        'operario', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones'
+    )
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     actions = ['marcar_justificado', 'marcar_no_justificado']
 
     def estado_justificacion_selector(self, obj):
         return '✅' if obj.estado_justificacion else '❌'
-
     estado_justificacion_selector.short_description = 'Justificación'
 
     def marcar_justificado(self, request, queryset):
@@ -245,7 +250,6 @@ class RegistroAsistenciaAdmin(admin.ModelAdmin):
             '<a class="button" href="{}">Cargar Licencia</a>',
             reverse('admin:cargar_licencia', args=[obj.pk])
         )
-
     acciones.short_description = 'Acciones'
 
     def get_urls(self):
@@ -257,5 +261,20 @@ class RegistroAsistenciaAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def cargar_licencia(self, request, pk):
-        # Implementar la lógica para cargar la licencia y descripción
-        pass
+        registro_asistencia = get_object_or_404(RegistroAsistencia, pk=pk)
+
+        if request.method == 'POST':
+            form = LicenciaForm(request.POST, request.FILES)
+            if form.is_valid():
+                licencia = form.save(commit=False)
+                licencia.operario = registro_asistencia.operario
+                licencia.save()
+                registro_asistencia.estado_justificacion = True
+                registro_asistencia.descripcion = form.cleaned_data['descripcion']
+                registro_asistencia.save()
+                return redirect('admin:reloj_fichador_registroasistencia_changelist')
+        else:
+            form = LicenciaForm()
+
+        return render(request, 'admin/cargar_licencia.html', {'form': form, 'registro_asistencia': registro_asistencia})
+
