@@ -245,8 +245,6 @@ class Horas_feriado(models.Model):
             return obj.horas_feriado
         return timedelta()
 
-from django.utils.timezone import is_naive, make_aware
-
 class Horas_extras(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)

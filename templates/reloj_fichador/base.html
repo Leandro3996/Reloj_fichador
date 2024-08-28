@@ -118,7 +118,10 @@
             const images = [
                 "{% static 'images/login-background1.jpg' %}",
                 "{% static 'images/login-background2.jpg' %}",
-                "{% static 'images/login-background3.jpg' %}"
+                "{% static 'images/login-background3.jpg' %}",
+                "{% static 'images/login-background4.jpg' %}",
+                "{% static 'images/login-background5.jpg' %}",
+                "{% static 'images/login-background6.jpg' %}"
             ];
 
             let currentIndex = 0;
@@ -131,13 +134,31 @@
                 currentIndex = (currentIndex + 1) % images.length; // Vuelve al inicio cuando llegue al final
             }
 
-            // Cambiar la imagen cada 5 minutos (300000 ms)
-            setInterval(changeBackground, 60000); // Cambia el tiempo según tu preferencia (en milisegundos)
-        });
+            // Cambiar la imagen cada 60 segundos (60000 ms)
+            setInterval(changeBackground, 60000);
+
+            // Mostrar la primera imagen al cargar la página
+            document.addEventListener('DOMContentLoaded', function() {
+                changeBackground(); // Muestra la primera imagen inmediatamente
+            });
     </script>
 
     <div class="autor-message">
-        <p>Leandro Pizarro</p>        
+        <p id="current-date-time"></p>        
     </div>
+
+    <script>
+        function updateDateTime() {
+            const currentDateTime = new Date();
+            const formattedDateTime = currentDateTime.toLocaleString(); // Formato local de fecha y hora
+            document.getElementById("current-date-time").textContent = formattedDateTime;
+        }
+
+        // Actualizar la fecha y hora actuales al cargar la página
+        updateDateTime();
+
+        // Opcional: Si deseas que la hora se actualice cada segundo, puedes usar setInterval
+        setInterval(updateDateTime, 1000);
+    </script>
 </body>
 </html>

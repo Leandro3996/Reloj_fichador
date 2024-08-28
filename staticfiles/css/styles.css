@@ -1,92 +1,4 @@
-/* static/css/styles.css */
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-header {
-    background-color: #00bcd4;
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-.menu-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 20px 0;
-}
-
-.menu-button {
-    padding: 30px 50px;
-    font-size: 18px;
-    color: #fff;
-    background-color: #00bcd4;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.menu-button:hover {
-    background-color: #0097a7;
-}
-
-.dni-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0;
-}
-
-.dni-container input[type="text"] {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 200px;
-    margin-right: 10px;
-}
-
-.accept-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #00bcd4;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.accept-button:hover {
-    background-color: #0097a7;
-}
-
-footer {
-    text-align: center;
-    padding: 10px 0;
-    background-color: #00bcd4;
-    color: #fff;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-}
-
-.menu-button.active {
-    background-color: #4CAF50; /* Verde, o el color que prefieras */
-    color: white;
-}
-
-.messages .error {
-    text-transform: uppercase;
-}
-
-/* Fondo y contenedor principal */
+/* Fondo de pantalla completa */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -95,29 +7,26 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f4f4f4;
-}
-
-.login-container {
-    display: flex;
-    width: 900px;
-    height: 500px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.login-image {
-    flex: 1;
-    background-image: url("{% static 'images/login-background.jpg' %}");
     background-size: cover;
     background-position: center;
+    background-image: url('/static/images/login-background1.jpg'); /* Imagen inicial */
+    transition: background-image 1s ease-in-out; /* Transición suave */
 }
 
-.login-form {
-    flex: 1;
-    background-color: white;
+/* Contenedor del formulario con fondo muy transparente y desenfoque */
+.login-container {
+    background-color: rgba(255, 255, 255, 0.2); /* Fondo blanco más transparente */
+    backdrop-filter: blur(10px); /* Efecto de desenfoque */
     padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37); /* Sombra más suave */
+    max-width: 800px;
+    width: 100%;
+    min-height: 550px; /* Ajuste de alto mínimo */
+}
+
+/* Estilo del formulario */
+.login-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -126,92 +35,135 @@ body {
 .login-form header h1 {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #4CAF50;
+    color: #ffffff; /* Cambiado a blanco para que resalte mejor */
     text-align: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    padding: 10px;
+    border-radius: 8px;
 }
 
+/* Texto de mensaje exitoso */
+.messages {
+    text-align: center;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    padding: 5px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* Estilo de los inputs */
 .input-container {
     margin-bottom: 20px;
-    position: relative;
+    width: 100%; /* Asegura que el contenedor cubra todo el ancho */
+    display: flex;
+    justify-content: center; /* Centrar el input horizontalmente */
+    flex-direction: column; /* Alinear en columna para que el input y el botón estén uno debajo del otro */
+    align-items: center; /* Alinear elementos en el centro */
 }
 
 .input-container input {
-    width: 100%;
+    width: 765px; /* Ancho del input */
+    height: 40px; /* Alto del input */
     padding: 15px;
-    font-size: 16px;
+    font-size: 18px; /* Tamaño de la fuente */
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
     transition: border-color 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.6); /* Fondo blanco semitransparente */
+    margin-bottom: 15px; /* Espacio entre el input y el botón */
 }
 
 .input-container input:focus {
     border-color: #4CAF50;
 }
 
+/* Botones con estilo adaptado */
 .accept-button {
     padding: 15px;
-    font-size: 16px;
+    font-size: 18px;
     color: white;
-    background-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.8); /* Fondo verde semi-transparente */
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 800px; /* Controla el ancho del botón de aceptar */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
 }
 
 .accept-button:hover {
-    background-color: #43A047;
+    background-color: rgba(56, 142, 60, 0.9); /* Fondo verde más oscuro al pasar el cursor */
+    transform: translateY(-2px); /* Efecto de elevación en hover */
 }
 
-.messages .error {
-    text-transform: uppercase;
-    color: red;
-    margin-top: 20px;
-}
-
+/* Botones de movimiento */
 .menu-container {
     display: flex;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between;
     margin: 20px 0;
 }
 
+/* Botones del menú */
 .menu-button {
-    padding: 15px 30px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #4CAF50;
+    padding: 15px;
+    font-size: 18px;
+    color: white;
+    background-color: rgba(76, 175, 80, 0.8); /* Fondo verde semi-transparente */
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%; /* Controla el ancho de los botones de menú */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
 }
 
 .menu-button:hover {
-    background-color: #43A047;
+    background-color: rgba(56, 142, 60, 0.9); /* Fondo verde más oscuro al pasar el cursor */
+    transform: translateY(-2px); /* Efecto de elevación en hover */
 }
 
+/* Ajuste del footer */
 footer {
     text-align: center;
     padding: 10px 0;
-    background-color: #4CAF50;
     color: #fff;
 }
 
 @media (max-width: 768px) {
     .login-container {
-        flex-direction: column;
-        width: 100%;
-        height: auto;
-    }
-
-    .login-image {
-        height: 200px;
-    }
-
-    .login-form {
         padding: 20px;
+        max-width: 100%;
     }
+
+    .menu-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .menu-button {
+        width: 100%;
+    }
+}
+
+/* Mensajes de error */
+.messages .error {
+    text-transform: uppercase;
+}
+
+.menu-button.active {
+    background-color: #4CAF50; /* Verde, o el color que prefieras */
+    color: white;
+}
+
+.autor-message {
+    position: absolute;
+    bottom: 10px; /* Ajusta el margen inferior */
+    right: 10px; /* Ajusta el margen derecho */
+    color: white;
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
+    padding: 5px 10px;
+    border-radius: 5px;
 }

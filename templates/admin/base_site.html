@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        /* Estilos para hacer las tablas responsivas */
+        @media (max-width: 768px) {
+            .model-listing {
+                overflow-x: auto;
+            }
+            table {
+                width: 100%;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            th, td {
+                padding: 10px;
+                text-align: left;
+                white-space: nowrap;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+    <script>
+        document.addEventListener('keydown', function(event) {
+            // Seleccionar todas las tablas dentro del contenedor de listado de modelos
+            const tables = document.querySelectorAll('.model-listing');
+
+            // Comprobar si alguna tabla está presente
+            if (tables.length > 0) {
+                // Obtener la primera tabla (o ajustar para todas las tablas)
+                const table = tables[0];
+
+                // Desplazar con las teclas de flecha
+                if (event.key === "ArrowLeft") {
+                    table.scrollLeft -= 50; // Desplazar hacia la izquierda
+                } else if (event.key === "ArrowRight") {
+                    table.scrollLeft += 50; // Desplazar hacia la derecha
+                }
+            console.log("Tecla presionada: ", event.key);  // Verifica si el evento se dispara
+            }
+        });
+    </script>
+{% endblock %}

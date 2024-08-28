@@ -29,7 +29,11 @@ def registrar_movimiento_tipo(request, tipo):
 
         if not es_valido:
             if ultimo_movimiento:
-                mensaje_error = f"Inconsistencia: su última fichada fue '{ultimo_movimiento}'.".upper()
+                # Obtén el registro del último movimiento para utilizar get_tipo_movimiento_display
+                ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
+                ultimo_movimiento_legible = ultimo_registro.get_tipo_movimiento_display()
+
+                mensaje_error = f"Inconsistencia: su última fichada fue '{ultimo_movimiento_legible}'.".upper()
             else:
                 mensaje_error = "Error: No se encontraron registros previos, y el primer movimiento debe ser 'Entrada'.".upper()
             messages.error(request, mensaje_error)
