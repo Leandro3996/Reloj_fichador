@@ -11,7 +11,7 @@ from django.urls import path, reverse
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 from .forms import LicenciaForm
-
+from .utils import generar_pdf, generar_excel
 
 
 class Command(BaseCommand):
@@ -101,23 +101,36 @@ class OperarioAdmin(admin.ModelAdmin):
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(admin.ModelAdmin):
-    list_display = ('operario', 'tipo_movimiento', 'hora_fichada','origen_fichada')
+    list_display = ('operario', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
     list_filter = ('tipo_movimiento',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     fields = ('operario', 'tipo_movimiento', 'hora_fichada')
+    actions = ['exportar_pdf', 'exportar_excel']
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.select_related('operario')  # Optimiza la relación ForeignKey con operario
-
-    def save_model(self, request, obj, form, change):
-        if not change:  # Si es una nueva instancia
-            obj.origen_fichada = 'Manual'
-        super().save_model(request, obj, form, change)
-
-    formfield_overrides = {
-        models.DateTimeField: {'widget': AdminSplitDateTime},
+    HEADER_MAP = {
+        'operario': 'Operario',
+        'tipo_movimiento': 'Tipo Movimiento',
+        'hora_fichada': 'Hora Fichada',
+        'origen_fichada': 'Origen Fichada',
     }
+
+    def exportar_pdf(self, request, queryset):
+        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
+        encabezados = [self.HEADER_MAP[campo] for campo in campos]
+        return generar_pdf(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
+    exportar_pdf.short_description = "Exportar a PDF"
+
+    def exportar_excel(self, request, queryset):
+        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
+        encabezados = [self.HEADER_MAP[campo] for campo in campos]
+        return generar_excel(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
+    exportar_excel.short_description = "Exportar a Excel"
+
+    def formatted_hora_fichada(self, obj):
+        return obj.hora_fichada.strftime('%Y-%m-%d %H:%M:%S')
+    formatted_hora_fichada.short_description = 'Hora Fichada'
+
+
 
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(admin.ModelAdmin):
@@ -133,7 +146,8 @@ class HorasTrabajadasAdmin(admin.ModelAdmin):
         total_seconds = obj.horas_trabajadas.total_seconds()
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        seconds = int(total_seconds % 60)
+        return f"{hours}h {minutes}m {seconds}s"
 
     get_horas_trabajadas.short_description = 'Horas Trabajadas'
 
@@ -141,7 +155,8 @@ class HorasTrabajadasAdmin(admin.ModelAdmin):
         total_seconds = obj.horas_nocturnas.total_seconds()
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        seconds = int(total_seconds % 60)
+        return f"{hours}h {minutes}m {seconds}s"
 
     get_horas_nocturnas.short_description = 'Horas Nocturnas'
 
