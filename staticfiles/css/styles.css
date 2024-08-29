@@ -65,14 +65,20 @@ body {
 .input-container input {
     width: 765px; /* Ancho del input */
     height: 40px; /* Alto del input */
-    padding: 15px;
-    font-size: 18px; /* Tamaño de la fuente */
+    padding: 10px; /* Reducir el padding para permitir un mayor tamaño de fuente sin aumentar el tamaño del campo */
+    font-size: 24px; /* Tamaño de la fuente aumentado */
+    text-align: center; /* Centrar el texto dentro del input */
     border: 1px solid #ccc;
     border-radius: 5px;
     outline: none;
     transition: border-color 0.3s ease;
     background-color: rgba(255, 255, 255, 0.6); /* Fondo blanco semitransparente */
     margin-bottom: 15px; /* Espacio entre el input y el botón */
+}
+
+.input-container input::placeholder {
+    text-align: center; /* Asegura que el texto del placeholder también esté centrado */
+    color: rgba(0, 0, 0, 0.5); /* Ajustar el color del placeholder si es necesario */
 }
 
 .input-container input:focus {
@@ -147,23 +153,59 @@ footer {
     }
 }
 
+/* Clase para la elevación al usar teclas */
+.menu-button.elevate {
+    transform: translateY(-2px); /* Efecto de elevación similar al hover */
+}
+
+
 /* Mensajes de error */
 .messages .error {
     text-transform: uppercase;
 }
 
+/* Estilo para el estado activo de los botones */
 .menu-button.active {
-    background-color: #4CAF50; /* Verde, o el color que prefieras */
+    background-color: #4CAF50;
     color: white;
 }
 
+/* Mensaje del autor en la esquina inferior derecha */
 .autor-message {
     position: absolute;
-    bottom: 10px; /* Ajusta el margen inferior */
+    bottom: 10px; /* Ajusta el margen inferior */ 
     right: 10px; /* Ajusta el margen derecho */
     color: white;
-    font-size: 14px;
+    font-size: 17px;
     background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
     padding: 5px 10px;
     border-radius: 5px;
+    width: 140px;
+    text-align: center;
 }
+
+#weather-widget {
+    margin-bottom: 10px; /* Espacio entre el clima y la fecha/hora */
+}
+
+#weather-location {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#weather-temp {
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+#weather-description {
+    font-size: 12px;
+    text-transform: capitalize;
+}
+.custom-footer {
+    margin-top: 80px; /* Ajusta la cantidad según sea necesario */
+    text-align: center;
+    color: #fff;
+    font-size: 16px; /* Puedes ajustar el tamaño de la fuente si lo deseas */
+}
+

@@ -61,7 +61,10 @@ def registrar_movimiento_tipo(request, tipo):
         messages.success(request, success_message)
         return redirect('reloj_fichador:home')
     except Operario.DoesNotExist:
-        return render(request, 'reloj_fichador/base.html', {'error': 'Operario no encontrado'.upper()})
+        error_message = "Operario no encontrado ⚠️".upper()
+        messages.error(request, error_message)
+        return redirect('reloj_fichador:home')
+
 
 def validar_secuencia_movimiento(operario, nuevo_movimiento, is_admin=False):
     ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()

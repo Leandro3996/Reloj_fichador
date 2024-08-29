@@ -19,8 +19,8 @@ SECRET_KEY = 'django-insecure-mp&6m=!k202ckikyskc^td9pj3r&luzc$kuo+v1!9@$q@l7c0q
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51','192.168.68.54']
-
+ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51', '192.168.68.54']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -50,7 +50,7 @@ ROOT_URLCONF = 'mantenedor.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Asegúrate de que esta línea apunta a la ubicación correcta
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,7 +73,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'horesdb',
         'USER': 'root',
-        'PASSWORD': 'Elegance.3996',
+        'PASSWORD': 'S1st3mas.1999',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -111,4 +111,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/5'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+# Configuraciones adicionales para sesiones y CSRF
 
+# Duración de la sesión y el token CSRF
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
+CSRF_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
+
+# Guardar la sesión en cada solicitud para prolongar su duración
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Desactivar la seguridad de las cookies ya que no estás utilizando HTTPS
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+# Establecer SameSite para proteger las cookies contra CSRF
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Desactivar HTTPOnly para permitir acceso al token CSRF desde JavaScript si es necesario
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = False
