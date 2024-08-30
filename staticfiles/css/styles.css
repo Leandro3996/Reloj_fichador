@@ -44,6 +44,7 @@ body {
 
 /* Texto de mensaje exitoso */
 .messages {
+    font-size: 18px;
     text-align: center;
     color: #ffffff;
     background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semi-transparente */
@@ -90,7 +91,7 @@ body {
     padding: 15px;
     font-size: 18px;
     color: white;
-    background-color: rgba(76, 175, 80, 0.8); /* Fondo verde semi-transparente */
+    background-color: #4CAF50; /* Fondo verde semi-transparente */
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -116,7 +117,7 @@ body {
     padding: 15px;
     font-size: 18px;
     color: white;
-    background-color: rgba(76, 175, 80, 0.8); /* Fondo verde semi-transparente */
+    background-color: #4CAF50; /* Fondo verde */
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -155,18 +156,13 @@ footer {
 
 /* Clase para la elevación al usar teclas */
 .menu-button.elevate {
-    transform: translateY(-2px); /* Efecto de elevación similar al hover */
+    transform: translateY(-5px); /* Efecto de elevación similar al hover */
 }
 
-
-/* Mensajes de error */
-.messages .error {
-    text-transform: uppercase;
-}
 
 /* Estilo para el estado activo de los botones */
 .menu-button.active {
-    background-color: #4CAF50;
+    background-color: rgba(56, 142, 60, 0.9);
     color: white;
 }
 
@@ -207,5 +203,13 @@ footer {
     text-align: center;
     color: #fff;
     font-size: 16px; /* Puedes ajustar el tamaño de la fuente si lo deseas */
+}
+/* Mensajes de error */
+.messages .error {
+    text-transform: uppercase;   
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid red;
 }
 
