@@ -114,6 +114,11 @@ class RegistroDiarioAdmin(admin.ModelAdmin):
         'origen_fichada': 'Origen Fichada',
     }
 
+    def save_model(self, request, obj, form, change):
+        if not change:  # Solo si es un nuevo registro
+            obj.origen_fichada = 'Manual'
+        obj.save()
+
     def exportar_pdf(self, request, queryset):
         campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
         encabezados = [self.HEADER_MAP[campo] for campo in campos]
@@ -129,8 +134,6 @@ class RegistroDiarioAdmin(admin.ModelAdmin):
     def formatted_hora_fichada(self, obj):
         return obj.hora_fichada.strftime('%Y-%m-%d %H:%M:%S')
     formatted_hora_fichada.short_description = 'Hora Fichada'
-
-
 
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(admin.ModelAdmin):
