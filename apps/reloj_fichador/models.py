@@ -137,7 +137,7 @@ class Horas_trabajadas(models.Model):
         salidas = RegistroDiario.objects.filter(
             operario=operario,
             tipo_movimiento='salida',
-            hora_fichada__date=fecha
+            hora_fichada__date=fecha + timedelta(days=1)  # Considerar salida después de medianoche
         ).order_by('hora_fichada')
 
         total_horas_normales = timedelta()
@@ -148,9 +148,28 @@ class Horas_trabajadas(models.Model):
                 entrada = entradas[i].hora_fichada
                 salida = salidas[i].hora_fichada
 
-                horas_normales, horas_nocturnas = cls.dividir_horas_normales_y_nocturnas(entrada, salida)
-                total_horas_normales += horas_normales
-                total_horas_nocturnas += horas_nocturnas
+                # Redondeo de la entrada si es necesario
+                if entrada.hour >= 20:
+                    entrada_redondeada = entrada.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+                elif entrada.hour >= 4 and entrada.hour < 5:
+                    entrada_redondeada = entrada.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+                else:
+                    entrada_redondeada = entrada
+
+                # Redondeo de la salida si es necesario
+                if salida.hour == 5 and salida.minute >= 30:
+                    salida_redondeada = salida.replace(minute=0, second=0, microsecond=0)
+                else:
+                    salida_redondeada = salida
+
+                # Calcular las horas trabajadas desde la entrada redondeada hasta la salida redondeada
+                horas_normales, horas_nocturnas = cls.dividir_horas_normales_y_nocturnas(entrada_redondeada, salida_redondeada)
+
+                # Si el operario fichó entrada entre las 20:00 y las 05:00, no puede haber horas normales
+                if entrada_redondeada.hour >= 20 or entrada_redondeada.hour < 4:
+                    total_horas_nocturnas += horas_nocturnas
+                else:
+                    total_horas_normales += horas_normales
 
                 # Solo excluir si existe una salida correspondiente
                 primera_salida = salidas.first()
@@ -158,10 +177,13 @@ class Horas_trabajadas(models.Model):
                     salidas = salidas.exclude(id_registro=primera_salida.id_registro)
             else:
                 # Considerar que el turno sigue hasta el final del día o una hora específica si no hay salida
-                salida = datetime.combine(fecha, datetime.max.time())
+                salida = datetime.combine(fecha + timedelta(days=1), datetime.max.time())
                 horas_normales, horas_nocturnas = cls.dividir_horas_normales_y_nocturnas(entradas[i].hora_fichada, salida)
-                total_horas_normales += horas_normales
-                total_horas_nocturnas += horas_nocturnas
+
+                if entradas[i].hora_fichada.hour >= 20 or entradas[i].hora_fichada.hour < 4:
+                    total_horas_nocturnas += horas_nocturnas
+                else:
+                    total_horas_normales += horas_normales
 
         # Aplicar redondeos
 
@@ -187,7 +209,7 @@ class Horas_trabajadas(models.Model):
     def dividir_horas_normales_y_nocturnas(entrada, salida):
         # Definir el rango nocturno desde las 21:00 hasta las 05:00 del día siguiente
         inicio_noche = entrada.replace(hour=21, minute=0, second=0)
-        fin_noche = entrada.replace(hour=5, minute=0, second=0) + timedelta(days=1)
+        fin_noche = (entrada + timedelta(days=1)).replace(hour=5, minute=0, second=0)
 
         horas_normales = timedelta()
         horas_nocturnas = timedelta()
@@ -205,12 +227,7 @@ class Horas_trabajadas(models.Model):
                 horas_nocturnas += fin_noche - inicio_noche
                 horas_normales += salida - fin_noche
 
-        # Caso 3: Entrada antes de las 05:00 y salida después de las 05:00, pero dentro del rango normal
-        elif entrada < fin_noche and salida > fin_noche:
-            horas_nocturnas += fin_noche - entrada
-            horas_normales += salida - fin_noche
-
-        # Caso 4: Entrada y salida ambas en el rango nocturno (21:00 - 05:00)
+        # Caso 3: Entrada en el rango nocturno y salida en el rango nocturno
         elif entrada >= inicio_noche or entrada < fin_noche:
             if salida <= fin_noche:
                 horas_nocturnas += salida - entrada
@@ -218,11 +235,12 @@ class Horas_trabajadas(models.Model):
                 horas_nocturnas += fin_noche - entrada
                 horas_normales += salida - fin_noche
 
-        # Caso 5: Entrada después de las 05:00 y salida antes de las 21:00 (horario normal)
+        # Caso 4: Entrada después de las 05:00 y salida antes de las 21:00 (horario normal)
         else:
             horas_normales += salida - entrada
 
         return horas_normales, horas_nocturnas
+
 
 class Horas_feriado(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
@@ -275,15 +293,30 @@ class Horas_extras(models.Model):
             if i < len(salidas):
                 entrada = entradas[i].hora_fichada
                 salida = salidas[i].hora_fichada
-                total_horas_trabajadas += salida - entrada
+
+                # Redondeo de la hora de entrada y salida según la lógica
+                entrada_redondeada = entrada.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+                salida_redondeada = salida.replace(minute=0, second=0, microsecond=0) if salida.minute < 30 else salida.replace(minute=30, second=0, microsecond=0)
+
+                total_horas_trabajadas += salida_redondeada - entrada_redondeada
 
         # Solo considerar horas extras si se supera las 8 horas de trabajo normales
         if total_horas_trabajadas > timedelta(hours=8):
             horas_extras_totales = total_horas_trabajadas - timedelta(hours=8)
 
             # Aplicar redondeo según las condiciones
-            if horas_extras_totales >= timedelta(minutes=45):
-                horas_extras_totales = timedelta(hours=round(horas_extras_totales.total_seconds() / 3600))
+            if horas_extras_totales >= timedelta(hours=2, minutes=45):
+                horas_extras_totales = timedelta(hours=3)
+            if horas_extras_totales >= timedelta(hours=2, minutes=30):
+                horas_extras_totales = timedelta(hours=2, minutes=30)
+            if horas_extras_totales >= timedelta(hours=1, minutes=45):
+                horas_extras_totales = timedelta(hours=2)
+            elif horas_extras_totales >= timedelta(hours=1, minutes=30):
+                horas_extras_totales = timedelta(hours=1, minutes=30)
+            elif horas_extras_totales >= timedelta(hours=1):
+                horas_extras_totales = timedelta(hours=1)
+            elif horas_extras_totales >= timedelta(minutes=45):
+                horas_extras_totales = timedelta(hours=1)
             elif horas_extras_totales >= timedelta(minutes=30):
                 horas_extras_totales = timedelta(minutes=30)
             else:
