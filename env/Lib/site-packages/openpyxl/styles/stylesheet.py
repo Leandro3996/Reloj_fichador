@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from warnings import warn
 
@@ -13,7 +13,7 @@ from openpyxl.xml.constants import ARC_STYLE, SHEET_MAIN_NS
 from openpyxl.xml.functions import fromstring
 
 from .builtins import styles
-from .colors import ColorList
+from .colors import ColorList, COLOR_INDEX
 from .differential import DifferentialStyle
 from .table import TableStyleList
 from .borders import Border
@@ -29,9 +29,7 @@ from .numbers import (
     builtin_format_code
 )
 from .named_styles import (
-    _NamedCellStyleList,
-    NamedStyleList,
-    NamedStyle,
+    _NamedCellStyleList
 )
 from .cell_style import CellStyle, CellStyleList
 
@@ -102,7 +100,7 @@ class Stylesheet(Serialisable):
         attrs = dict(node.attrib)
         for k in attrs:
             del node.attrib[k]
-        return super().from_tree(node)
+        return super(Stylesheet, cls).from_tree(node)
 
 
     def _merge_named_styles(self):
@@ -110,25 +108,20 @@ class Stylesheet(Serialisable):
         Merge named style names "cellStyles" with their associated styles
         "cellStyleXfs"
         """
-        style_refs = self.cellStyles.remove_duplicates()
-        from_ref = [self._expand_named_style(style_ref) for style_ref in style_refs]
+        named_styles = self.cellStyles.names
 
-        return NamedStyleList(from_ref)
+        for style in named_styles:
+            self._expand_named_style(style)
+
+        return named_styles
 
 
-    def _expand_named_style(self, style_ref):
+    def _expand_named_style(self, named_style):
         """
-        Expand a named style reference element to a
-        named style object by binding the relevant
-        objects from the stylesheet
+        Bind format definitions for a named style from the associated style
+        record
         """
-        xf = self.cellStyleXfs[style_ref.xfId]
-        named_style = NamedStyle(
-            name=style_ref.name,
-            hidden=style_ref.hidden,
-            builtinId=style_ref.builtinId,
-        )
-
+        xf = self.cellStyleXfs[named_style.xfId]
         named_style.font = self.fonts[xf.fontId]
         named_style.fill = self.fills[xf.fillId]
         named_style.border = self.borders[xf.borderId]
@@ -136,7 +129,6 @@ class Stylesheet(Serialisable):
             formats = BUILTIN_FORMATS
         else:
             formats = self.custom_formats
-
         if xf.numFmtId in formats:
             named_style.number_format = formats[xf.numFmtId]
         if xf.alignment:
@@ -144,15 +136,12 @@ class Stylesheet(Serialisable):
         if xf.protection:
             named_style.protection = xf.protection
 
-        return named_style
-
 
     def _split_named_styles(self, wb):
         """
         Convert NamedStyle into separate CellStyle and Xf objects
-
         """
-        for  style in wb._named_styles:
+        for style in wb._named_styles:
             self.cellStyles.cellStyle.append(style.as_name())
             self.cellStyleXfs.xf.append(style.as_xf())
 
@@ -191,7 +180,7 @@ class Stylesheet(Serialisable):
 
 
     def to_tree(self, tagname=None, idx=None, namespace=None):
-        tree = super().to_tree(tagname, idx, namespace)
+        tree = super(Stylesheet, self).to_tree(tagname, idx, namespace)
         tree.set("xmlns", SHEET_MAIN_NS)
         return tree
 

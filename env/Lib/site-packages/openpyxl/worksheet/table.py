@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
@@ -168,7 +168,7 @@ class TableColumn(Serialisable):
 
 
     def __iter__(self):
-        for k, v in super().__iter__():
+        for k, v in super(TableColumn, self).__iter__():
             if k == 'name':
                 v = escape(v)
             yield k, v
@@ -176,7 +176,7 @@ class TableColumn(Serialisable):
 
     @classmethod
     def from_tree(cls, node):
-        self = super().from_tree(node)
+        self = super(TableColumn, cls).from_tree(node)
         self.name = unescape(self.name)
         return self
 
@@ -190,7 +190,7 @@ class TableNameDescriptor(String):
     def __set__(self, instance, value):
         if value is not None and " " in value:
             raise ValueError("Table names cannot have spaces")
-        super().__set__(instance, value)
+        super(TableNameDescriptor, self).__set__(instance, value)
 
 
 class Table(Serialisable):
@@ -293,7 +293,7 @@ class Table(Serialisable):
 
 
     def to_tree(self):
-        tree = super().to_tree()
+        tree = super(Table, self).to_tree()
         tree.set("xmlns", SHEET_MAIN_NS)
         return tree
 
@@ -325,7 +325,7 @@ class Table(Serialisable):
         for idx in range(min_col, max_col+1):
             col = TableColumn(id=idx, name="Column{0}".format(idx))
             self.tableColumns.append(col)
-        if self.headerRowCount and not self.autoFilter:
+        if self.headerRowCount:
             self.autoFilter = AutoFilter(ref=self.ref)
 
 

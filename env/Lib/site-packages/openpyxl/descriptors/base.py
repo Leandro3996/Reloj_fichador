@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 
 """
@@ -9,12 +9,11 @@ http://chimera.labs.oreilly.com/books/1230000000393/ch08.html#_discussiuncion_13
 import datetime
 import re
 
-from openpyxl import DEBUG
 from openpyxl.utils.datetime import from_ISO8601
 
 from .namespace import namespaced
 
-class Descriptor:
+class Descriptor(object):
 
     def __init__(self, name=None, **kw):
         self.name = name
@@ -33,18 +32,15 @@ class Typed(Descriptor):
     nested = False
 
     def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self.__doc__ = f"Values must be of type {self.expected_type}"
+        super(Typed, self).__init__(*args, **kw)
+        self.__doc__ = "Values must be of type {0}".format(self.expected_type)
 
     def __set__(self, instance, value):
         if not isinstance(value, self.expected_type):
             if (not self.allow_none
                 or (self.allow_none and value is not None)):
-                msg = f"{instance.__class__}.{self.name} should be {self.expected_type} but value is {type(value)}"
-                if DEBUG:
-                    msg = f"{instance.__class__}.{self.name} should be {self.expected_type} but {value} is {type(value)}"
-                raise TypeError(msg)
-        super().__set__(instance, value)
+                raise TypeError('expected ' + str(self.expected_type))
+        super(Typed, self).__set__(instance, value)
 
     def __repr__(self):
         return  self.__doc__
@@ -69,7 +65,7 @@ class Convertible(Typed):
         if ((self.allow_none and value is not None)
             or not self.allow_none):
             value = _convert(self.expected_type, value)
-        super().__set__(instance, value)
+        super(Convertible, self).__set__(instance, value)
 
 
 class Max(Convertible):
@@ -81,7 +77,7 @@ class Max(Convertible):
     def __init__(self, **kw):
         if 'max' not in kw and not hasattr(self, 'max'):
             raise TypeError('missing max value')
-        super().__init__(**kw)
+        super(Max, self).__init__(**kw)
 
     def __set__(self, instance, value):
         if ((self.allow_none and value is not None)
@@ -89,7 +85,7 @@ class Max(Convertible):
             value = _convert(self.expected_type, value)
             if value > self.max:
                 raise ValueError('Max value is {0}'.format(self.max))
-        super().__set__(instance, value)
+        super(Max, self).__set__(instance, value)
 
 
 class Min(Convertible):
@@ -101,7 +97,7 @@ class Min(Convertible):
     def __init__(self, **kw):
         if 'min' not in kw and not hasattr(self, 'min'):
             raise TypeError('missing min value')
-        super().__init__(**kw)
+        super(Min, self).__init__(**kw)
 
     def __set__(self, instance, value):
         if ((self.allow_none and value is not None)
@@ -109,7 +105,7 @@ class Min(Convertible):
             value = _convert(self.expected_type, value)
             if value < self.min:
                 raise ValueError('Min value is {0}'.format(self.min))
-        super().__set__(instance, value)
+        super(Min, self).__set__(instance, value)
 
 
 class MinMax(Min, Max):
@@ -124,13 +120,13 @@ class Set(Descriptor):
         if not 'values' in kw:
             raise TypeError("missing set of values")
         kw['values'] = set(kw['values'])
-        super().__init__(name, **kw)
+        super(Set, self).__init__(name, **kw)
         self.__doc__ = "Value must be one of {0}".format(self.values)
 
     def __set__(self, instance, value):
         if value not in self.values:
             raise ValueError(self.__doc__)
-        super().__set__(instance, value)
+        super(Set, self).__set__(instance, value)
 
 
 class NoneSet(Set):
@@ -138,13 +134,13 @@ class NoneSet(Set):
     """'none' will be treated as None"""
 
     def __init__(self, name=None, **kw):
-        super().__init__(name, **kw)
+        super(NoneSet, self).__init__(name, **kw)
         self.values.add(None)
 
     def __set__(self, instance, value):
         if value == 'none':
             value = None
-        super().__set__(instance, value)
+        super(NoneSet, self).__set__(instance, value)
 
 
 class Integer(Convertible):
@@ -165,7 +161,7 @@ class Bool(Convertible):
         if isinstance(value, str):
             if value in ('false', 'f', '0'):
                 value = False
-        super().__set__(instance, value)
+        super(Bool, self).__set__(instance, value)
 
 
 class String(Typed):
@@ -193,13 +189,13 @@ class Length(Descriptor):
     def __init__(self, name=None, **kw):
         if "length" not in kw:
             raise TypeError("value length must be supplied")
-        super().__init__(**kw)
+        super(Length, self).__init__(**kw)
 
 
     def __set__(self, instance, value):
         if len(value) != self.length:
             raise ValueError("Value must be length {0}".format(self.length))
-        super().__set__(instance, value)
+        super(Length, self).__set__(instance, value)
 
 
 class Default(Typed):
@@ -211,7 +207,7 @@ class Default(Typed):
     def __init__(self, name=None, **kw):
         if "defaults" not in kw:
             kw['defaults'] = {}
-        super().__init__(**kw)
+        super(Default, self).__init__(**kw)
 
     def __call__(self):
         return self.expected_type()
@@ -220,7 +216,7 @@ class Default(Typed):
 class Alias(Descriptor):
     """
     Aliases can be used when either the desired attribute name is not allowed
-    or confusing in Python (eg. "type") or a more descriptive name is desired
+    or confusing in Python (eg. "type") or a more descriptve name is desired
     (eg. "underline" for "u")
     """
 
@@ -242,7 +238,7 @@ class MatchPattern(Descriptor):
         if 'pattern' not in kw and not hasattr(self, 'pattern'):
             raise TypeError('missing pattern value')
 
-        super().__init__(name, **kw)
+        super(MatchPattern, self).__init__(name, **kw)
         self.test_pattern = re.compile(self.pattern, re.VERBOSE)
 
 
@@ -256,7 +252,7 @@ class MatchPattern(Descriptor):
             if not self.test_pattern.match(value):
                 raise ValueError('Value does not match pattern {0}'.format(self.pattern))
 
-        super().__set__(instance, value)
+        super(MatchPattern, self).__set__(instance, value)
 
 
 class DateTime(Typed):
@@ -269,4 +265,4 @@ class DateTime(Typed):
                 value = from_ISO8601(value)
             except ValueError:
                 raise ValueError("Value must be ISO datetime format")
-        super().__set__(instance, value)
+        super(DateTime, self).__set__(instance, value)

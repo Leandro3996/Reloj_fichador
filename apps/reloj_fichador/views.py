@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
+from weasyprint import HTML
+from django.template.loader import get_template
 from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales, Licencia
 from django import forms
 from django.http import HttpResponse
+from django_tables2 import SingleTableView
+from .models import Operario
+from .tables import OperarioTable
 
 
 def home(request):
@@ -107,3 +112,8 @@ class LicenciaForm(forms.ModelForm):
     class Meta:
         model = Licencia
         fields = ['archivo', 'descripcion']
+
+class OperarioListView(SingleTableView):
+    model = Operario
+    table_class = OperarioTable
+    template_name = "operarios_list.html"

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
@@ -7,7 +7,7 @@ from openpyxl.styles import is_date_format
 from openpyxl.styles.numbers import BUILTIN_FORMATS, BUILTIN_FORMATS_MAX_SIZE
 
 
-class ReadOnlyCell:
+class ReadOnlyCell(object):
 
     __slots__ =  ('parent', 'row', 'column', '_value', 'data_type', '_style_id')
 
@@ -116,7 +116,7 @@ class ReadOnlyCell:
         self._value = value
 
 
-class EmptyCell:
+class EmptyCell(object):
 
     __slots__ = ()
 

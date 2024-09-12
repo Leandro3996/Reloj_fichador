@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """
 File manifest
@@ -10,11 +10,27 @@ from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import String, Sequence
 from openpyxl.xml.functions import fromstring
 from openpyxl.xml.constants import (
+    ARC_CORE,
     ARC_CONTENT_TYPES,
+    ARC_WORKBOOK,
+    ARC_APP,
     ARC_THEME,
     ARC_STYLE,
+    ARC_SHARED_STRINGS,
+    EXTERNAL_LINK,
     THEME_TYPE,
     STYLES_TYPE,
+    XLSX,
+    XLSM,
+    XLTM,
+    XLTX,
+    WORKSHEET_TYPE,
+    COMMENTS_TYPE,
+    SHARED_STRINGS,
+    DRAWING_TYPE,
+    CHART_TYPE,
+    CHARTSHAPE_TYPE,
+    CHARTSHEET_TYPE,
     CONTYPES_NS,
     ACTIVEX,
     CTRL,
@@ -114,7 +130,7 @@ class Manifest(Serialisable):
             if ext not in defaults:
                 mime = FileExtension(ext, mime)
                 self.Default.append(mime)
-        tree = super().to_tree()
+        tree = super(Manifest, self).to_tree()
         tree.set("xmlns", CONTYPES_NS)
         return tree
 

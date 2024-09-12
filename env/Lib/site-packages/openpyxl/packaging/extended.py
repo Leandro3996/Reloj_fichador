@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 
 from openpyxl.descriptors.serialisable import Serialisable
@@ -10,7 +10,13 @@ from openpyxl.descriptors.nested import (
 )
 
 from openpyxl.xml.constants import XPROPS_NS
-from openpyxl import __version__
+
+
+def get_version():
+    from openpyxl import __version__
+
+    VERSION = ".".join(__version__.split(".")[:2])
+    return VERSION
 
 
 class DigSigBlob(Serialisable):
@@ -33,11 +39,7 @@ class ExtendedProperties(Serialisable):
     """
     See 22.2
 
-    Most of this is irrelevant but Excel is very picky about the version number
-
-    It uses XX.YYYY (Version.Build) and expects everyone else to
-
-    We provide Major.Minor and the full version in the application name
+    Most of this is irrelevant
     """
 
     tagname = "Properties"
@@ -98,7 +100,7 @@ class ExtendedProperties(Serialisable):
                  HLinks=None,
                  HyperlinksChanged=None,
                  DigSig=None,
-                 Application=None,
+                 Application="Microsoft Excel",
                  AppVersion=None,
                  DocSecurity=None,
                 ):
@@ -126,12 +128,14 @@ class ExtendedProperties(Serialisable):
         self.HLinks = None
         self.HyperlinksChanged = HyperlinksChanged
         self.DigSig = None
-        self.Application = f"Microsoft Excel Compatible / Openpyxl {__version__}"
-        self.AppVersion = ".".join(__version__.split(".")[:-1])
+        self.Application = Application
+        if AppVersion is None:
+            AppVersion = get_version()
+        self.AppVersion = AppVersion
         self.DocSecurity = DocSecurity
 
 
     def to_tree(self):
-        tree = super().to_tree()
+        tree = super(ExtendedProperties, self).to_tree()
         tree.set("xmlns", XPROPS_NS)
         return tree

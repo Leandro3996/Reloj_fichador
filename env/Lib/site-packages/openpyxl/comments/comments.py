@@ -1,7 +1,7 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 
-class Comment:
+class Comment(object):
 
     _parent = None
 

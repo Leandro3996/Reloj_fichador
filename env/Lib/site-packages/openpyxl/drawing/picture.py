@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.xml.constants import DRAWING_NS
 
@@ -6,6 +6,9 @@ from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
     Typed,
     Bool,
+    NoneSet,
+    Integer,
+    Set,
     String,
     Alias,
 )
@@ -13,8 +16,8 @@ from openpyxl.descriptors.excel import ExtensionList as OfficeArtExtensionList
 
 from openpyxl.chart.shapes import GraphicalProperties
 
-from .fill import BlipFillProperties
-from .properties import NonVisualDrawingProps
+from .fill import RelativeRect, BlipFillProperties
+from .properties import NonVisualDrawingProps, NonVisualGroupDrawingShapeProps
 from .geometry import ShapeStyle
 
 
@@ -23,7 +26,7 @@ class PictureLocking(Serialisable):
     tagname = "picLocks"
     namespace = DRAWING_NS
 
-    # Using attribute group AG_Locking
+    #Using attribute group AG_Locking
     noCrop = Bool(allow_none=True)
     noGrp = Bool(allow_none=True)
     noSelect = Bool(allow_none=True)
@@ -142,3 +145,4 @@ class PictureFrame(Serialisable):
             spPr = GraphicalProperties()
         self.spPr = spPr
         self.style = style
+

@@ -1,5 +1,6 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
+from weakref import ref
 
 from openpyxl.descriptors import Typed, Set, Alias
 from openpyxl.descriptors.excel import ExtensionList
@@ -12,6 +13,7 @@ from openpyxl.worksheet.page import (
     PageMargins,
     PrintPageSetup
 )
+from openpyxl.packaging.relationship import Relationship, RelationshipList
 from openpyxl.worksheet.drawing import Drawing
 from openpyxl.worksheet.header_footer import HeaderFooter
 from openpyxl.workbook.child import _WorkbookChild
@@ -72,7 +74,7 @@ class Chartsheet(_WorkbookChild, Serialisable):
                  title="",
                  sheet_state='visible',
                  ):
-        super().__init__(parent, title)
+        super(Chartsheet, self).__init__(parent, title)
         self._charts = []
         self.sheetPr = sheetPr
         if sheetViews is None:
@@ -99,7 +101,7 @@ class Chartsheet(_WorkbookChild, Serialisable):
     def to_tree(self):
         self._drawing = SpreadsheetDrawing()
         self._drawing.charts = self._charts
-        tree = super().to_tree()
+        tree = super(Chartsheet, self).to_tree()
         if not self.headerFooter:
             el = tree.find('headerFooter')
             tree.remove(el)

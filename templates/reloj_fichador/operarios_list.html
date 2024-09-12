@@ -1,0 +1,15 @@
+{% load render_table from django_tables2 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Operarios</title>
+    <!-- Incluye estilos de Bootstrap si estás usando esa plantilla -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Operarios</h2>
+        {% render_table table %}
+    </div>
+</body>
+</html>

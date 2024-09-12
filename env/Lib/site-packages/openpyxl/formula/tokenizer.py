@@ -13,7 +13,7 @@ class TokenizerError(Exception):
     """Base class for all Tokenizer errors."""
 
 
-class Tokenizer:
+class Tokenizer(object):
 
     """
     A tokenizer for Excel worksheet formulae.
@@ -321,7 +321,7 @@ class Tokenizer:
         return "=" + "".join(token.value for token in self.items)
 
 
-class Token:
+class Token(object):
 
     """
     A token in an Excel formula.

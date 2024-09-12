@@ -1,19 +1,23 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.xml.functions import (
     Element,
     SubElement,
     tostring,
+    fromstring,
 )
 
-from openpyxl.utils import coordinate_to_tuple
+from openpyxl.utils import (
+    column_index_from_string,
+    coordinate_to_tuple,
+)
 
 vmlns = "urn:schemas-microsoft-com:vml"
 officens = "urn:schemas-microsoft-com:office:office"
 excelns = "urn:schemas-microsoft-com:office:excel"
 
 
-class ShapeWriter:
+class ShapeWriter(object):
     """
     Create VML for comments
     """
@@ -67,7 +71,7 @@ class ShapeWriter:
 
         # check whether comments shape type already exists
         shape_types = root.find("{%s}shapetype[@id='_x0000_t202']" % vmlns)
-        if shape_types is None:
+        if not shape_types:
             self.add_comment_shapetype(root)
 
         for idx, (coord, comment) in enumerate(self.comments, 1026):

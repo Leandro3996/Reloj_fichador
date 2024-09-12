@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
@@ -52,4 +52,4 @@ class RadarChart(ChartBase):
         self.dLbls = dLbls
         self.x_axis = TextAxis()
         self.y_axis = NumericAxis()
-        super().__init__(**kw)
+        super(RadarChart, self).__init__(**kw)

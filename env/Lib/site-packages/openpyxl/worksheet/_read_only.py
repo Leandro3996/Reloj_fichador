@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """ Read worksheets on-demand
 """
@@ -8,7 +8,6 @@ from openpyxl.cell.read_only import ReadOnlyCell, EMPTY_CELL
 from openpyxl.utils import get_column_letter
 
 from ._reader import WorkSheetParser
-from openpyxl.workbook.defined_name import DefinedNameDict
 
 
 def read_dimension(source):
@@ -16,7 +15,7 @@ def read_dimension(source):
     return parser.parse_dimensions()
 
 
-class ReadOnlyWorksheet:
+class ReadOnlyWorksheet(object):
 
     _min_column = 1
     _min_row = 1
@@ -40,7 +39,6 @@ class ReadOnlyWorksheet:
         self._worksheet_path = worksheet_path
         self._shared_strings = shared_strings
         self._get_size()
-        self.defined_names = DefinedNameDict()
 
 
     def _get_size(self):
@@ -74,28 +72,26 @@ class ReadOnlyWorksheet:
 
         counter = min_row
         idx = 1
-        with self._get_source() as src:
-            parser = WorkSheetParser(src,
-                                     self._shared_strings,
-                                     data_only=self.parent.data_only,
-                                     epoch=self.parent.epoch,
-                                     date_formats=self.parent._date_formats,
-                                     timedelta_formats=self.parent._timedelta_formats)
+        src = self._get_source()
+        parser = WorkSheetParser(src, self._shared_strings,
+                                 data_only=self.parent.data_only, epoch=self.parent.epoch,
+                                 date_formats=self.parent._date_formats)
+        for idx, row in parser.parse():
+            if max_row is not None and idx > max_row:
+                break
 
-            for idx, row in parser.parse():
-                if max_row is not None and idx > max_row:
-                    break
+            # some rows are missing
+            for _ in range(counter, idx):
+                counter += 1
+                yield empty_row
 
-                # some rows are missing
-                for _ in range(counter, idx):
-                    counter += 1
-                    yield empty_row
+            # return cells from a row
+            if counter <= idx:
+                row = self._get_row(row, min_col, max_col, values_only)
+                counter += 1
+                yield row
 
-                # return cells from a row
-                if counter <= idx:
-                    row = self._get_row(row, min_col, max_col, values_only)
-                    counter += 1
-                    yield row
+        src.close() # make sure source is always closed
 
         if max_row is not None and max_row < idx:
             for _ in range(counter, max_row+1):

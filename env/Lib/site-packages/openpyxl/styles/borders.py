@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.compat import safe_string
 from openpyxl.descriptors import (
@@ -36,6 +36,8 @@ class Side(Serialisable):
     Caution: if you do not specify a border_style, other attributes will
     have no effect !"""
 
+    __fields__ = ('style',
+                  'color')
 
     color = ColorDescriptor(allow_none=True)
     style = NoneSet(values=('dashDot','dashDotDot', 'dashed','dotted',
@@ -56,6 +58,14 @@ class Border(Serialisable):
 
     tagname = "border"
 
+    __fields__ = ('left',
+                  'right',
+                  'top',
+                  'bottom',
+                  'diagonal',
+                  'diagonal_direction',
+                  'vertical',
+                  'horizontal')
     __elements__ = ('start', 'end', 'left', 'right', 'top', 'bottom',
                     'diagonal', 'vertical', 'horizontal')
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """Manage individual cells in a spreadsheet.
 
@@ -18,6 +18,7 @@ import re
 
 from openpyxl.compat import (
     NUMERIC_TYPES,
+    deprecated,
 )
 
 from openpyxl.utils.exceptions import IllegalCharacterError
@@ -26,8 +27,6 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import numbers, is_date_format
 from openpyxl.styles.styleable import StyleableObject
 from openpyxl.worksheet.hyperlink import Hyperlink
-from openpyxl.worksheet.formula import DataTableFormula, ArrayFormula
-from openpyxl.cell.rich_text import CellRichText
 
 # constants
 
@@ -39,7 +38,7 @@ TIME_FORMATS = {
     datetime.timedelta:numbers.FORMAT_DATE_TIMEDELTA,
                 }
 
-STRING_TYPES = (str, bytes, CellRichText)
+STRING_TYPES = (str, bytes)
 KNOWN_TYPES = NUMERIC_TYPES + TIME_TYPES + STRING_TYPES + (bool, type(None))
 
 ILLEGAL_CHARACTERS_RE = re.compile(r'[\000-\010]|[\013-\014]|[\016-\037]')
@@ -69,8 +68,6 @@ def get_type(t, value):
         dt = 's'
     elif isinstance(value, TIME_TYPES):
         dt = 'd'
-    elif isinstance(value, (DataTableFormula, ArrayFormula)):
-        dt = 'f'
     else:
         return
     _TYPES[t] = dt
@@ -106,7 +103,7 @@ class Cell(StyleableObject):
                  )
 
     def __init__(self, worksheet, row=None, column=None, value=None, style_array=None):
-        super().__init__(worksheet, style_array)
+        super(Cell, self).__init__(worksheet, style_array)
         self.row = row
         """Row number of this cell (1-based)"""
         self.column = column
@@ -162,7 +159,7 @@ class Cell(StyleableObject):
         # truncate if necessary
         value = value[:32767]
         if next(ILLEGAL_CHARACTERS_RE.finditer(value), None):
-            raise IllegalCharacterError(f"{value} cannot be used in worksheets.")
+            raise IllegalCharacterError
         return value
 
     def check_error(self, value):
@@ -193,7 +190,7 @@ class Cell(StyleableObject):
             if not is_date_format(self.number_format):
                 self.number_format = get_time_format(t)
 
-        elif dt == "s" and not isinstance(value, CellRichText):
+        elif dt == "s":
             value = self.check_string(value)
             if len(value) > 1 and value.startswith("="):
                 self.data_type = 'f'
@@ -315,7 +312,7 @@ class MergedCell(StyleableObject):
 
 
     def __init__(self, worksheet, row=None, column=None):
-        super().__init__(worksheet)
+        super(MergedCell, self).__init__(worksheet)
         self.row = row
         self.column = column
 

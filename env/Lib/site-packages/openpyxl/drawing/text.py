@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 
 from openpyxl.descriptors.serialisable import Serialisable
@@ -15,11 +15,14 @@ from openpyxl.descriptors import (
 )
 from openpyxl.descriptors.excel import (
     HexBinary,
+    TextPoint,
     Coordinate,
+    ExtensionList,
     Relation,
 )
 from openpyxl.descriptors.nested import (
     NestedInteger,
+    NestedString,
     NestedText,
     NestedValue,
     EmptyTag
@@ -28,16 +31,8 @@ from openpyxl.xml.constants import DRAWING_NS
 
 
 from .colors import ColorChoiceDescriptor
-from .effect import (
-    EffectList,
-    EffectContainer,
-)
-from .fill import(
-    GradientFillProperties,
-    BlipFillProperties,
-    PatternFillProperties,
-    Blip
-)
+from .effect import *
+from .fill import *
 from .geometry import (
     LineProperties,
     Color,

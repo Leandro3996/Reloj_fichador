@@ -1,6 +1,7 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from copy import copy
+from warnings import warn
 
 from .numbers import (
     BUILTIN_FORMATS,
@@ -13,7 +14,7 @@ from .named_styles import NamedStyle
 from .builtins import styles
 
 
-class StyleDescriptor:
+class StyleDescriptor(object):
 
     def __init__(self, collection, key):
         self.collection = collection
@@ -34,7 +35,7 @@ class StyleDescriptor:
         return StyleProxy(coll[idx])
 
 
-class NumberFormatDescriptor:
+class NumberFormatDescriptor(object):
 
     key = "numFmtId"
     collection = '_number_formats'
@@ -61,7 +62,7 @@ class NumberFormatDescriptor:
         return coll[idx - BUILTIN_FORMATS_MAX_SIZE]
 
 
-class NamedStyleDescriptor:
+class NamedStyleDescriptor(object):
 
     key = "xfId"
     collection = "_named_styles"
@@ -95,7 +96,7 @@ class NamedStyleDescriptor:
         return coll.names[idx]
 
 
-class StyleArrayDescriptor:
+class StyleArrayDescriptor(object):
 
     def __init__(self, key):
         self.key = key
@@ -112,7 +113,7 @@ class StyleArrayDescriptor:
         return bool(getattr(instance._style, self.key))
 
 
-class StyleableObject:
+class StyleableObject(object):
     """
     Base class for styleble objects implementing proxy and lookup functions
     """

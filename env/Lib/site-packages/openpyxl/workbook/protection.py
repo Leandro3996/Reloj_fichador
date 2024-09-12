@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
@@ -122,7 +122,7 @@ class WorkbookProtection(Serialisable):
     @classmethod
     def from_tree(cls, node):
         """Don't hash passwords when deserialising from XML"""
-        self = super().from_tree(node)
+        self = super(WorkbookProtection, cls).from_tree(node)
         if self.workbookPassword:
             self.set_workbook_password(node.get('workbookPassword'), already_hashed=True)
         if self.revisionsPassword:

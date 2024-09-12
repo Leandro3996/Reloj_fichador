@@ -1,12 +1,19 @@
-
-# Copyright (c) 2010-2024 openpyxl
+from __future__ import division
+# Copyright (c) 2010-2022 openpyxl
 
 import math
 
-from openpyxl.utils.units import pixels_to_EMU
+from openpyxl.compat import deprecated
+
+from openpyxl.styles.colors import Color, BLACK, WHITE
+from openpyxl.utils.units import (
+    pixels_to_EMU,
+    EMU_to_pixels,
+    short_color,
+)
 
 
-class Drawing:
+class Drawing(object):
     """ a drawing object - eg container for shapes or charts
         we assume user specifies dimensions in pixels; units are
         converted to EMU in the drawing part
@@ -34,7 +41,6 @@ class Drawing:
     def width(self):
         return self._width
 
-
     @width.setter
     def width(self, w):
         if self.resize_proportional and w:
@@ -42,11 +48,9 @@ class Drawing:
             self._height = round(ratio * w)
         self._width = w
 
-
     @property
     def height(self):
         return self._height
-
 
     @height.setter
     def height(self, h):
@@ -54,7 +58,6 @@ class Drawing:
             ratio = self._width / self._height
             self._width = round(ratio * h)
         self._height = h
-
 
     def set_dimension(self, w=0, h=0):
 
@@ -68,6 +71,13 @@ class Drawing:
             else:
                 self._width = math.ceil(yratio * self._width)
                 self._height = h
+
+    @deprecated("Private method used when serialising")
+    def get_emu_dimensions(self):
+        """ return (x, y, w, h) in EMU """
+
+        return (pixels_to_EMU(self.left), pixels_to_EMU(self.top),
+            pixels_to_EMU(self._width), pixels_to_EMU(self._height))
 
 
     @property

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """Reader for a single worksheet."""
 from copy import copy
@@ -28,9 +28,7 @@ from openpyxl.utils import (
     )
 from openpyxl.utils.datetime import from_excel, from_ISO8601, WINDOWS_EPOCH
 from openpyxl.descriptors.excel import ExtensionList
-from openpyxl.cell.rich_text import CellRichText
 
-from .formula import DataTableFormula, ArrayFormula
 from .filters import AutoFilter
 from .header_footer import HeaderFooter
 from .hyperlink import HyperlinkList
@@ -84,27 +82,18 @@ def _cast_number(value):
     return int(value)
 
 
-def parse_richtext_string(element):
-    """
-    Parse inline string and preserve rich text formatting
-    """
-    value = CellRichText.from_tree(element) or ""
-    if len(value) == 1 and isinstance(value[0], str):
-        value = value[0]
-    return value
-
-
-class WorkSheetParser:
+class WorkSheetParser(object):
 
     def __init__(self, src, shared_strings, data_only=False,
                  epoch=WINDOWS_EPOCH, date_formats=set(),
-                 timedelta_formats=set(), rich_text=False):
+                 timedelta_formats=set()):
         self.min_row = self.min_col = None
         self.epoch = epoch
         self.source = src
         self.shared_strings = shared_strings
         self.data_only = data_only
         self.shared_formulae = {}
+        self.array_formulae = {}
         self.row_counter = self.col_counter = 0
         self.tables = TablePartList()
         self.date_formats = date_formats
@@ -119,7 +108,6 @@ class WorkSheetParser:
         self.merged_cells = None
         self.row_breaks = RowBreak()
         self.col_breaks = ColBreak()
-        self.rich_text = rich_text
 
 
     def parse(self):
@@ -236,10 +224,8 @@ class WorkSheetParser:
                 child = element.find(INLINE_STRING)
                 if child is not None:
                     data_type = 's'
-                    if self.rich_text:
-                        value = parse_richtext_string(child)
-                    else:
-                        value = Text.from_tree(child).content
+                    richtext = Text.from_tree(child)
+                    value = richtext.content
 
         return {'row':row, 'column':column, 'value':value, 'data_type':data_type, 'style_id':style_id}
 
@@ -256,7 +242,7 @@ class WorkSheetParser:
             value += formula.text
 
         if formula_type == "array":
-            value = ArrayFormula(ref=formula.get('ref'), text=value)
+            self.array_formulae[coordinate] = dict(formula.attrib)
 
         elif formula_type == "shared":
             idx = formula.get('si')
@@ -265,9 +251,6 @@ class WorkSheetParser:
                 value = trans.translate_formula(coordinate)
             elif value != "=":
                 self.shared_formulae[idx] = Translator(value, coordinate)
-
-        elif formula_type == "dataTable":
-            value = DataTableFormula(**formula.attrib)
 
         return value
 
@@ -351,16 +334,16 @@ class WorkSheetParser:
         self.col_breaks = ColBreak()
 
 
-class WorksheetReader:
+class WorksheetReader(object):
     """
     Create a parser and apply it to a workbook
     """
 
-    def __init__(self, ws, xml_source, shared_strings, data_only, rich_text):
+    def __init__(self, ws, xml_source, shared_strings, data_only):
         self.ws = ws
         self.parser = WorkSheetParser(xml_source, shared_strings,
                 data_only, ws.parent.epoch, ws.parent._date_formats,
-                ws.parent._timedelta_formats, rich_text)
+                ws.parent._timedelta_formats)
         self.tables = []
 
 
@@ -372,7 +355,7 @@ class WorksheetReader:
                 c._value = cell['value']
                 c.data_type = cell['data_type']
                 self.ws._cells[(cell['row'], cell['column'])] = c
-
+        self.ws.formula_attributes = self.parser.array_formulae
         if self.ws._cells:
             self.ws._current_row = self.ws.max_row # use cells not row dimensions
 
@@ -387,7 +370,7 @@ class WorksheetReader:
 
     def bind_tables(self):
         for t in self.parser.tables.tablePart:
-            rel = self.ws._rels.get(t.id)
+            rel = self.ws._rels[t.id]
             self.tables.append(rel.Target)
 
 
@@ -408,7 +391,7 @@ class WorksheetReader:
     def bind_hyperlinks(self):
         for link in self.parser.hyperlinks.hyperlink:
             if link.id:
-                rel = self.ws._rels.get(link.id)
+                rel = self.ws._rels[link.id]
                 link.target = rel.Target
             if ":" in link.ref:
                 # range of cells

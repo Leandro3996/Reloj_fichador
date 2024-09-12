@@ -32,6 +32,8 @@ class Operario(models.Model):
     fecha_ingreso_empresa = models.DateField(null=True, blank=True)
     titulo_tecnico = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
+    foto = models.ImageField(upload_to='operarios_fotos/', null=True, blank=True)
+
 
     def __str__(self):
         full_name = f"{self.apellido}"

@@ -1,27 +1,36 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
-from openpyxl.xml.constants import CHART_NS, DRAWING_NS
+from openpyxl.xml.functions import NS_REGEX, Element
+from openpyxl.xml.constants import CHART_NS, REL_NS, DRAWING_NS
+
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
     Typed,
     Bool,
+    NoneSet,
+    Integer,
+    Set,
     String,
     Alias,
 )
 from openpyxl.descriptors.excel import ExtensionList as OfficeArtExtensionList
 
-from .effect import (
-    EffectList,
-    EffectContainer,
-)
-from .fill import (
-    Blip,
-    GradientFillProperties,
-    BlipFillProperties,
+from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.chart.text import RichText
+
+from .effect import *
+from .fill import RelativeRect, BlipFillProperties
+from .text import Hyperlink, EmbeddedWAVAudioFile
+from .geometry import (
+    Scene3D,
+    ShapeStyle,
+    GroupTransform2D
 )
 from .picture import PictureFrame
 from .properties import (
     NonVisualDrawingProps,
+    NonVisualDrawingShapeProps,
+    NonVisualGroupDrawingShapeProps,
     NonVisualGroupShape,
     GroupShapeProperties,
 )

@@ -1,12 +1,13 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """Write the workbook global settings to the archive."""
 
-from openpyxl.utils import quote_sheetname
+from copy import copy
+
+from openpyxl.utils import absolute_coordinate, quote_sheetname
 from openpyxl.xml.constants import (
     ARC_APP,
     ARC_CORE,
-    ARC_CUSTOM,
     ARC_WORKBOOK,
     PKG_REL_NS,
     CUSTOMUI_NS,
@@ -15,10 +16,7 @@ from openpyxl.xml.constants import (
 from openpyxl.xml.functions import tostring, fromstring
 
 from openpyxl.packaging.relationship import Relationship, RelationshipList
-from openpyxl.workbook.defined_name import (
-    DefinedName,
-    DefinedNameList,
-)
+from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.workbook.external_reference import ExternalReference
 from openpyxl.packaging.workbook import ChildSheet, WorkbookPackage, PivotCache
 from openpyxl.workbook.properties import WorkbookProperties
@@ -90,34 +88,34 @@ class WorkbookWriter:
 
 
     def write_names(self):
-        defined_names = list(self.wb.defined_names.values())
+        defined_names = copy(self.wb.defined_names)
 
+        # Defined names -> autoFilter
         for idx, sheet in enumerate(self.wb.worksheets):
-            quoted = quote_sheetname(sheet.title)
+            auto_filter = sheet.auto_filter.ref
 
-            # local names
-            if sheet.defined_names:
-                names = sheet.defined_names.values()
-                for n in names:
-                    n.localSheetId = idx
-                defined_names.extend(names)
-
-            if sheet.auto_filter:
+            if auto_filter:
                 name = DefinedName(name='_FilterDatabase', localSheetId=idx, hidden=True)
-                name.value = f"{quoted}!{sheet.auto_filter}"
+                name.value = u"{0}!{1}".format(quote_sheetname(sheet.title),
+                                              absolute_coordinate(auto_filter)
+                                              )
                 defined_names.append(name)
 
+            # print titles
             if sheet.print_titles:
                 name = DefinedName(name="Print_Titles", localSheetId=idx)
-                name.value = sheet.print_titles
+                name.value = ",".join([u"{0}!{1}".format(quote_sheetname(sheet.title), r)
+                                      for r in sheet.print_titles.split(",")])
                 defined_names.append(name)
 
+            # print areas
             if sheet.print_area:
                 name = DefinedName(name="Print_Area", localSheetId=idx)
-                name.value = sheet.print_area
+                name.value = ",".join([u"{0}!{1}".format(quote_sheetname(sheet.title), r)
+                                      for r in sheet.print_area])
                 defined_names.append(name)
 
-        self.package.definedNames = DefinedNameList(definedName=defined_names)
+        self.package.definedNames = defined_names
 
 
     def write_pivots(self):
@@ -182,10 +180,6 @@ class WorkbookWriter:
 
         rel = Relationship(type="extended-properties", Target=ARC_APP)
         rels.append(rel)
-
-        if len(self.wb.custom_doc_props) >= 1:
-            rel = Relationship(type="custom-properties", Target=ARC_CUSTOM)
-            rels.append(rel)
 
         if self.wb.vba_archive is not None:
             # See if there was a customUI relation and reuse it

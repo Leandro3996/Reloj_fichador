@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from openpyxl.descriptors.serialisable import Serialisable
 from openpyxl.descriptors import (
@@ -20,7 +20,7 @@ from openpyxl.utils.cell import COORD_RE
 
 class ValueDescriptor(Float):
     """
-    Expected type depends upon type attribute of parent :-(
+    Expected type depends upon type attribue of parent :-(
 
     Most values should be numeric BUT they can also be cell references
     """
@@ -33,7 +33,7 @@ class ValueDescriptor(Float):
             self.expected_type = str
         else:
             self.expected_type = float
-        super().__set__(instance, value)
+        super(ValueDescriptor, self).__set__(instance, value)
 
 
 class FormatObject(Serialisable):

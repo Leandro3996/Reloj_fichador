@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 
 
@@ -40,4 +40,4 @@ class NumberFormatDescriptor(Typed):
     def __set__(self, instance, value):
         if isinstance(value, str):
             value = NumFmt(value)
-        super().__set__(instance, value)
+        super(NumberFormatDescriptor, self).__set__(instance, value)

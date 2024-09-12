@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 import re
 import warnings
@@ -34,7 +34,7 @@ def avoid_duplicate_name(names, value):
     return value
 
 
-class _WorkbookChild:
+class _WorkbookChild(object):
 
     __title = ""
     _id = None

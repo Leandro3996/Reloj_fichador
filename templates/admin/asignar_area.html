@@ -1,18 +1,34 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-  <h2>Asignar área a los operarios seleccionados</h2>
-  <form method="post">
-    {% csrf_token %}
+  <h1>Asignar Área a los Operarios</h1>
+  
+  <form method="post">{% csrf_token %}
     <div>
-      <label for="area">Seleccionar área:</label>
+      <label for="area">Seleccione el Área:</label>
       <select name="area" id="area">
         {% for area in areas %}
           <option value="{{ area.id }}">{{ area.nombre }}</option>
         {% endfor %}
       </select>
     </div>
-    <div>
-      <input type="submit" name="apply" value="Asignar área">
-    </div>
+    <input type="hidden" name="apply" value="1">
+    <button type="submit">Asignar Área</button>
   </form>
+
+  <h2>Operarios seleccionados:</h2>
+  <ul>
+    {% for operario in operarios %}
+      <li>{{ operario.nombre }} {{ operario.apellido }} - DNI: {{ operario.dni }}</li>
+    {% endfor %}
+  </ul>
+
+  <script>
+    // Loguear las áreas en la consola del navegador
+    const areas = {{ areas|safe }};
+    console.log("Áreas disponibles:", areas);
+
+    // Loguear los operarios en la consola del navegador
+    const operarios = {{ operarios|safe }};
+    console.log("Operarios seleccionados:", operarios);
+  </script>
 {% endblock %}

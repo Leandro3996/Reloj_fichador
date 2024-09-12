@@ -23,6 +23,8 @@ ALLOWED_HOSTS = ['*']
 #ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51', '192.168.68.54']
 
 INSTALLED_APPS = [
+    'admin_interface',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,6 +35,8 @@ INSTALLED_APPS = [
     'rangefilter',
     'django_celery_beat',
     'django_celery_results',
+    'django_tables2',
+    'import_export',
 ]
 
 MIDDLEWARE = [

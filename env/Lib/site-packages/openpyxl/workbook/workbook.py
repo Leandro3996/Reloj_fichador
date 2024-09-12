@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """Workbook is the top-level container for all document information."""
 from copy import copy
@@ -29,9 +29,8 @@ from openpyxl.styles.named_styles import NamedStyleList
 from openpyxl.styles.table import TableStyleList
 
 from openpyxl.chartsheet import Chartsheet
-from .defined_name import DefinedName, DefinedNameDict
+from .defined_name import DefinedName, DefinedNameList
 from openpyxl.packaging.core import DocumentProperties
-from openpyxl.packaging.custom import CustomPropertyList
 from openpyxl.packaging.relationship import RelationshipList
 from .child import _WorkbookChild
 from .protection import DocumentSecurity
@@ -48,7 +47,7 @@ from openpyxl.xml.constants import (
 
 INTEGER_TYPES = (int,)
 
-class Workbook:
+class Workbook(object):
     """Workbook is the container for all other parts of the document."""
 
     _read_only = False
@@ -63,10 +62,9 @@ class Workbook:
         self._sheets = []
         self._pivots = []
         self._active_sheet_index = 0
-        self.defined_names = DefinedNameDict()
+        self.defined_names = DefinedNameList()
         self._external_links = []
         self.properties = DocumentProperties()
-        self.custom_doc_props = CustomPropertyList()
         self.security = DocumentSecurity()
         self.__write_only = write_only
         self.shared_strings = IndexedList()
@@ -232,6 +230,9 @@ class Workbook:
     def remove(self, worksheet):
         """Remove `worksheet` from this workbook."""
         idx = self._sheets.index(worksheet)
+        localnames = self.defined_names.localnames(scope=idx)
+        for name in localnames:
+            self.defined_names.delete(name, scope=idx)
         self._sheets.remove(worksheet)
 
 
@@ -325,19 +326,15 @@ class Workbook:
         """
         return [s.title for s in self._sheets]
 
-
-    @deprecated("Assign scoped named ranges directly to worksheets or global ones to the workbook. Deprecated in 3.1")
     def create_named_range(self, name, worksheet=None, value=None, scope=None):
-        """Create a new named_range on a worksheet
-
-        """
-        defn = DefinedName(name=name)
+        """Create a new named_range on a worksheet"""
+        defn = DefinedName(name=name, localSheetId=scope)
         if worksheet is not None:
             defn.value = "{0}!{1}".format(quote_sheetname(worksheet.title), value)
         else:
             defn.value = value
 
-        self.defined_names[name] = defn
+        self.defined_names.append(defn)
 
 
     def add_named_style(self, style):
@@ -354,6 +351,30 @@ class Workbook:
         List available named styles
         """
         return self._named_styles.names
+
+
+    @deprecated("Use workbook.defined_names.definedName")
+    def get_named_ranges(self):
+        """Return all named ranges"""
+        return self.defined_names.definedName
+
+
+    @deprecated("Use workbook.defined_names.append")
+    def add_named_range(self, named_range):
+        """Add an existing named_range to the list of named_ranges."""
+        self.defined_names.append(named_range)
+
+
+    @deprecated("Use workbook.defined_names[name]")
+    def get_named_range(self, name):
+        """Return the range specified by name."""
+        return self.defined_names[name]
+
+
+    @deprecated("Use del workbook.defined_names[name]")
+    def remove_named_range(self, named_range):
+        """Remove a named_range from this workbook."""
+        del self.defined_names[named_range]
 
 
     @property
@@ -376,7 +397,7 @@ class Workbook:
 
         .. warning::
             When creating your workbook using `write_only` set to True,
-            you will only be able to call this function once. Subsequent attempts to
+            you will only be able to call this function once. Subsequents attempts to
             modify or save the file will raise an :class:`openpyxl.shared.exc.WorkbookAlreadySaved` exception.
         """
         if self.read_only:

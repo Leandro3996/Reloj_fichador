@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 from .forms import LicenciaForm
 from .utils import generar_pdf, generar_excel
-
+from import_export.admin import ExportMixin
 
 class Command(BaseCommand):
     help = 'Genera registros de asistencia para los operarios activos'
@@ -52,9 +52,8 @@ class LicenciaInline(admin.TabularInline):
     fields = ['archivo', 'fecha_subida']
     readonly_fields = ['fecha_subida']
 
-
 @admin.register(Operario)
-class OperarioAdmin(admin.ModelAdmin):
+class OperarioAdmin(ExportMixin, admin.ModelAdmin):
     inlines = [LicenciaInline]  # Incluir el Inline de Licencias
     list_display = (
         'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo'
@@ -64,10 +63,21 @@ class OperarioAdmin(admin.ModelAdmin):
     filter_horizontal = ('areas',)
     actions = ['asignar_area']
 
+    # Agregar foto a la vista de detalles del operario
+    readonly_fields = ('foto_tag', 'get_areas')
+
     def get_areas(self, obj):
         return ", ".join([area.nombre for area in obj.areas.all()])
 
     get_areas.short_description = 'Áreas'
+
+    # Método para mostrar la foto en la vista del admin
+    def foto_tag(self, obj):
+        if obj.foto:
+            return format_html(f'<img src="{obj.foto.url}" style="max-width: 150px; height: auto;" />')
+        return "(Sin foto)"
+
+    foto_tag.short_description = 'Foto del operario'
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -87,11 +97,17 @@ class OperarioAdmin(admin.ModelAdmin):
                 self.message_user(request, "El área seleccionada no existe.", level='error')
                 return
 
+            # Iteramos sobre los operarios seleccionados
             for operario in queryset:
-                operario.areas.add(area)  # Asignar el área seleccionada al operario
-                operario.save()  # Guardar los cambios en la base de datos
+                # Verificar si el operario ya tiene asignada el área seleccionada
+                if operario.areas.filter(id=area.id).exists():
+                    self.message_user(request, f"El operario {operario} ya tiene asignada el área {area.nombre}.", level='warning')
+                else:
+                    # Asignar el área seleccionada al operario
+                    operario.areas.add(area)
+                    # Confirmación de que la relación fue guardada
+                    self.message_user(request, f"Área '{area.nombre}' asignada al operario {operario.dni}.")
 
-            self.message_user(request, f"Área '{area.nombre}' asignada a {queryset.count()} operario(s).")
             return
         else:
             areas = Area.objects.all()
@@ -99,10 +115,11 @@ class OperarioAdmin(admin.ModelAdmin):
 
     asignar_area.short_description = "Asignar área a los operarios seleccionados"
 
+
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(admin.ModelAdmin):
     list_display = ('operario', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
-    list_filter = ('tipo_movimiento',)
+    list_filter = ('tipo_movimiento','hora_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     fields = ('operario', 'tipo_movimiento', 'hora_fichada')
     actions = ['exportar_pdf', 'exportar_excel']

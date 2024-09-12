@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 from collections import defaultdict
 from itertools import chain
@@ -79,11 +79,12 @@ class DataValidation(Serialisable):
     cells = Alias("sqref")
     ranges = Alias("sqref")
 
+    showErrorMessage = Bool()
     showDropDown = Bool(allow_none=True)
     hide_drop_down = Alias('showDropDown')
-    showInputMessage = Bool(allow_none=True)
-    showErrorMessage = Bool(allow_none=True)
-    allowBlank = Bool(allow_none=True)
+    showInputMessage = Bool()
+    showErrorMessage = Bool()
+    allowBlank = Bool()
     allow_blank = Alias('allowBlank')
 
     errorTitle = String(allow_none = True)
@@ -107,10 +108,10 @@ class DataValidation(Serialisable):
                  type=None,
                  formula1=None,
                  formula2=None,
-                 showErrorMessage=False,
-                 showInputMessage=False,
-                 showDropDown=False,
-                 allowBlank=False,
+                 showErrorMessage=True,
+                 showInputMessage=True,
+                 showDropDown=None,
+                 allowBlank=None,
                  sqref=(),
                  promptTitle=None,
                  errorStyle=None,
@@ -197,6 +198,6 @@ class DataValidationList(Serialisable):
         """
         ranges = self.dataValidation # copy
         self.dataValidation = [r for r in self.dataValidation if bool(r.sqref)]
-        xml = super().to_tree(tagname)
+        xml = super(DataValidationList, self).to_tree(tagname)
         self.dataValidation = ranges
         return xml

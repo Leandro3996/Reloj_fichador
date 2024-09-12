@@ -1,7 +1,7 @@
-# Copyright (c) 2010-2024 openpyxl
+# Copyright (c) 2010-2022 openpyxl
 
 """
-XML compatibility functions
+XML compatability functions
 """
 
 # Python stdlib imports
@@ -50,7 +50,6 @@ from openpyxl.xml.constants import (
     REL_NS,
     VTYPES_NS,
     COREPROPS_NS,
-    CUSTPROPS_NS,
     DCTERMS_NS,
     DCTERMS_PREFIX,
     XML_NS
@@ -67,7 +66,6 @@ register_namespace('vt', VTYPES_NS)
 register_namespace('xdr', SHEET_DRAWING_NS)
 register_namespace('cdr', CHART_DRAWING_NS)
 register_namespace('xml', XML_NS)
-register_namespace('cust', CUSTPROPS_NS)
 
 
 tostring = partial(tostring, encoding="utf-8")
@@ -82,6 +80,5 @@ def localname(node):
 
 
 def whitespace(node):
-    stripped = node.text.strip()
-    if stripped and node.text != stripped:
+    if node.text != node.text.strip():
         node.set("{%s}space" % XML_NS, "preserve")
