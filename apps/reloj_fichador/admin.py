@@ -117,9 +117,9 @@ class OperarioAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(RegistroDiario)
-class RegistroDiarioAdmin(admin.ModelAdmin):
+class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
-    list_filter = ('tipo_movimiento','hora_fichada',)
+    list_filter = ('tipo_movimiento', 'hora_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     fields = ('operario', 'tipo_movimiento', 'hora_fichada')
     actions = ['exportar_pdf', 'exportar_excel']
@@ -138,9 +138,28 @@ class RegistroDiarioAdmin(admin.ModelAdmin):
 
     def exportar_pdf(self, request, queryset):
         campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
+        encabezados = ['Operario', 'Tipo Movimiento', 'Hora Fichada', 'Origen Fichada']
+
+        return generar_pdf(
+            modeladmin=self,
+            request=request,
+            queryset=queryset,
+            campos=campos,
+            encabezados=encabezados,
+            titulo="Registro Diario"
+        )
+
+    def exportar_excel(self, request, queryset):
+        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
         encabezados = [self.HEADER_MAP[campo] for campo in campos]
-        return generar_pdf(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
-    exportar_pdf.short_description = "Exportar a PDF"
+        return generar_excel(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
+
+    exportar_excel.short_description = "Exportar a Excel"
+
+    def formatted_hora_fichada(self, obj):
+        return obj.hora_fichada.strftime('%Y-%m-%d %H:%M:%S')
+
+    formatted_hora_fichada.short_description = 'Hora Fichada'
 
     def exportar_excel(self, request, queryset):
         campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
@@ -204,6 +223,7 @@ class HorasExtrasAdmin(admin.ModelAdmin):
         return f"{hours}h {minutes}m"
 
     get_horas_extras.short_description = 'Horas Extras'
+
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(admin.ModelAdmin):

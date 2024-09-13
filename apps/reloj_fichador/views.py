@@ -117,3 +117,4 @@ class OperarioListView(SingleTableView):
     model = Operario
     table_class = OperarioTable
     template_name = "operarios_list.html"
+

@@ -9,3 +9,5 @@
 192.168.10.22 - - [09/Sep/2024:18:10:49 -0300] "GET /favicon.ico HTTP/1.1" 404 555 "http://192.168.10.11/inventario/productos/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
 127.0.0.1 - - [11/Sep/2024:08:56:35 -0300] "GET / HTTP/1.1" 200 615 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"
 127.0.0.1 - - [11/Sep/2024:08:56:36 -0300] "GET /favicon.ico HTTP/1.1" 404 555 "http://localhost/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"
+192.168.10.1 - - [12/Sep/2024:08:15:01 -0300] "GET / HTTP/1.1" 200 615 "android-app://com.google.android.googlequicksearchbox/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+192.168.10.1 - - [12/Sep/2024:08:15:01 -0300] "GET /favicon.ico HTTP/1.1" 404 555 "http://192.168.10.11/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
