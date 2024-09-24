@@ -135,3 +135,29 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 # Desactivar HTTPOnly para permitir acceso al token CSRF desde JavaScript si es necesario
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_HTTPONLY = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',  # Cambia a INFO o WARNING para menos detalles
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Cambia a INFO o WARNING para menos detalles
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Cambia a WARNING para evitar SQL detallado
+            'propagate': False,
+        },
+        'py.warnings': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
+}
