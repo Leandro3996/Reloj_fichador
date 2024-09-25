@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Registro diario">
+    <title>Reporte</title>
+    <link rel="stylesheet" href="{% static 'css/reporte.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700|Open+Sans:300,400,500,600,700" rel="stylesheet">
+    <style>
+        /* Estilo para manejar saltos de página al imprimir */
+        @media print {
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        .u-body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="u-body">
+    {% for page in page_filas %}
+    <!-- Header -->
+    <header class="u-header u-custom-color-3">            
+        <div class="u-header-container">
+            <a href="#" class="u-logo">
+                <img src="{% static 'img/cropped-hores_logo_150x150.png' %}" alt="Logo" width="150" height="74">
+            </a>
+            <h2 class="u-title">{{ titulo_reporte }}</h2>
+            <p class="u-date">{{ current_date }}</p> <!-- Fecha dinámica -->
+        </div>
+    </header>
+
+    <section class="separador"></section>
+
+    <!-- Sección de Encabezados -->
+    <section class="u-palette-5-light-3">
+        <div class="u-container">
+            <div class="u-grid" style="grid-template-columns: repeat({{ num_columnas }}, 1fr);"> <!-- Ajuste dinámico de columnas -->
+                {% for encabezado in encabezados %}
+                <div class="u-encabezados">{{ encabezado }}</div> <!-- Encabezados dinámicos -->
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Filas -->
+    <section class="u-section u-white">
+        <div class="u-container">
+            <div class="u-grid" style="grid-template-columns: repeat({{ num_columnas }}, 1fr);"> <!-- Ajuste dinámico de columnas -->
+                {% for fila in page %}
+                {% for valor in fila %}
+                <div class="u-item">{{ valor }}</div> <!-- Valores dinámicos de cada fila -->
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="u-footer">
+        <p>{{ num_items_filtrados }} registros de {{ total_items }} en total</p> <!-- Conteo de ítems -->
+    </footer>
+
+    {% if not forloop.last %}
+    <div class="page-break"></div> <!-- Salto de página para cada página nueva -->
+    {% endif %}
+    {% endfor %}
+</body>
+</html>

@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.reloj_fichador.urls', namespace='reloj_fichador')),
+    path('', include('apps.reloj_fichador.urls', namespace='reloj_fichador')), 
 ]
 
 if settings.DEBUG:

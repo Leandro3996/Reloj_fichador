@@ -13,6 +13,8 @@ from django.utils.translation import gettext_lazy as _
 from .forms import LicenciaForm
 from .utils import generar_pdf, generar_excel
 from import_export.admin import ExportMixin
+from datetime import datetime
+
 
 class Command(BaseCommand):
     help = 'Genera registros de asistencia para los operarios activos'
@@ -54,139 +56,236 @@ class LicenciaInline(admin.TabularInline):
 
 @admin.register(Operario)
 class OperarioAdmin(ExportMixin, admin.ModelAdmin):
-    inlines = [LicenciaInline]  # Incluir el Inline de Licencias
+    inlines = [LicenciaInline]
     list_display = (
         'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo'
     )
     list_filter = ('areas', ('fecha_nacimiento', DateRangeFilter), ('fecha_ingreso_empresa', DateRangeFilter), 'titulo_tecnico', ActivoInactivoFilter)
     search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico')
     filter_horizontal = ('areas',)
-    actions = ['asignar_area']
+    actions = ['asignar_area', 'generar_reporte', 'exportar_excel']
 
-    # Agregar foto a la vista de detalles del operario
     readonly_fields = ('foto_tag', 'get_areas')
 
     def get_areas(self, obj):
         return ", ".join([area.nombre for area in obj.areas.all()])
-
     get_areas.short_description = 'Áreas'
 
-    # Método para mostrar la foto en la vista del admin
     def foto_tag(self, obj):
         if obj.foto:
             return format_html(f'<img src="{obj.foto.url}" style="max-width: 150px; height: auto;" />')
         return "(Sin foto)"
-
     foto_tag.short_description = 'Foto del operario'
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)
+        total_registros = Operario.objects.count()
+        items_por_pagina = 30
 
-    # Acción personalizada para asignar área
-    def asignar_area(self, request, queryset):
-        if 'apply' in request.POST:
-            area_id = request.POST.get('area')
-            if not area_id:
-                self.message_user(request, "No se seleccionó ninguna área.", level='error')
-                return
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha Nacimiento', 'Fecha Ingreso',]
 
-            try:
-                area = Area.objects.get(id=area_id)
-            except Area.DoesNotExist:
-                self.message_user(request, "El área seleccionada no existe.", level='error')
-                return
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.dni,
+                registro.nombre,
+                registro.apellido,
+                registro.fecha_nacimiento.strftime('%d/%m/%Y'),
+                registro.fecha_ingreso_empresa.strftime('%d/%m/%Y'),               
+            ]
+            filas.append(fila)
 
-            # Iteramos sobre los operarios seleccionados
-            for operario in queryset:
-                # Verificar si el operario ya tiene asignada el área seleccionada
-                if operario.areas.filter(id=area.id).exists():
-                    self.message_user(request, f"El operario {operario} ya tiene asignada el área {area.nombre}.", level='warning')
-                else:
-                    # Asignar el área seleccionada al operario
-                    operario.areas.add(area)
-                    # Confirmación de que la relación fue guardada
-                    self.message_user(request, f"Área '{area.nombre}' asignada al operario {operario.dni}.")
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)
 
-            return
-        else:
-            areas = Area.objects.all()
-            return render(request, 'admin/asignar_area.html', {'operarios': queryset, 'areas': areas})
+        # Definir el título dinámico
+        titulo_reporte = "Reporte de Operarios"
 
-    asignar_area.short_description = "Asignar área a los operarios seleccionados"
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,
+            'total_pages': total_pages,
+            'num_items_filtrados': len(registros),
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte
+
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
+    def exportar_excel(self, request, queryset):
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha Nacimiento', 'Fecha Ingreso',]
+
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Operarios"
+        sheet.append(encabezados)
+
+        for registro in registros:
+            fila = [
+                registro.dni,
+                registro.nombre,
+                registro.apellido,
+                registro.fecha_nacimiento.strftime('%d/%m/%Y'),
+                registro.fecha_ingreso_empresa.strftime('%d/%m/%Y'),
+            ]
+            sheet.append(fila)
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_de_Operarios.xlsx"'
+        workbook.save(response)
+
+        return response
+
+    exportar_excel.short_description = "Exportar a Excel"
 
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('operario', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
-    list_filter = ('tipo_movimiento', 'hora_fichada',)
+    list_display = ('get_dni', 'get_nombre', 'get_apellido', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
+    list_filter = ('tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     fields = ('operario', 'tipo_movimiento', 'hora_fichada')
-    actions = ['exportar_pdf', 'exportar_excel']
+    actions = ['generar_reporte', 'exportar_excel']
 
     HEADER_MAP = {
-        'operario': 'Operario',
+        'get_dni': 'DNI',
+        'get_nombre': 'Nombre',
+        'get_apellido': 'Apellido',
         'tipo_movimiento': 'Tipo Movimiento',
-        'hora_fichada': 'Hora Fichada',
+        'formatted_hora_fichada': 'Hora Fichada',
         'origen_fichada': 'Origen Fichada',
     }
+
+    def get_dni(self, obj):
+        return obj.operario.dni
+    get_dni.short_description = 'DNI'
+
+    def get_nombre(self, obj):
+        return obj.operario.nombre
+    get_nombre.short_description = 'Nombre'
+
+    def get_apellido(self, obj):
+        return obj.operario.apellido
+    get_apellido.short_description = 'Apellido'
+
+    def formatted_hora_fichada(self, obj):
+        return obj.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')
+    formatted_hora_fichada.short_description = 'Hora Fichada'
 
     def save_model(self, request, obj, form, change):
         if not change:  # Solo si es un nuevo registro
             obj.origen_fichada = 'Manual'
         obj.save()
 
-    def exportar_pdf(self, request, queryset):
-        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
-        encabezados = ['Operario', 'Tipo Movimiento', 'Hora Fichada', 'Origen Fichada']
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)  # Convertir a lista para poder trabajar con slicing
+        total_registros = RegistroDiario.objects.count()  # Total sin filtrar
+        items_por_pagina = 30  # Limitar a 30 ítems por página
 
-        return generar_pdf(
-            modeladmin=self,
-            request=request,
-            queryset=queryset,
-            campos=campos,
-            encabezados=encabezados,
-            titulo="Registro Diario"
-        )
+        # Definir los encabezados manualmente
+        encabezados = ['DNI', 'Nombre', 'Apellido','Hora Fichada', 'Tipo Movimiento', 'Origen Fichada']
+
+        # Filas con valores de cada campo
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S'),
+                registro.tipo_movimiento.replace('_', ' ').capitalize(),
+                registro.origen_fichada.capitalize(),
+            ]
+            filas.append(fila)
+
+        # Dividir las filas en páginas de 30 ítems
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)  # Calcular el número total de páginas
+
+        # Definir el título dinámico
+        titulo_reporte = "Reporte de Registro Diario"
+
+        # Renderizar el template HTML con los datos dinámicos
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,  # Pasamos las filas ya divididas por páginas
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,  # Este valor se puede manejar mejor dentro del template
+            'total_pages': total_pages,  # Total de páginas
+            'num_items_filtrados': len(registros),  # Número de registros filtrados
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte          # Número total de registros
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
 
     def exportar_excel(self, request, queryset):
-        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
-        encabezados = [self.HEADER_MAP[campo] for campo in campos]
-        return generar_excel(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)  # Convertir a lista para trabajar fácilmente
+        total_registros = RegistroDiario.objects.count()  # Total sin filtrar
+        
+        # Definir los encabezados manualmente
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Hora Fichada', 'Tipo Movimiento', 'Origen Fichada']
+        
+        # Crear un nuevo archivo Excel
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Registro Diario"
+        
+        # Escribir los encabezados en la primera fila
+        sheet.append(encabezados)
+        
+        # Filas con valores de cada campo
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S'),
+                registro.tipo_movimiento.replace('_', ' ').capitalize(),
+                registro.origen_fichada.capitalize(),
+            ]
+            sheet.append(fila)  # Añadir cada fila al archivo Excel
+        
+        # Preparar la respuesta HTTP para la descarga del archivo Excel
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_de_Registro_Diario.xlsx"'
+        
+        # Guardar el archivo Excel en la respuesta
+        workbook.save(response)
+        
+        return response
 
     exportar_excel.short_description = "Exportar a Excel"
-
-    def formatted_hora_fichada(self, obj):
-        return obj.hora_fichada.strftime('%Y-%m-%d %H:%M:%S')
-
-    formatted_hora_fichada.short_description = 'Hora Fichada'
-
-    def exportar_excel(self, request, queryset):
-        campos = ['operario', 'tipo_movimiento', 'hora_fichada', 'origen_fichada']
-        encabezados = [self.HEADER_MAP[campo] for campo in campos]
-        return generar_excel(self, request, queryset, campos, encabezados, "Reporte de Registro Diario")
-    exportar_excel.short_description = "Exportar a Excel"
-
-    def formatted_hora_fichada(self, obj):
-        return obj.hora_fichada.strftime('%Y-%m-%d %H:%M:%S')
-    formatted_hora_fichada.short_description = 'Hora Fichada'
 
 @admin.register(Horas_trabajadas)
-class HorasTrabajadasAdmin(admin.ModelAdmin):
+class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_trabajadas', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
+    actions = ['generar_reporte', 'exportar_excel']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.select_related('operario')  # Optimiza la relación ForeignKey con operario
+        return queryset.select_related('operario')
 
     def get_horas_trabajadas(self, obj):
         total_seconds = obj.horas_trabajadas.total_seconds()
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
-        seconds = int(total_seconds % 60)
-        return f"{hours}h {minutes}m {seconds}s"
+        return f"{hours}h {minutes}m"
 
     get_horas_trabajadas.short_description = 'Horas Trabajadas'
 
@@ -194,27 +293,90 @@ class HorasTrabajadasAdmin(admin.ModelAdmin):
         total_seconds = obj.horas_nocturnas.total_seconds()
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
-        seconds = int(total_seconds % 60)
-        return f"{hours}h {minutes}m {seconds}s"
+        return f"{hours}h {minutes}m"
 
     get_horas_nocturnas.short_description = 'Horas Nocturnas'
 
-    def recalcular_horas_trabajadas(self, request, queryset):
-        for obj in queryset:
-            Horas_trabajadas.calcular_horas_trabajadas(obj.operario, obj.fecha)
-        self.message_user(request, "Horas trabajadas recalculadas con éxito.")
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)
+        total_registros = Horas_trabajadas.objects.count()
+        items_por_pagina = 30
 
-    recalcular_horas_trabajadas.short_description = "Recalcular horas trabajadas seleccionadas"
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Trabajadas', 'Horas Nocturnas']
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.fecha.strftime('%d/%m/%Y'),
+                self.get_horas_trabajadas(registro),
+                self.get_horas_nocturnas(registro),
+            ]
+            filas.append(fila)
+
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)
+
+        # Definir el título dinámico
+        titulo_reporte = "Reporte de Horas Trabajadas"
+
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,
+            'total_pages': total_pages,
+            'num_items_filtrados': len(registros),
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
+    def exportar_excel(self, request, queryset):
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Trabajadas', 'Horas Nocturnas']
+        
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Horas Trabajadas"
+        sheet.append(encabezados)
+        
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.fecha.strftime('%d/%m/%Y'),
+                self.get_horas_trabajadas(registro),
+                self.get_horas_nocturnas(registro),
+            ]
+            sheet.append(fila)
+        
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_Trabajadas.xlsx"'
+        workbook.save(response)
+        
+        return response
+
+    exportar_excel.short_description = "Exportar a Excel"
+
 
 @admin.register(Horas_extras)
-class HorasExtrasAdmin(admin.ModelAdmin):
+class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
+    actions = ['generar_reporte', 'exportar_excel']
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.select_related('operario')  # Optimiza la relación ForeignKey con operario
+        return queryset.select_related('operario')
 
     def get_horas_extras(self, obj):
         total_seconds = obj.horas_extras.total_seconds()
@@ -224,12 +386,81 @@ class HorasExtrasAdmin(admin.ModelAdmin):
 
     get_horas_extras.short_description = 'Horas Extras'
 
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)
+        total_registros = Horas_extras.objects.count()
+        items_por_pagina = 30
+
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Extras']
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.fecha.strftime('%d/%m/%Y'),
+                self.get_horas_extras(registro),
+            ]
+            filas.append(fila)
+
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)
+
+         # Definir el título dinámico
+        titulo_reporte = "Reporte de Horas Extras"
+
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,
+            'total_pages': total_pages,
+            'num_items_filtrados': len(registros),
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
+    def exportar_excel(self, request, queryset):
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Extras']
+        
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Horas Extras"
+        sheet.append(encabezados)
+        
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                registro.fecha.strftime('%d/%m/%Y'),
+                self.get_horas_extras(registro),
+            ]
+            sheet.append(fila)
+        
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_Extras.xlsx"'
+        workbook.save(response)
+        
+        return response
+
+    exportar_excel.short_description = "Exportar a Excel"
+
+
 
 @admin.register(Horas_totales)
-class HorasTotalesAdmin(admin.ModelAdmin):
+class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('get_dni', 'operario', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
+    actions = ['generar_reporte', 'exportar_excel']
 
     def get_dni(self, obj):
         return obj.operario.dni
@@ -263,30 +494,86 @@ class HorasTotalesAdmin(admin.ModelAdmin):
         return f"{hours}h {minutes}m"
     get_horas_feriado.short_description = 'Horas Feriado'
 
-@admin.register(Horario)
-class HorarioAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'hora_inicio', 'hora_fin')
-    search_fields = ('nombre',)
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)
+        total_registros = Horas_totales.objects.count()
+        items_por_pagina = 30
 
-@admin.register(Area)
-class AreaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'mostrar_horarios')
-    search_fields = ('nombre',)
-    filter_horizontal = ('horarios',)
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado']
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                self.get_horas_normales(registro),
+                self.get_horas_nocturnas(registro),
+                self.get_horas_extras(registro),
+                self.get_horas_feriado(registro),
+            ]
+            filas.append(fila)
 
-    def mostrar_horarios(self, obj):
-        return ", ".join([f"{horario.nombre}: {horario.hora_inicio.strftime('%H:%M')} - {horario.hora_fin.strftime('%H:%M')}" for horario in obj.horarios.all()])
-    mostrar_horarios.short_description = 'Horarios'
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)
+
+        # Definir el título dinámico
+        titulo_reporte = "Reporte de Horas Extras"
+
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,
+            'total_pages': total_pages,
+            'num_items_filtrados': len(registros),
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
+    def exportar_excel(self, request, queryset):
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado']
+        
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Horas Totales"
+        sheet.append(encabezados)
+        
+        for registro in registros:
+            fila = [
+                registro.operario.dni,
+                registro.operario.nombre,
+                registro.operario.apellido,
+                self.get_horas_normales(registro),
+                self.get_horas_nocturnas(registro),
+                self.get_horas_extras(registro),
+                self.get_horas_feriado(registro),
+            ]
+            sheet.append(fila)
+        
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_Totales.xlsx"'
+        workbook.save(response)
+        
+        return response
+
+    exportar_excel.short_description = "Exportar a Excel"
 
 
 @admin.register(RegistroAsistencia)
-class RegistroAsistenciaAdmin(admin.ModelAdmin):
+class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
     list_display = (
         'operario', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones'
     )
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    actions = ['marcar_justificado', 'marcar_no_justificado']
+    actions = ['marcar_justificado', 'marcar_no_justificado', 'generar_reporte', 'exportar_excel']
 
     def estado_justificacion_selector(self, obj):
         return '✅' if obj.estado_justificacion else '❌'
@@ -332,4 +619,72 @@ class RegistroAsistenciaAdmin(admin.ModelAdmin):
             form = LicenciaForm()
 
         return render(request, 'admin/cargar_licencia.html', {'form': form, 'registro_asistencia': registro_asistencia})
+
+    def generar_reporte(self, request, queryset):
+        registros = list(queryset)
+        total_registros = RegistroAsistencia.objects.count()
+        items_por_pagina = 30
+
+        encabezados = ['Operario', 'Fecha', 'Estado Asistencia', 'Justificación', 'Descripción']
+
+        filas = []
+        for registro in registros:
+            fila = [
+                registro.operario,
+                registro.fecha.strftime('%d/%m/%Y'),
+                registro.estado_asistencia.capitalize(),
+                '✅' if registro.estado_justificacion else '❌',
+                registro.descripcion or ''
+            ]
+            filas.append(fila)
+
+        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
+        total_pages = len(page_filas)
+
+        # Definir el título dinámico
+        titulo_reporte = "Reporte de Asistencias"
+
+        context = {
+            'encabezados': encabezados,
+            'page_filas': page_filas,
+            'num_columnas': len(encabezados),
+            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_page': 1,
+            'total_pages': total_pages,
+            'num_items_filtrados': len(registros),
+            'total_items': total_registros,
+            'titulo_reporte': titulo_reporte
+        }
+
+        return render(request, 'reloj_fichador/reporte.html', context)
+
+    def exportar_excel(self, request, queryset):
+        import openpyxl
+        from django.http import HttpResponse
+
+        registros = list(queryset)
+        encabezados = ['Operario', 'Fecha', 'Estado Asistencia', 'Justificación', 'Descripción']
+
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = "Reporte de Registro de Asistencia"
+        sheet.append(encabezados)
+
+        for registro in registros:
+            fila = [
+                registro.operario,
+                registro.fecha.strftime('%d/%m/%Y'),
+                registro.estado_asistencia.capitalize(),
+                '✅' if registro.estado_justificacion else '❌',
+                registro.descripcion or ''
+            ]
+            sheet.append(fila)
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_de_Registro_Asistencia.xlsx"'
+        workbook.save(response)
+
+        return response
+
+    exportar_excel.short_description = "Exportar a Excel"
 

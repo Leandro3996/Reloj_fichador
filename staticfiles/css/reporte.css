@@ -1,0 +1,128 @@
+/* General Styles */
+body.u-body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    margin: 0 auto; /* Centrar el contenido */
+    padding: 0;
+    width: 310mm; /* Ancho de una hoja A4 */
+    min-height: 397mm; /* Altura mínima de una hoja A4 */
+    background-color: #f5f5f5; /* Opcional, para ver el borde en la pantalla */
+}
+
+.u-header {
+    background-color: #f7f3e2;
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+}
+
+.u-header-container {
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.u-logo img {
+    width: 150px;
+}
+
+.u-title {
+    font-family: 'Raleway', sans-serif;
+    font-size: 2rem;
+    margin: 0;
+    color: black;
+}
+
+.u-date {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    color: black;
+}
+
+/* Grid Styles */
+.u-section {
+    padding: 20px 0;
+}
+
+/* A4 width for the main container */
+.u-container {
+    width: 95%;
+    max-width: 100%; /* Ya no es necesario especificar un ancho aquí */
+    margin: 10px auto;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.u-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+}
+
+.u-item {
+    border: 1px solid #858e99;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Footer */
+.u-footer {
+    background-color: #f7f3e2;
+    text-align: right;
+    padding: 10px 20px;
+}
+.u-footer-text {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    color: black;
+}
+
+.separador {
+    background-color: rgba(223, 221, 221, 0.692);
+    height: 20px;
+}
+
+/* Print-specific styles to ensure proper page breaks and margins */
+@media print {
+    body.u-body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
+    }
+
+    .u-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10mm;
+        box-sizing: border-box;
+    }
+
+    .u-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+
+    .u-item {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .u-header, .u-footer {
+        background-color: #f7f3e2;
+        color: white;
+    }
+
+    .u-footer-text {
+        color: black;
+    }
+
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+}

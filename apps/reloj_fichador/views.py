@@ -118,3 +118,18 @@ class OperarioListView(SingleTableView):
     table_class = OperarioTable
     template_name = "operarios_list.html"
 
+
+def generar_reporte_view(request):
+    # Obtener los datos de tu modelo
+    registros = RegistroDiario.objects.all()
+
+    # Definir el contexto a pasar a la plantilla
+    context = {
+        'registros': registros,
+        'current_time': datetime.now(),
+        'current_page': 1,
+        'total_pages': 1  # Puedes cambiar esta lógica si tienes paginación
+    }
+
+    # Renderizar la plantilla
+    return render(request, 'reloj_fichador/reporte.html', context)
