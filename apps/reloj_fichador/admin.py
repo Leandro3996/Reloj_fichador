@@ -208,10 +208,11 @@ class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
 
         # Dividir las filas en páginas de 30 ítems
         page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)  # Calcular el número total de páginas
+        total_pages = len(page_filas)
 
         # Definir el título dinámico
         titulo_reporte = "Reporte de Registro Diario"
+
 
         # Renderizar el template HTML con los datos dinámicos
         context = {
@@ -315,6 +316,7 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
             ]
             filas.append(fila)
 
+        # Dividir las filas en páginas de 30 ítems
         page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
         total_pages = len(page_filas)
 
@@ -403,6 +405,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
             ]
             filas.append(fila)
 
+        # Dividir las filas en páginas de 30 ítems
         page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
         total_pages = len(page_filas)
 
@@ -513,6 +516,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
             ]
             filas.append(fila)
 
+        # Dividir las filas en páginas de 30 ítems
         page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
         total_pages = len(page_filas)
 
@@ -623,7 +627,7 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
     def generar_reporte(self, request, queryset):
         registros = list(queryset)
         total_registros = RegistroAsistencia.objects.count()
-        items_por_pagina = 30
+        items_por_pagina = 20
 
         encabezados = ['Operario', 'Fecha', 'Estado Asistencia', 'Justificación', 'Descripción']
 
@@ -638,6 +642,7 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
             ]
             filas.append(fila)
 
+        # Dividir las filas en páginas de 30 ítems
         page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
         total_pages = len(page_filas)
 
@@ -672,7 +677,7 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
 
         for registro in registros:
             fila = [
-                registro.operario,
+                str(registro.operario),
                 registro.fecha.strftime('%d/%m/%Y'),
                 registro.estado_asistencia.capitalize(),
                 '✅' if registro.estado_justificacion else '❌',

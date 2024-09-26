@@ -22,6 +22,7 @@ body.u-body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 130px;
 }
 
 .u-logo img {
@@ -43,7 +44,11 @@ body.u-body {
 
 /* Grid Styles */
 .u-section {
+    padding: 10px 0;
+}
+.u-palette-5-light-3 {
     padding: 20px 0;
+    height: 30px;
 }
 
 /* A4 width for the main container */
@@ -63,10 +68,23 @@ body.u-body {
 
 .u-item {
     border: 1px solid #858e99;
-    border-radius: 5px;
+    border-radius: 1px;
     padding: 10px;
     text-align: center;
     font-family: 'Open Sans', sans-serif;
+    text-transform: capitalize;
+    font-size: 14px;
+}
+
+.u-encabezados {
+    border: 1px solid #858e99;
+    border-bottom: 2px solid black;
+    border-radius: 1px;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    text-transform: capitalize;
+    background-color: #f7f3e2;
 }
 
 /* Footer */
@@ -84,45 +102,4 @@ body.u-body {
 .separador {
     background-color: rgba(223, 221, 221, 0.692);
     height: 20px;
-}
-
-/* Print-specific styles to ensure proper page breaks and margins */
-@media print {
-    body.u-body {
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 0;
-    }
-
-    .u-container {
-        width: 100%;
-        max-width: 100%;
-        padding: 10mm;
-        box-sizing: border-box;
-    }
-
-    .u-grid {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-    }
-
-    .u-item {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    .u-header, .u-footer {
-        background-color: #f7f3e2;
-        color: white;
-    }
-
-    .u-footer-text {
-        color: black;
-    }
-
-    @page {
-        size: A4;
-        margin: 10mm;
-    }
 }

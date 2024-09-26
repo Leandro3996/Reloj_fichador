@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django_tables2 import SingleTableView
 from .models import Operario
 from .tables import OperarioTable
+from datetime import datetime
 
 
 def home(request):

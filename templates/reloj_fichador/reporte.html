@@ -23,10 +23,10 @@
 <body class="u-body">
     {% for page in page_filas %}
     <!-- Header -->
-    <header class="u-header u-custom-color-3">            
+    <header class="u-header u-custom-color-3">
         <div class="u-header-container">
             <a href="#" class="u-logo">
-                <img src="{% static 'img/cropped-hores_logo_150x150.png' %}" alt="Logo" width="150" height="74">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" width="150" height="74">
             </a>
             <h2 class="u-title">{{ titulo_reporte }}</h2>
             <p class="u-date">{{ current_date }}</p> <!-- Fecha dinámica -->
@@ -61,7 +61,8 @@
 
     <!-- Footer -->
     <footer class="u-footer">
-        <p>{{ num_items_filtrados }} registros de {{ total_items }} en total</p> <!-- Conteo de ítems -->
+        <p>{{ num_items_filtrados }} registros de {{ total_items }} en total</p>
+        <p>Página {{ forloop.counter }} de {{ total_pages }}</p> <!-- Número de página dinámico -->
     </footer>
 
     {% if not forloop.last %}

@@ -33,6 +33,7 @@ class Operario(models.Model):
     titulo_tecnico = models.BooleanField(default=False)
     activo = models.BooleanField(default=True)
     foto = models.ImageField(upload_to='operarios_fotos/', null=True, blank=True)
+    descripcion = models.TextField(null=True, blank=True)
 
 
     def __str__(self):
