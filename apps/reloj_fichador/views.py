@@ -29,13 +29,16 @@ def home(request):
 
 def registrar_movimiento_tipo(request, tipo):
     dni = request.POST.get('dni')
+    inconsistency_override = request.POST.get('inconsistency_override')  # Detectar si viene desde el modal
+
     try:
         operario = Operario.objects.get(dni=dni)
         es_valido, ultimo_movimiento = validar_secuencia_movimiento(operario, tipo)
 
-        if not es_valido:
+        # Si no es válido y no viene desde el modal
+        if not es_valido and not inconsistency_override:
             if ultimo_movimiento:
-                # Obtén el registro del último movimiento para utilizar get_tipo_movimiento_display
+                # Obtener el último registro para mostrar un mensaje legible
                 ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
                 ultimo_movimiento_legible = ultimo_registro.get_tipo_movimiento_display()
 
@@ -49,27 +52,31 @@ def registrar_movimiento_tipo(request, tipo):
         if tipo == 'salida' and ultimo_movimiento == 'entrada':
             hora_actual = timezone.now()
             ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
-            if hora_actual <= ultimo_registro.hora_fichada:
+            if hora_actual <= ultimo_registro.hora_fichada and not inconsistency_override:
                 mensaje_error = "Error: La hora de salida no puede ser anterior o igual a la hora de entrada.".upper()
                 messages.error(request, mensaje_error)
                 return redirect('reloj_fichador:home')
 
+        # Si viene del modal o el movimiento es válido, registrar el movimiento
         registro = RegistroDiario.objects.create(
             operario=operario,
             tipo_movimiento=tipo,
-            hora_fichada=timezone.now()
+            hora_fichada=timezone.now(),
+            inconsistencia=not es_valido  # Marcar inconsistencia si no es válido
         )
 
-        # Utiliza el método get_tipo_movimiento_display() para obtener el valor legible del tipo de movimiento
+        # Obtener el tipo de movimiento en formato legible
         tipo_movimiento_legible = registro.get_tipo_movimiento_display()
 
         success_message = f"Registro exitoso: {operario.nombre} {operario.apellido} - {tipo_movimiento_legible} - {registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')}".upper()
         messages.success(request, success_message)
         return redirect('reloj_fichador:home')
+
     except Operario.DoesNotExist:
         error_message = "Operario no encontrado ⚠️".upper()
         messages.error(request, error_message)
         return redirect('reloj_fichador:home')
+
 
 
 def validar_secuencia_movimiento(operario, nuevo_movimiento, is_admin=False):

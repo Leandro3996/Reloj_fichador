@@ -54,6 +54,26 @@
             </footer>
         </div>
     </div>
+
+    <div class="autor-message">
+        <div id="weather-widget">
+            <div id="weather-location">Cargando...</div>
+            <div id="weather-temp"></div>
+            <div id="weather-description"></div>
+        </div>
+        <p id="current-date-time"></p>
+    </div>
+
+    <!-- Modal para mostrar inconsistencia -->
+    <div id="inconsistency-modal">
+        <div class="modal-content">
+            <p id="inconsistency-message"></p>
+            <button id="accept-button">Aceptar</button>
+            <button id="cancel-button">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Script section for all functionalities -->
     <script>
         function setTipoMovimiento(tipo) {
             document.querySelectorAll('.menu-button').forEach(button => {
@@ -100,43 +120,68 @@
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
 
-            // Lista de imágenes de fondo
-            const images = [
-                "{% static 'images/login-background1.jpg' %}",
-                "{% static 'images/login-background2.jpg' %}",
-                "{% static 'images/login-background3.jpg' %}",
-                "{% static 'images/login-background4.jpg' %}",
-                "{% static 'images/login-background5.jpg' %}",
-                "{% static 'images/login-background6.jpg' %}",
-                "{% static 'images/login-background7.jpg' %}",
-                "{% static 'images/login-background8.jpg' %}"
-            ];
+            // Lógica para el modal de inconsistencias
+            const messages = document.querySelectorAll('.messages .warning');
+            messages.forEach(message => {
+                if (message.textContent.includes('INCONSISTENCIA')) {
+                    const modal = document.getElementById('inconsistency-modal');
+                    const inconsistencyMessage = document.getElementById('inconsistency-message');
 
-            let currentIndex = 0;
+                    // Mostrar el mensaje en el modal
+                    inconsistencyMessage.textContent = message.textContent + "\n¿Desea fichar de todas formas?";
 
-            function changeBackground() {
-                // Cambiar la imagen de fondo
-                document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+                    // Mostrar el modal
+                    modal.style.display = 'flex'; // Usar 'flex' para centrar el modal
+                }
+            });
 
-                // Actualizar el índice para la próxima imagen
-                currentIndex = (currentIndex + 1) % images.length; // Vuelve al inicio cuando llegue al final
-            }
+            // Manejo de botón "Aceptar" en el modal
+            document.getElementById('accept-button').onclick = function() {
+                const modal = document.getElementById('inconsistency-modal');
+                const movimientoForm = document.getElementById('movimientoForm');
+                const inconsistencyOverrideField = document.createElement('input');
+                inconsistencyOverrideField.type = 'hidden';
+                inconsistencyOverrideField.name = 'inconsistency_override';
+                inconsistencyOverrideField.value = 'True';
+                movimientoForm.appendChild(inconsistencyOverrideField);
 
-            // Cambiar la imagen cada 5 minutos (300000 ms)
-            setInterval(changeBackground, 60000); // Cambia el tiempo según tu preferencia (en milisegundos)
+                // Ocultar el modal al aceptar
+                modal.classList.add('hidden-modal');
+                movimientoForm.submit();  // Enviar el formulario con el valor extra
+            };
+
+            // Manejo de botón "Cancelar" en el modal
+            document.getElementById('cancel-button').onclick = function() {
+                const modal = document.getElementById('inconsistency-modal');
+
+                // Ocultar el modal al cancelar
+                modal.style.display = 'none';
+            };
         });
-    </script>
 
-    <div class="autor-message">
-        <div id="weather-widget">
-            <div id="weather-location">Cargando...</div>
-            <div id="weather-temp"></div>
-            <div id="weather-description"></div>
-        </div>
-        <p id="current-date-time"></p>
-    </div>
+        // Manejo de fondo cambiante
+        const images = [
+            "{% static 'images/login-background1.jpg' %}",
+            "{% static 'images/login-background2.jpg' %}",
+            "{% static 'images/login-background3.jpg' %}",
+            "{% static 'images/login-background4.jpg' %}",
+            "{% static 'images/login-background5.jpg' %}",
+            "{% static 'images/login-background6.jpg' %}",
+            "{% static 'images/login-background7.jpg' %}",
+            "{% static 'images/login-background8.jpg' %}"
+        ];
 
-    <script>
+        let currentIndex = 0;
+
+        function changeBackground() {
+            document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+            currentIndex = (currentIndex + 1) % images.length; // Vuelve al inicio cuando llegue al final
+        }
+
+        // Cambiar la imagen cada 5 minutos (300000 ms)
+        setInterval(changeBackground, 60000); // Cambia el tiempo según tu preferencia (en milisegundos)
+
+        // Manejo de la fecha y hora actuales
         function updateDateTime() {
             const currentDateTime = new Date();
             const formattedDateTime = currentDateTime.toLocaleString(); // Formato local de fecha y hora
@@ -148,8 +193,8 @@
 
         // Opcional: Si deseas que la hora se actualice cada segundo, puedes usar setInterval
         setInterval(updateDateTime, 1000);
-    </script>
-    <script>
+
+        // Actualización del clima
         const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1'; // Tu API Key
         const cityId = '3864331'; // ID para Bell Ville, Córdoba, Argentina
         const apiUrl = `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${apiKey}&units=metric&lang=es`;

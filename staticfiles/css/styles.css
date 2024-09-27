@@ -159,7 +159,6 @@ footer {
     transform: translateY(-5px); /* Efecto de elevación similar al hover */
 }
 
-
 /* Estilo para el estado activo de los botones */
 .menu-button.active {
     background-color: rgba(56, 142, 60, 0.9);
@@ -169,7 +168,7 @@ footer {
 /* Mensaje del autor en la esquina inferior derecha */
 .autor-message {
     position: absolute;
-    bottom: 10px; /* Ajusta el margen inferior */ 
+    bottom: 10px; /* Ajusta el margen inferior */
     right: 10px; /* Ajusta el margen derecho */
     color: white;
     font-size: 17px;
@@ -198,18 +197,85 @@ footer {
     font-size: 12px;
     text-transform: capitalize;
 }
+
 .custom-footer {
     margin-top: 80px; /* Ajusta la cantidad según sea necesario */
     text-align: center;
     color: #fff;
     font-size: 16px; /* Puedes ajustar el tamaño de la fuente si lo deseas */
 }
+
 /* Mensajes de error */
 .messages .error {
-    text-transform: uppercase;   
+    text-transform: uppercase;
     background-color: rgba(255, 0, 0, 0.1);
     padding: 10px;
     border-radius: 5px;
     border: 1px solid red;
 }
 
+/* Modal visible cuando se activa */
+#inconsistency-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semi-transparente */
+    z-index: 1000;
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37); /* Sombra */
+    max-width: 400px;
+    text-align: center;
+}
+
+#inconsistency-message {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333; /* Color de texto */
+}
+
+/* Botones del modal */
+#accept-button, #cancel-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 120px;
+}
+
+/* Botón Aceptar */
+#accept-button {
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#accept-button:hover {
+    background-color: rgba(56, 142, 60, 0.9); /* Fondo verde más oscuro al pasar el cursor */
+    transform: translateY(-2px); /* Efecto de elevación en hover */
+}
+
+/* Botón Cancelar */
+#cancel-button {
+    background-color: #f44336;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#cancel-button:hover {
+    background-color: rgba(244, 67, 54, 0.9); /* Fondo rojo más oscuro al pasar el cursor */
+    transform: translateY(-2px); /* Efecto de elevación en hover */
+}

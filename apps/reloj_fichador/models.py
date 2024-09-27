@@ -75,12 +75,17 @@ class RegistroDiario(models.Model):
         ('entrada_transitoria', 'Entrada Transitoria'),
         ('salida', 'Salida'),
     ]
+    INCONSISTENCIAS_CHOICES = [
+        (True, 'Inconsistencia'),
+        (False, ''),
+    ]
 
     id_registro = models.AutoField(primary_key=True)
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
     hora_fichada = models.DateTimeField(blank=True, null=True)
     tipo_movimiento = models.CharField(max_length=20, choices=TIPO_MOVIMIENTO)
     origen_fichada = models.CharField(max_length=10, default='Auto')
+    inconsistencia = models.BooleanField(choices=INCONSISTENCIAS_CHOICES, default=False)
 
     def __str__(self):
         return f"{self.operario} - {self.tipo_movimiento} - {self.hora_fichada.strftime('%Y/%m/%d %H:%M:%S')}"
@@ -91,7 +96,10 @@ class RegistroDiario(models.Model):
             ultimo_registro = RegistroDiario.objects.filter(operario=self.operario).order_by('-hora_fichada').first()
             if ultimo_registro and ultimo_registro.tipo_movimiento == 'entrada':
                 if self.hora_fichada <= ultimo_registro.hora_fichada:
-                    raise ValidationError("Inconsistencia: La hora de salida no puede ser anterior o igual a la hora de entrada.")
+                    self.inconsistencia = "Inconsistencia: La hora de salida no puede ser anterior o igual a la hora de entrada."
+                    raise ValidationError(self.inconsistencia)
+                else:
+                    self.inconsistencia = None  # No hay inconsistencia
 
     def save(self, *args, **kwargs):
         if not self.hora_fichada:
@@ -117,6 +125,7 @@ class RegistroDiario(models.Model):
         except AttributeError as e:
             # Manejar específicamente el caso de un error en las horas trabajadas
             raise ValidationError(f"Error al calcular horas: {str(e)}. Verifique la secuencia de fichadas.")
+
 
 class Horas_trabajadas(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
