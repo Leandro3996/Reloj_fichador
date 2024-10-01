@@ -6,17 +6,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Registro diario">
     <title>Reporte</title>
-    <link rel="stylesheet" href="{% static 'css/reporte.css' %}">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700|Open+Sans:300,400,500,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* General */
+        body {
+            font-family: 'PT Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        /* Encabezado */
+        .u-header {
+            background-color: #fa7e2bf1;
+            color: #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            height: 130px;
+        }
+
+        .u-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .u-logo img {
+            width: 150px;
+            height: auto;
+            display: block;
+        }
+
+        .u-title {
+            font-size: 2rem;
+            font-family: 'Merriweather', serif;
+            text-align: center;
+            flex-grow: 1;
+            margin-left: 20px;
+            margin-right: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .u-date {
+            font-size: 1rem;
+            font-family: 'PT Sans', sans-serif;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Tablas */
+        .table-container {
+            margin-top: 30px;
+            background-color: #fff;            
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid #ccc;
+            text-align: left;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        th .resizer {
+            width: 5px;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+            cursor: col-resize;
+            user-select: none;
+        }
+
+        th {
+            background-color: #fa7e2bf1;
+            color: #fff;
+        }
+
+        td {
+            background-color: #f8f9fa;
+        }
+
+        /* Pie de página */
+        .u-footer {
+            background-color: #fa7e2bf1;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 0 0 15px 15px;
+            margin-top: 30px;
+        }
+
+        .u-footer .page-number {
+            font-size: 1.2rem;
+        }
+
+        .u-footer .record-count {
+            font-size: 1rem;
+        }
+
+        /* Botones */
+        .buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .buttons button {
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            margin: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .buttons button:hover {
+            background-color: #1c5983;
+        }
+
         /* Estilo para manejar saltos de página al imprimir */
         @media print {
             .page-break {
                 page-break-before: always;
             }
-        }
-        .u-body {
-            font-family: 'Roboto', sans-serif;
         }
     </style>
 </head>
@@ -24,9 +162,9 @@
     {% for page in page_filas %}
     <!-- Header -->
     <header class="u-header u-custom-color-3">
-        <div class="u-header-container">
+        <div class="u-header-container container">
             <a href="#" class="u-logo">
-                <img src="{% static 'img/logo.png' %}" alt="Logo" width="150" height="74">
+                <img src="{% static 'img/logo.png' %}" alt="Logo">
             </a>
             <h2 class="u-title">{{ titulo_reporte }}</h2>
             <p class="u-date">{{ current_date }}</p> <!-- Fecha dinámica -->
@@ -35,39 +173,94 @@
 
     <section class="separador"></section>
 
-    <!-- Sección de Encabezados -->
-    <section class="u-palette-5-light-3">
-        <div class="u-container">
-            <div class="u-grid" style="grid-template-columns: repeat({{ num_columnas }}, 1fr);"> <!-- Ajuste dinámico de columnas -->
-                {% for encabezado in encabezados %}
-                <div class="u-encabezados">{{ encabezado }}</div> <!-- Encabezados dinámicos -->
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-
-    <!-- Sección de Filas -->
-    <section class="u-section u-white">
-        <div class="u-container">
-            <div class="u-grid" style="grid-template-columns: repeat({{ num_columnas }}, 1fr);"> <!-- Ajuste dinámico de columnas -->
-                {% for fila in page %}
-                {% for valor in fila %}
-                <div class="u-item">{{ valor }}</div> <!-- Valores dinámicos de cada fila -->
-                {% endfor %}
-                {% endfor %}
-            </div>
+    <!-- Sección de Encabezados y Filas en una tabla -->
+    <section class="u-palette-5-light-3 table-container">
+        <div class="u-container container">
+            <table>
+                <thead>
+                    <tr>
+                        {% for encabezado in encabezados %}
+                        <th>
+                            {{ encabezado }}
+                            <div class="resizer"></div> <!-- Control de redimensionamiento -->
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fila in page %}
+                    <tr>
+                        {% for valor in fila %}
+                        <td>{{ valor }}</td> <!-- Valores dinámicos de cada fila -->
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="u-footer">
-        <p>{{ num_items_filtrados }} registros de {{ total_items }} en total</p>
-        <p>Página {{ forloop.counter }} de {{ total_pages }}</p> <!-- Número de página dinámico -->
+        <p class="record-count">{{ num_items_filtrados }} registros de {{ total_items }} en total</p>
+        <p class="page-number">Página {{ forloop.counter }} de {{ total_pages }}</p> <!-- Número de página dinámico -->
     </footer>
 
     {% if not forloop.last %}
     <div class="page-break"></div> <!-- Salto de página para cada página nueva -->
     {% endif %}
     {% endfor %}
+
+    <!-- Botones fuera del informe -->
+    <div class="buttons">
+        <button onclick="descargarPDF()">Descargar PDF</button>
+        <button onclick="exportarPDF()">Exportar PDF</button>
+        <button onclick="enviarWhatsapp()">Enviar por Whatsapp</button>
+    </div>
+
+    <script>
+        // Mostrar la fecha actual
+        document.getElementById("current-date").textContent = new Date().toLocaleDateString();
+
+        // Función para hacer que las columnas sean redimensionables
+        const table = document.querySelector('table');
+        const resizers = table.querySelectorAll('.resizer');
+        let currentResizer;
+
+        resizers.forEach(resizer => {
+            resizer.addEventListener('mousedown', onMouseDown);
+
+            function onMouseDown(e) {
+                currentResizer = e.target;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+
+            function onMouseMove(e) {
+                const th = currentResizer.parentElement;
+                const startWidth = th.offsetWidth;
+                const newWidth = startWidth + e.movementX;
+                th.style.width = `${newWidth}px`;
+            }
+
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+        });
+
+        // Funciones de los botones
+        function descargarPDF() {
+            alert('Funcionalidad para descargar PDF');
+        }
+
+        function exportarPDF() {
+            alert('Funcionalidad para exportar PDF');
+        }
+
+        function enviarWhatsapp() {
+            alert('Funcionalidad para enviar por Whatsapp');
+        }
+    </script>
 </body>
 </html>
