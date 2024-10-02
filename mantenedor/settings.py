@@ -77,10 +77,10 @@ WSGI_APPLICATION = 'mantenedor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'horesdb',
+        'NAME': 'docker.horesdb',
         'USER': 'root',
-        'PASSWORD': 'S1st3mas.1999',
-        'HOST': 'localhost',
+        'PASSWORD': 'Elegance.3996',
+        'HOST': 'db',
         'PORT': '3306',
     }
 }
@@ -116,6 +116,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/5'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5080','http://192.168.0.228:5080']
+
 
 # Configuraciones adicionales para sesiones y CSRF
 

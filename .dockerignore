@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.vscode/
+node_modules/
+.env
+.megaignore
+*.jpg
+*.pdf
+*.png
+.media/
+.static/

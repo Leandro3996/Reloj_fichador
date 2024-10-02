@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib import messages
-from weasyprint import HTML
 from django.template.loader import get_template
 from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales, Licencia
 from django import forms

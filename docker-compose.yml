@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'docker.horesdb'     
+      MYSQL_ROOT_PASSWORD: 'Elegance.3996'
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - "53306:3306"  # Cambia a un puerto diferente para MySQL
+
+  web:
+    build: .
+    command: gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "58000:58000"  # Cambia el puerto expuesto para Gunicorn
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "5080:80"  # Cambia el puerto expuesto para Nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - web
+    restart: always
