@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Reloj Fichador{% endblock %}</title>
-    {% load static %}
+    {% load static %}    
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -36,12 +36,12 @@
                 </div>
 
                 <div class="input-container">
-                    <form id="movimientoForm" method="POST" action="{% url 'reloj_fichador:registrar_movimiento_tipo' 'entrada' %}">
+                    <form id="movimientoForm" method="POST" action="">
                         {% csrf_token %}
                         <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
                         <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required autocomplete="off">
                         <button type="submit" class="accept-button">Aceptar</button>
-                    </form>
+                    </form>                    
                 </div>
                 {% if error %}
                     <div class="error">
@@ -68,32 +68,33 @@
     <div id="inconsistency-modal">
         <div class="modal-content">
             <p id="inconsistency-message"></p>
-            <button id="accept-button">Aceptar</button>
-            <button id="cancel-button">Cancelar</button>
+            <button id="accept-modal-button">Aceptar</button>
+            <button id="cancel-modal-button">Cancelar</button>            
         </div>
     </div>
-
-    <!-- Script section for all functionalities -->
     <script>
         function setTipoMovimiento(tipo) {
             document.querySelectorAll('.menu-button').forEach(button => {
                 button.classList.remove('active');
-                button.classList.remove('elevate'); // Remover la clase de elevación previamente aplicada
+                button.classList.remove('elevate');
             });
-
+    
             document.getElementById('tipo_movimiento').value = tipo;
             document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento_tipo' 'placeholder_tipo' %}".replace('placeholder_tipo', tipo);
+                
             const activeButton = document.querySelector(`.menu-button[onclick="setTipoMovimiento('${tipo}')"]`);
             activeButton.classList.add('active');
-            activeButton.classList.add('elevate'); // Añadir la clase de elevación
+            activeButton.classList.add('elevate');
             setTimeout(() => {
-                activeButton.classList.remove('elevate'); // Remover la clase de elevación después de un tiempo
-            }, 300); // Duración de la elevación, similar a la del hover
+                activeButton.classList.remove('elevate');
+            }, 300);
         }
-
+    
         document.addEventListener('DOMContentLoaded', function() {
             const dniInput = document.getElementById('dni');
-
+            const movimientoForm = document.getElementById('movimientoForm');
+            
+            // Cambiar URL y seleccionar el tipo de movimiento al presionar una tecla
             document.addEventListener('keydown', function(event) {
                 switch (event.key.toUpperCase()) {
                     case 'Q':
@@ -110,55 +111,58 @@
                         break;
                 }
             });
-
+    
             dniInput.focus();
             dniInput.addEventListener('blur', function() {
                 setTimeout(() => dniInput.focus(), 10);
             });
-
+    
             dniInput.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
-
+    
             // Lógica para el modal de inconsistencias
-            const messages = document.querySelectorAll('.messages .warning');
-            messages.forEach(message => {
-                if (message.textContent.includes('INCONSISTENCIA')) {
+            const inconsistencia = "{{ inconsistencia|default_if_none:'' }}";
+            const mensajeError = "{{ mensaje_error|default_if_none:'' }}";
+    
+            // Interceptar el envío del formulario para verificar inconsistencia
+            movimientoForm.addEventListener('submit', function(event) {
+                if (inconsistencia === "True") {
+                    event.preventDefault(); // Evita el envío del formulario
+                    
+                    // Muestra el modal de inconsistencia
                     const modal = document.getElementById('inconsistency-modal');
                     const inconsistencyMessage = document.getElementById('inconsistency-message');
-
-                    // Mostrar el mensaje en el modal
-                    inconsistencyMessage.textContent = message.textContent + "\n¿Desea fichar de todas formas?";
-
-                    // Mostrar el modal
-                    modal.style.display = 'flex'; // Usar 'flex' para centrar el modal
+                    inconsistencyMessage.innerHTML = mensajeError + "<br>¿Desea fichar de todos modos?";
+                    modal.style.display = 'flex';
                 }
             });
-
-            // Manejo de botón "Aceptar" en el modal
-            document.getElementById('accept-button').onclick = function() {
-                const modal = document.getElementById('inconsistency-modal');
-                const movimientoForm = document.getElementById('movimientoForm');
-                const inconsistencyOverrideField = document.createElement('input');
-                inconsistencyOverrideField.type = 'hidden';
-                inconsistencyOverrideField.name = 'inconsistency_override';
-                inconsistencyOverrideField.value = 'True';
-                movimientoForm.appendChild(inconsistencyOverrideField);
-
-                // Ocultar el modal al aceptar
-                modal.classList.add('hidden-modal');
-                movimientoForm.submit();  // Enviar el formulario con el valor extra
+    
+            // Función para manejar el botón "Aceptar" en el modal
+            document.getElementById('accept-modal-button').onclick = function() {
+                if (!dniInput.value) {
+                    alert("Debe ingresar un DNI para continuar.");
+                    return;
+                }
+    
+                // Añadir el campo de inconsistencia y enviar el formulario
+                const inconsistencyField = document.createElement('input');
+                inconsistencyField.type = 'hidden';
+                inconsistencyField.name = 'inconsistency_override';
+                inconsistencyField.value = 'True';
+                movimientoForm.appendChild(inconsistencyField);
+    
+                document.getElementById('inconsistency-modal').style.display = 'none';
+                movimientoForm.submit();
             };
-
-            // Manejo de botón "Cancelar" en el modal
-            document.getElementById('cancel-button').onclick = function() {
-                const modal = document.getElementById('inconsistency-modal');
-
-                // Ocultar el modal al cancelar
-                modal.style.display = 'none';
+    
+            document.getElementById('cancel-modal-button').onclick = function() {
+                // Oculta el modal
+                document.getElementById('inconsistency-modal').style.display = 'none';
+                window.location.href = "{% url 'reloj_fichador:home' %}";
             };
         });
-
+    
         // Manejo de fondo cambiante
         const images = [
             "{% static 'images/login-background1.jpg' %}",
@@ -170,35 +174,29 @@
             "{% static 'images/login-background7.jpg' %}",
             "{% static 'images/login-background8.jpg' %}"
         ];
-
+    
         let currentIndex = 0;
-
+    
         function changeBackground() {
             document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
-            currentIndex = (currentIndex + 1) % images.length; // Vuelve al inicio cuando llegue al final
+            currentIndex = (currentIndex + 1) % images.length;
         }
-
-        // Cambiar la imagen cada 5 minutos (300000 ms)
-        setInterval(changeBackground, 60000); // Cambia el tiempo según tu preferencia (en milisegundos)
-
-        // Manejo de la fecha y hora actuales
+    
+        setInterval(changeBackground, 60000);
+    
         function updateDateTime() {
             const currentDateTime = new Date();
-            const formattedDateTime = currentDateTime.toLocaleString(); // Formato local de fecha y hora
+            const formattedDateTime = currentDateTime.toLocaleString();
             document.getElementById("current-date-time").textContent = formattedDateTime;
         }
-
-        // Actualizar la fecha y hora actuales al cargar la página
+    
         updateDateTime();
-
-        // Opcional: Si deseas que la hora se actualice cada segundo, puedes usar setInterval
         setInterval(updateDateTime, 1000);
-
-        // Actualización del clima
-        const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1'; // Tu API Key
-        const cityId = '3864331'; // ID para Bell Ville, Córdoba, Argentina
+    
+        const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1';
+        const cityId = '3864331';
         const apiUrl = `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${apiKey}&units=metric&lang=es`;
-
+    
         function updateWeather() {
             fetch(apiUrl)
                 .then(response => response.json())
@@ -209,12 +207,9 @@
                 })
                 .catch(error => console.error('Error al obtener los datos:', error));
         }
-
-        // Actualiza el clima al cargar la página
+    
         updateWeather();
-
-        // Configura un intervalo para actualizar el clima automáticamente cada 10 minutos (600000 ms)
-        setInterval(updateWeather, 600000); // Cambia el tiempo según tu preferencia (en milisegundos)
-    </script>
+        setInterval(updateWeather, 600000);
+    </script>    
 </body>
 </html>

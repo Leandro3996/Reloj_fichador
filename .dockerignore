@@ -1,13 +1,27 @@
+# Ignorar archivos y carpetas innecesarios
 __pycache__/
 *.pyc
 *.pyo
+
+# Ignorar carpetas específicas de herramientas y entornos
 .git/
 .vscode/
 node_modules/
-.env
-.megaignore
+.env  # Archivo de variables de entorno
+env/  # Carpeta de entorno virtual de Python
+mysql_data/
+
+# Ignorar archivos grandes o estáticos que no son necesarios para la construcción
 *.jpg
-*.pdf
+*.jpeg
 *.png
-.media/
-.static/
+*.gif
+*.pdf
+*.mp4
+
+# Ignorar directorios media y static
+/media/
+/static/
+
+# Ignorar cualquier archivo o directorio personalizado que no sea necesario
+.megaignore

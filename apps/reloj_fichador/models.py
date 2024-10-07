@@ -96,10 +96,7 @@ class RegistroDiario(models.Model):
             ultimo_registro = RegistroDiario.objects.filter(operario=self.operario).order_by('-hora_fichada').first()
             if ultimo_registro and ultimo_registro.tipo_movimiento == 'entrada':
                 if self.hora_fichada <= ultimo_registro.hora_fichada:
-                    self.inconsistencia = "Inconsistencia: La hora de salida no puede ser anterior o igual a la hora de entrada."
-                    raise ValidationError(self.inconsistencia)
-                else:
-                    self.inconsistencia = None  # No hay inconsistencia
+                    raise ValidationError("Inconsistencia: La hora de salida no puede ser anterior o igual a la hora de entrada.")
 
     def save(self, *args, **kwargs):
         if not self.hora_fichada:

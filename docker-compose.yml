@@ -1,14 +1,16 @@
-version: '3'
-
 services:
   db:
-    image: mysql:8
+    image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: 'docker.horesdb'     
-      MYSQL_ROOT_PASSWORD: 'Elegance.3996'
+      MYSQL_DATABASE: 'docker_horesdb'
+      MYSQL_USER: 'Leandro'      
+      MYSQL_PASSWORD: 'S1st3mas.1999'    
+      MYSQL_ROOT_PASSWORD: 'S1st3mas.1999'
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./data:/docker-entrypoint-initdb.d
+      - ./mysql_data:/var/lib/mysql      
+           
     ports:
       - "53306:3306"  # Cambia a un puerto diferente para MySQL
 
