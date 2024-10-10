@@ -1,0 +1,1958 @@
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+ nginx Error context canceled
+canceled
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ nginx Pulling 
+ db Pulling 
+ db Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ nginx Error context canceled
+no matching manifest for windows/amd64 10.0.22631 in the manifest list entries
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Pulling 
+ db Pulling 
+ nginx Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ nginx Error context canceled
+Error response from daemon: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
+ db Pulling 
+ nginx Pulling 
+ db Error context canceled
+ nginx Error context canceled
+canceled
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.46/containers/json?all=1&filters=%7B%22label%22%3A%7B%22com.docker.compose.config-hash%22%3Atrue%2C%22com.docker.compose.project%3Dreloj_fichador%22%3Atrue%7D%7D": open //./pipe/docker_engine: The system cannot find the file specified.
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running
+ Container reloj_fichador-db-1  Running
+ Container reloj_fichador-web-1  Running
+ Container reloj_fichador-nginx-1  Running

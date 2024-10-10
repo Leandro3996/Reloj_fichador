@@ -27,8 +27,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia el resto de la aplicación
 COPY . /app/
 
+# Otorga permisos de ejecución al script wait-for-it.sh
+RUN chmod +x /app/wait-for-it.sh
+
 # Exponer el puerto que estás usando
 EXPOSE 58000
 
 # Comando para correr gunicorn en el puerto especificado
-CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:58000", "mantenedor.wsgi:application"]
+CMD ["/app/wait-for-it.sh", "db:3306", "--", "gunicorn", "--workers", "3", "--bind", "0.0.0.0:58000", "mantenedor.wsgi:application"]
