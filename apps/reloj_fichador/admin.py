@@ -693,3 +693,13 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+@admin.register(Horario)
+class HorarioAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'hora_inicio', 'hora_fin')
+    search_fields = ('nombre',)
+
+@admin.register(Area)
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
+    filter_horizontal = ('horarios',)

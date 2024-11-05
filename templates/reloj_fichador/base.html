@@ -36,8 +36,7 @@
                 </div>
 
                 <div class="input-container">
-                    <form id="movimientoForm" method="POST" action="">
-                        {% csrf_token %}
+                    <form id="movimientoForm" method="POST" action="">                        
                         <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
                         <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required autocomplete="off">
                         <button type="submit" class="accept-button">Aceptar</button>
