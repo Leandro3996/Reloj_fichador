@@ -1,3 +1,4 @@
+Django==5.1.4
 amqp==5.2.0
 asgiref==3.8.1
 billiard==4.2.0
@@ -13,7 +14,6 @@ colorama==0.4.6
 cron-descriptor==1.4.5
 cssselect2==0.7.0
 diff-match-patch==20230430
-Django==5.0.7
 django-admin-interface==0.28.8
 django-admin-rangefilter==0.13.1
 django-celery-beat==2.7.0
@@ -56,5 +56,7 @@ weasyprint==62.3
 webencodings==0.5.1
 zopfli==0.2.3
 gunicorn
-
-
+celery
+redis
+django-simple-history
+django-environ

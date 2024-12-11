@@ -12,8 +12,12 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import environ
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 
 SECRET_KEY = 'django-insecure-mp&6m=!k202ckikyskc^td9pj3r&luzc$kuo+v1!9@$q@l7c0q'
 
@@ -77,11 +81,11 @@ WSGI_APPLICATION = 'mantenedor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'docker_horesdb',
-        'USER': 'root',
-        'PASSWORD': 'S1st3mas.1999',
-        'HOST': 'db',
-        'PORT': '3306',
+        'NAME': env('DB_NAME', default='docker_horesdb'),
+        'USER': env('DB_USER', default='root'),
+        'PASSWORD': env('DB_PASSWORD', default=''),
+        'HOST': env('DB_HOST', default='db'),
+        'PORT': env('DB_PORT', default='3306'),
     }
 }
 
@@ -114,8 +118,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/5'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/5')
+CELERY_BEAT_SCHEDULER = env('CELERY_BEAT_SCHEDULER', default='django_celery_beat.schedulers:DatabaseScheduler')
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5080','http://192.168.0.228:5080','http://192.168.10.11:5080',]
 
