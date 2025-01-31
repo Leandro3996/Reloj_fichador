@@ -1,0 +1,14 @@
+{
+    "name": "Reloj Fichador",
+    "dockerComposeFile": "D:/Docker/Reloj_fichador/docker-compose.yml", // Asegúrate de que apunta correctamente a tu archivo docker-compose.yml
+    "service": "web",  // El servicio principal definido en docker-compose
+    "workspaceFolder": "/app",
+    "extensions": [
+      "ms-python.python",   // Extensión de Python
+      "ms-azuretools.vscode-docker"  // Extensión de Docker
+    ],
+    "settings": {
+      "python.defaultInterpreterPath": "/app/venv/bin/python" // Ruta al intérprete dentro del contenedor
+    }
+  }
+  

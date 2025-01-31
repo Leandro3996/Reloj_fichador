@@ -1,2 +1,2 @@
 @echo off
-docker-compose -f "C:\Docker\Reloj_fichador\docker-compose.yml" up -d
+docker-compose -f "D:\Docker\Reloj_fichador\docker-compose.yml" up -d

@@ -7,6 +7,9 @@ from celery.schedules import crontab  # Importar crontab para la programación d
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mantenedor.settings')
 
 app = Celery('mantenedor')
+app.conf.update(
+    broker_connection_retry_on_startup=True
+)
 
 # Lee la configuración de Django y la aplica a Celery
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -22,7 +25,7 @@ def debug_task(self):
 app.conf.beat_schedule = {
     'generar-registros-asistencia-5am': {
         'task': 'apps.reloj_fichador.tasks.generar_registros_asistencia',  # Ruta a la tarea
-        'schedule': crontab(hour=13, minute=30),  # Se ejecuta todos los días a las 5:00 AM
+        'schedule': crontab(hour=8, minute=0),  # Se ejecuta todos los días a las 5:00 AM
     },
 }
 

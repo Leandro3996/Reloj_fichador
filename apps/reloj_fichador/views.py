@@ -1,21 +1,99 @@
-from django.shortcuts import render, redirect, get_object_or_404
+# views.py
+
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.contrib import messages
-from django.template.loader import get_template
-from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_feriado, Horas_extras, Horas_totales, Licencia
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_POST
+from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_extras, Horas_feriado, Licencia
 from django import forms
-from django.http import HttpResponse
+from .forms import LicenciaForm
 from django_tables2 import SingleTableView
-from .models import Operario
 from .tables import OperarioTable
 from datetime import datetime
+import logging
+from django.core.exceptions import ValidationError
 
+# Configura el logger
+logger = logging.getLogger(__name__)
+
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+@require_POST
+def registrar_movimiento_tipo(request, tipo_movimiento):
+    if not is_ajax(request):
+        messages.error(request, "MÉTODO NO PERMITIDO ⚠️")
+        logger.warning(f"Solicitud no AJAX recibida para registrar_movimiento_tipo con tipo_movimiento={tipo_movimiento}")
+        return redirect('reloj_fichador:home')
+
+    dni = request.POST.get('dni')
+    inconsistency_override = request.POST.get('inconsistency_override') == 'True'
+
+    if not tipo_movimiento:
+        logger.error("No se proporcionó tipo_movimiento en la solicitud.")
+        return JsonResponse({'success': False, 'message': "DEBE SELECCIONAR UN TIPO DE MOVIMIENTO ⚠️"}, status=400)
+
+    try:
+        operario = Operario.objects.get(dni=dni)
+        logger.info(f"Operario encontrado: {operario.nombre} {operario.apellido}")
+    except Operario.DoesNotExist:
+        error_message = "OPERARIO NO ENCONTRADO ⚠️"
+        logger.error(f"Operario con DNI={dni} no encontrado.")
+        return JsonResponse({'success': False, 'message': error_message}, status=404)
+
+    if not inconsistency_override:
+        # Intentar crear y validar el registro
+        registro = RegistroDiario(
+            operario=operario,
+            tipo_movimiento=tipo_movimiento,
+            hora_fichada=timezone.now(),
+        )
+        try:
+            registro.full_clean()  # Ejecuta la validación personalizada
+            registro.save()  # Guarda normalmente
+            tipo_movimiento_legible = registro.get_tipo_movimiento_display()
+            success_message = f"REGISTRO EXITOSO: {operario.nombre} {operario.apellido} - {tipo_movimiento_legible} - {registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')}"
+            logger.info(f"Registro creado exitosamente: {success_message}")
+            return JsonResponse({'success': True, 'message': success_message})
+        except ValidationError as ve:
+            # Inconsistencia detectada
+            descripcion_inconsistencia = "; ".join(ve.message_dict.get('tipo_movimiento', []))
+            logger.warning(f"Inconsistencia detectada en registro: {descripcion_inconsistencia}")
+            return JsonResponse({
+                'success': False,
+                'inconsistencia': True,
+                'descripcion_inconsistencia': descripcion_inconsistencia,
+                'tipo_movimiento': tipo_movimiento
+            }, status=400)
+        except Exception as e:
+            logger.exception(f"Excepción inesperada al registrar_movimiento_tipo: {e}")
+            return JsonResponse({'success': False, 'message': 'ERROR INTERNO DEL SERVIDOR ⚠️'}, status=500)
+    else:
+        # Override: crear el registro como inconsistente
+        registro = RegistroDiario(
+            operario=operario,
+            tipo_movimiento=tipo_movimiento,
+            hora_fichada=timezone.now(),
+            inconsistencia=True,
+            valido=True,
+            descripcion_inconsistencia="Fichada con inconsistencia por decisión del operario."
+        )
+        try:
+            registro.save()
+            tipo_movimiento_legible = registro.get_tipo_movimiento_display()
+            success_message = f"REGISTRO CON INCONSISTENCIA: {operario.nombre} {operario.apellido} - {tipo_movimiento_legible} - {registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')}"
+            logger.info(f"Registro creado con inconsistencia: {success_message}")
+            return JsonResponse({'success': True, 'message': success_message})
+        except Exception as e:
+            logger.exception(f"Excepción inesperada al registrar_movimiento_tipo con override: {e}")
+            return JsonResponse({'success': False, 'message': 'ERROR INTERNO DEL SERVIDOR ⚠️'}, status=500)
+        
 
 def home(request):
     # Optimizar consultas
     operarios = Operario.objects.prefetch_related('areas').all()  # Optimiza la relación ManyToMany con áreas
-    horas_trabajadas = Horas_trabajadas.objects.select_related(
-        'operario').all()  # Optimiza la relación ForeignKey con operario
+    horas_trabajadas = Horas_trabajadas.objects.select_related('operario').all()  # Optimiza la relación ForeignKey con operario
     horas_extras = Horas_extras.objects.select_related('operario').all()
     horas_feriado = Horas_feriado.objects.select_related('operario').all()
 
@@ -25,102 +103,6 @@ def home(request):
         'horas_extras': horas_extras,
         'horas_feriado': horas_feriado,
     })
-
-def registrar_movimiento_tipo(request, tipo):
-    dni = request.POST.get('dni')
-    tipo_movimiento = request.POST.get('tipo_movimiento')
-    inconsistency_override = request.POST.get('inconsistency_override') == 'True'
-
-    # Validación para asegurar que se haya seleccionado un tipo de movimiento
-    if not tipo_movimiento:
-        messages.error(request, "Debe seleccionar un tipo de movimiento ⚠️".upper())
-        return redirect('reloj_fichador:home')
-
-    try:
-        operario = Operario.objects.get(dni=dni)
-        es_valido, ultimo_movimiento = validar_secuencia_movimiento(operario, tipo)
-
-        # Condición de inconsistencia y verificar inconsistencia manual
-        if not es_valido and not inconsistency_override:
-            ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
-            ultimo_movimiento_legible = ultimo_registro.get_tipo_movimiento_display() if ultimo_registro else None
-            mensaje_error = f"Inconsistencia: su última fichada fue '{ultimo_movimiento_legible}'.".upper() if ultimo_movimiento_legible else "Error: No se encontraron registros previos, y el primer movimiento debe ser 'Entrada'.".upper()
-            
-            context = {
-                'inconsistencia': True,
-                'mensaje_error': mensaje_error
-            }
-            return render(request, 'reloj_fichador/home.html', context)
-
-        # Validar si la hora de salida es anterior a la de entrada (inconsistencia)
-        if tipo == 'salida' and ultimo_movimiento == 'entrada':
-            hora_actual = timezone.now()
-            ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
-            if hora_actual <= ultimo_registro.hora_fichada:
-                mensaje_error = "Error: La hora de salida no puede ser anterior o igual a la hora de entrada.".upper()
-                
-                context = {
-                    'inconsistencia': True,
-                    'mensaje_error': mensaje_error
-                }
-                return render(request, 'reloj_fichador/home.html', context)
-
-        # Crea el registro, asignando inconsistencia si se marcó el override
-        registro = RegistroDiario.objects.create(
-            operario=operario,
-            tipo_movimiento=tipo,
-            hora_fichada=timezone.now(),
-            inconsistencia=inconsistency_override
-        )
-
-        tipo_movimiento_legible = registro.get_tipo_movimiento_display()
-        success_message = f"Registro exitoso: {operario.nombre} {operario.apellido} - {tipo_movimiento_legible} - {registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')}".upper()
-        messages.success(request, success_message)
-        return redirect('reloj_fichador:home')
-
-    except Operario.DoesNotExist:
-        error_message = "Operario no encontrado ⚠️".upper()
-        messages.error(request, error_message)
-        return redirect('reloj_fichador:home')
-
-
-
-def validar_secuencia_movimiento(operario, nuevo_movimiento, is_admin=False):
-    ultimo_registro = RegistroDiario.objects.filter(operario=operario).order_by('-hora_fichada').first()
-
-    if ultimo_registro:
-        print(f"Último registro para el operario {operario.dni}: {ultimo_registro.tipo_movimiento} - {ultimo_registro.hora_fichada}")
-
-        # Definir las transiciones válidas
-        transiciones_validas = {
-            'entrada': ['salida', 'salida_transitoria'],
-            'salida_transitoria': ['entrada_transitoria'],
-            'entrada_transitoria': ['salida'],
-            'salida': ['entrada']
-        }
-
-        # Verificar si el nuevo movimiento es válido
-        es_valido = nuevo_movimiento in transiciones_validas.get(ultimo_registro.tipo_movimiento, [])
-        print(f"Nuevo movimiento: {nuevo_movimiento}, Es válido: {es_valido}")
-
-        # Verificar si el nuevo movimiento es una salida antes de una entrada
-        if es_valido and nuevo_movimiento == 'salida' and ultimo_registro.tipo_movimiento == 'entrada':
-            hora_actual = timezone.now()
-            if hora_actual <= ultimo_registro.hora_fichada:
-                # Si la hora de salida es anterior o igual a la hora de entrada, es una inconsistencia
-                print(f"Inconsistencia detectada: La hora de salida {hora_actual} es anterior o igual a la hora de entrada {ultimo_registro.hora_fichada}.")
-                return False, "Error: La hora de salida no puede ser anterior o igual a la hora de entrada."
-
-        # Permitir inconsistencia si es un admin
-        if is_admin:
-            return True, ultimo_registro.tipo_movimiento
-
-        # Retornar si el movimiento es válido o no
-        return es_valido, ultimo_registro.tipo_movimiento
-    else:
-        print(f"No se encontraron registros previos para el operario {operario.dni}.")
-        # Si no hay un último registro, solo 'entrada' es válida
-        return nuevo_movimiento == 'entrada', None
 
 class LicenciaForm(forms.ModelForm):
     class Meta:
@@ -132,10 +114,9 @@ class OperarioListView(SingleTableView):
     table_class = OperarioTable
     template_name = "operarios_list.html"
 
-
 def generar_reporte_view(request):
-    # Obtener los datos de tu modelo
-    registros = RegistroDiario.objects.all()
+    # Obtener los datos de tu modelo, excluyendo fichadas inconsistentes
+    registros = RegistroDiario.objects.filter(inconsistencia=False)
 
     # Definir el contexto a pasar a la plantilla
     context = {

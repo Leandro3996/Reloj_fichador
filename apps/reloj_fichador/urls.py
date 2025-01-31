@@ -6,7 +6,7 @@ app_name = 'reloj_fichador'
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('registrar/<str:tipo>/', registrar_movimiento_tipo, name='registrar_movimiento_tipo'),
+    path('registrar/<str:tipo_movimiento>/', registrar_movimiento_tipo, name='registrar_movimiento_tipo'),
     path('operarios/', OperarioListView.as_view(), name='operarios-list'),
     path('reporte/', generar_reporte_view, name='generar_reporte'),
 ]

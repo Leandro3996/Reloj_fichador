@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import models
 from django.contrib.admin.widgets import AdminSplitDateTime
+from django.contrib.admin.models import LogEntry
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.html import format_html
@@ -149,11 +150,12 @@ class OperarioAdmin(ExportMixin, admin.ModelAdmin):
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('get_dni', 'get_nombre', 'get_apellido', 'tipo_movimiento', 'formatted_hora_fichada', 'origen_fichada')
-    list_filter = ('tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
+    list_display = ('get_dni', 'get_nombre', 'get_apellido', 'tipo_movimiento', 'formatted_hora_fichada', 
+                    'origen_fichada', 'mostrar_inconsistencia','mostrar_valido')
+    list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    fields = ('operario', 'tipo_movimiento', 'hora_fichada')
-    actions = ['generar_reporte', 'exportar_excel']
+    fields = ('operario', 'tipo_movimiento', 'hora_fichada', 'valido')
+    actions = ['generar_reporte', 'exportar_excel']      
 
     HEADER_MAP = {
         'get_dni': 'DNI',
@@ -184,6 +186,22 @@ class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
         if not change:  # Solo si es un nuevo registro
             obj.origen_fichada = 'Manual'
         obj.save()
+
+    def mostrar_inconsistencia(self, obj):
+        if obj.inconsistencia:
+            return format_html('<span style="color: red; font-weight: bold;">Sí</span>')
+        else:
+            return format_html('<span style="color: green;">No</span>')
+    mostrar_inconsistencia.short_description = 'Inconsistencia'
+    mostrar_inconsistencia.admin_order_field = 'inconsistencia'
+
+    def mostrar_valido(self, obj):
+        if obj.valido:
+            return format_html('<span style="color: green; font-weight: bold;">Sí</span>')
+        else:
+            return format_html('<span style="color: red;">No</span>')
+    mostrar_valido.short_description = 'Válido'
+    mostrar_valido.admin_order_field = 'valido'
 
     def generar_reporte(self, request, queryset):
         registros = list(queryset)  # Convertir a lista para poder trabajar con slicing
@@ -273,22 +291,26 @@ class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
 
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('operario', 'fecha', 'get_horas_trabajadas', 'get_horas_nocturnas')
+    list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
     actions = ['generar_reporte', 'exportar_excel']
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.select_related('operario')
+        """
+        Filtra los registros para ocultar aquellos con 0 horas trabajadas y 0 horas nocturnas.
+        Optimiza la consulta con select_related.
+        """
+        queryset = super().get_queryset(request).select_related('operario')
+        return queryset.exclude(horas_normales=timedelta(0), horas_nocturnas=timedelta(0))
 
-    def get_horas_trabajadas(self, obj):
-        total_seconds = obj.horas_trabajadas.total_seconds()
+    def get_horas_normales(self, obj):
+        total_seconds = obj.horas_normales.total_seconds()
         hours = int(total_seconds // 3600)
         minutes = int((total_seconds % 3600) // 60)
         return f"{hours}h {minutes}m"
 
-    get_horas_trabajadas.short_description = 'Horas Trabajadas'
+    get_horas_normales.short_description = 'Horas Normales'
 
     def get_horas_nocturnas(self, obj):
         total_seconds = obj.horas_nocturnas.total_seconds()
@@ -311,7 +333,7 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
                 registro.operario.nombre,
                 registro.operario.apellido,
                 registro.fecha.strftime('%d/%m/%Y'),
-                self.get_horas_trabajadas(registro),
+                self.get_horas_normales(registro),
                 self.get_horas_nocturnas(registro),
             ]
             filas.append(fila)
@@ -355,7 +377,7 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
                 registro.operario.nombre,
                 registro.operario.apellido,
                 registro.fecha.strftime('%d/%m/%Y'),
-                self.get_horas_trabajadas(registro),
+                self.get_horas_normales(registro),
                 self.get_horas_nocturnas(registro),
             ]
             sheet.append(fila)
@@ -377,8 +399,13 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
     actions = ['generar_reporte', 'exportar_excel']
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        return queryset.select_related('operario')
+        """
+        Filtra los registros para ocultar aquellos con 0 horas extras.
+        Optimiza la consulta con select_related.
+        """
+        queryset = super().get_queryset(request).select_related('operario')
+        return queryset.exclude(horas_extras=timedelta(0))
+
 
     def get_horas_extras(self, obj):
         total_seconds = obj.horas_extras.total_seconds()
@@ -464,6 +491,19 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['generar_reporte', 'exportar_excel']
+
+    def get_queryset(self, request):
+        """
+        Filtra los registros para ocultar aquellos con 0 horas normales, nocturnas, extras y feriado.
+        Optimiza la consulta con select_related.
+        """
+        queryset = super().get_queryset(request).select_related('operario')
+        return queryset.exclude(
+            horas_normales=timedelta(0),
+            horas_nocturnas=timedelta(0),
+            horas_extras=timedelta(0),
+            horas_feriado=timedelta(0)
+        )
 
     def get_dni(self, obj):
         return obj.operario.dni
@@ -703,3 +743,33 @@ class AreaAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
     filter_horizontal = ('horarios',)
+
+@admin.register(LogEntry)
+class LogEntryAdmin(admin.ModelAdmin):
+    list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
+    list_filter = ('action_flag', 'user', 'content_type')
+    search_fields = ('object_repr', 'change_message', 'user__username')
+    readonly_fields = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
+    
+    def has_add_permission(self, request):
+        return False  # Evita que se puedan añadir nuevos registros desde el admin
+    
+    def has_change_permission(self, request, obj=None):
+        return False  # Evita cambios en los registros
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Evita eliminación de registros
+
+    def action_flag(self, obj):
+        """
+        Muestra una representación más amigable de las acciones.
+        """
+        if obj.action_flag == 1:
+            return format_html('<span style="color:green;">Creación</span>')
+        elif obj.action_flag == 2:
+            return format_html('<span style="color:orange;">Edición</span>')
+        elif obj.action_flag == 3:
+            return format_html('<span style="color:red;">Eliminación</span>')
+        return obj.action_flag
+
+    action_flag.short_description = 'Acción'

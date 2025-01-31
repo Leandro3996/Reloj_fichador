@@ -1,26 +1,25 @@
 services:
   db:
-    image: mysql:8.4
-    restart: always
+    image: mysql:8.4.0
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      # Si deseas un usuario no-root, define a continuación:
-      # MYSQL_USER: "${MYSQL_USER}"
-      # MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      # De lo contrario, accede con root y la contraseña dada.
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - ./data:/docker-entrypoint-initdb.d
       - ./mysql_data:/var/lib/mysql
     ports:
       - "53306:3306"
+    networks:
+      - app_network_fichador
 
   web:
     build: .
-    restart: always
+    restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- 
-      sh -c "python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
+      /app/wait-for-it.sh db:3306 -- bash -c " python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -29,23 +28,23 @@ services:
       - "58000:58000"
     depends_on:
       - db
-      - redis
     environment:
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=3306
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+    networks:
+      - app_network_fichador
 
   celery:
     build: .
-    restart: always
+    restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- 
-      celery -A mantenedor worker --loglevel=info
+      /app/wait-for-it.sh db:3306 -- celery -A mantenedor worker --loglevel=info
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -54,22 +53,18 @@ services:
       - db
       - redis
     environment:
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - CELERY_BROKER_URL=redis://redis:6379/5
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+    networks:
+      - app_network_fichador
 
   celery-beat:
     build: .
-    restart: always
+    restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- 
-      celery -A mantenedor beat --loglevel=info
+      /app/wait-for-it.sh db:3306 -- celery -A mantenedor beat --loglevel=info
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -78,25 +73,24 @@ services:
       - db
       - redis
     environment:
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - CELERY_BROKER_URL=redis://redis:6379/5
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+    networks:
+      - app_network_fichador
 
   redis:
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     ports:
       - "6381:6379"
+    networks:
+      - app_network_fichador
 
   nginx:
     image: nginx:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - "5080:80"
     volumes:
@@ -105,10 +99,29 @@ services:
       - media_volume:/app/media
     depends_on:
       - web
+    networks:
+      - app_network_fichador
+
+  backup:
+    image: mysql:8.4.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - ./backups:/backups
+      - ./wait-for-it.sh:/wait-for-it.sh
+      - ./my_backup.cnf:/root/.my.cnf
+    entrypoint: [ "/bin/sh", "-c", "while true; do /wait-for-it.sh db:3306 -- mysqldump -h db ${MYSQL_DATABASE} > /backups/backup_$(date +%F_%T).sql; sleep 7200; done" ]
+    depends_on:
+      - db
+    networks:
+      - app_network_fichador
 
   birt:
     image: tomcat:9.0
-    restart: always
+    restart: unless-stopped
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
     ports:
@@ -118,24 +131,14 @@ services:
       - ./birt_drivers/mysql-connector-j-8.0.33.jar:/usr/local/tomcat/lib/mysql-connector-j-8.0.33.jar
     depends_on:
       - db
-    # Si BIRT necesita que la DB esté lista antes de iniciarse (generalmente Tomcat puede reintentar),
-    # puedes agregar un wait-for-it.sh similar:
-    # command: >
-    #   /app/wait-for-it.sh db:3306 -- 
-    #   catalina.sh run
-
-  backup:
-    image: mysql:8.4
-    environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-    volumes:
-      - ./backups:/backups
-      - ./wait-for-it.sh:/wait-for-it.sh
-    entrypoint: ["/bin/sh", "-c", "/wait-for-it.sh db:3306 -- mysqldump -h db -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE > /backups/backup_$(date +%F_%T).sql; sleep 7200"]
-    depends_on:
-      - db
+    networks:
+      - app_network_fichador
 
 volumes:
   static_volume:
   media_volume:
+
+
+networks:
+  app_network_fichador:
+    driver: bridge

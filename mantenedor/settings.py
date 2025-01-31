@@ -36,12 +36,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.reloj_fichador',
+
+    # Aplicaciones de terceros
+    'simple_history',
     'rangefilter',
     'django_celery_beat',
     'django_celery_results',
     'django_tables2',
     'import_export',
-    'weasyprint'
+    'weasyprint',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     #'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'mantenedor.urls'
@@ -81,11 +85,14 @@ WSGI_APPLICATION = 'mantenedor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': env('DB_NAME', default='docker_horesdb'),
-        'USER': env('DB_USER', default='root'),
-        'PASSWORD': env('DB_PASSWORD', default=''),
-        'HOST': env('DB_HOST', default='db'),
-        'PORT': env('DB_PORT', default='3306'),
+        'NAME': os.environ.get('DB_NAME', 'docker_horesdb'),
+        'USER': os.environ.get('DB_USER', 'Leandro.3996'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'S1st3mas.1999'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'auth_plugin': 'caching_sha2_password',
+        },
     }
 }
 
@@ -150,18 +157,23 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'INFO',  # Cambia a INFO o WARNING para menos detalles
+            'level': 'DEBUG',  # Cambia a DEBUG temporalmente para más detalles
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'INFO',  # Cambia a INFO o WARNING para menos detalles
+            'level': 'INFO',  # Mantén INFO para evitar demasiados detalles en el core
         },
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'WARNING',  # Cambia a WARNING para evitar SQL detallado
+            'level': 'WARNING',  # Mantén WARNING para evitar SQL detallado
+            'propagate': False,
+        },
+        'reloj_fichador': {  # Agrega tu módulo aquí
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Permite mensajes DEBUG para tu app
             'propagate': False,
         },
         'py.warnings': {

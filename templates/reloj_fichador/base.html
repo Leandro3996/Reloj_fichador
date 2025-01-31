@@ -1,12 +1,18 @@
+<!-- base.html -->
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Reloj Fichador{% endblock %}</title>
-    {% load static %}    
+    {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <!-- Incluye jQuery para simplificar las solicitudes AJAX (opcional) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-image">
@@ -17,36 +23,29 @@
                 <h1>Control Horarios</h1>
             </header>
             <main>
-                {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                    <div class="{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
+                <div class="messages" id="messages" style="display: none;">
+                    <!-- Mensajes de Django serán manejados vía AJAX -->
                 </div>
-                {% endif %}
 
                 <div class="menu-container">
-                    <!-- Aquí se definen los botones para cada tipo de movimiento -->
+                    <!-- Botones para cada tipo de movimiento -->
                     <button class="menu-button" onclick="setTipoMovimiento('entrada')">Entrada (Q)</button>
-                    <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida transitoria (V)</button>
-                    <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada transitoria (M)</button>
+                    <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida Transitoria
+                        (V)</button>
+                    <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada Transitoria
+                        (M)</button>
                     <button class="menu-button" onclick="setTipoMovimiento('salida')">Salida (P)</button>
                 </div>
 
                 <div class="input-container">
-                    <form id="movimientoForm" method="POST" action="">                        
+                    <form id="movimientoForm" method="POST"
+                        action="{% url 'reloj_fichador:registrar_movimiento_tipo' 'entrada' %}">
+                        {% csrf_token %}
                         <input type="hidden" id="tipo_movimiento" name="tipo_movimiento" value="entrada">
                         <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" required autocomplete="off">
                         <button type="submit" class="accept-button">Aceptar</button>
-                    </form>                    
+                    </form>
                 </div>
-                {% if error %}
-                    <div class="error">
-                        <p>{{ error }}</p>
-                    </div>
-                {% endif %}
             </main>
             <footer>
                 <p class="custom-footer">&copy; 2024 Control Horarios</p>
@@ -63,24 +62,27 @@
         <p id="current-date-time"></p>
     </div>
 
-    <!-- Modal para mostrar inconsistencia -->
-    <div id="inconsistency-modal">
+    <!-- Modal para mostrar inconsistencias -->
+    <div id="inconsistency-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true"
+        style="display: none;">
         <div class="modal-content">
             <p id="inconsistency-message"></p>
             <button id="accept-modal-button">Aceptar</button>
-            <button id="cancel-modal-button">Cancelar</button>            
+            <button id="cancel-modal-button">Cancelar</button>
         </div>
     </div>
+
+    <!-- Scripts JavaScript Mejorados -->
     <script>
         function setTipoMovimiento(tipo) {
             document.querySelectorAll('.menu-button').forEach(button => {
                 button.classList.remove('active');
                 button.classList.remove('elevate');
             });
-    
+
             document.getElementById('tipo_movimiento').value = tipo;
             document.getElementById('movimientoForm').action = "{% url 'reloj_fichador:registrar_movimiento_tipo' 'placeholder_tipo' %}".replace('placeholder_tipo', tipo);
-                
+
             const activeButton = document.querySelector(`.menu-button[onclick="setTipoMovimiento('${tipo}')"]`);
             activeButton.classList.add('active');
             activeButton.classList.add('elevate');
@@ -88,13 +90,18 @@
                 activeButton.classList.remove('elevate');
             }, 300);
         }
-    
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             const dniInput = document.getElementById('dni');
             const movimientoForm = document.getElementById('movimientoForm');
-            
-            // Cambiar URL y seleccionar el tipo de movimiento al presionar una tecla
-            document.addEventListener('keydown', function(event) {
+            const inconsistencyModal = document.getElementById('inconsistency-modal');
+            const inconsistencyMessage = document.getElementById('inconsistency-message');
+            const acceptModalButton = document.getElementById('accept-modal-button');
+            const cancelModalButton = document.getElementById('cancel-modal-button');
+            const messagesDiv = document.getElementById('messages');
+
+            // Manejo de atajos de teclado
+            document.addEventListener('keydown', function (event) {
                 switch (event.key.toUpperCase()) {
                     case 'Q':
                         setTipoMovimiento('entrada');
@@ -109,106 +116,219 @@
                         setTipoMovimiento('salida');
                         break;
                 }
-            });
-    
-            dniInput.focus();
-            dniInput.addEventListener('blur', function() {
-                setTimeout(() => dniInput.focus(), 10);
-            });
-    
-            dniInput.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
-            });
-    
-            // Lógica para el modal de inconsistencias
-            const inconsistencia = "{{ inconsistencia|default_if_none:'' }}";
-            const mensajeError = "{{ mensaje_error|default_if_none:'' }}";
-    
-            // Interceptar el envío del formulario para verificar inconsistencia
-            movimientoForm.addEventListener('submit', function(event) {
-                if (inconsistencia === "True") {
-                    event.preventDefault(); // Evita el envío del formulario
-                    
-                    // Muestra el modal de inconsistencia
-                    const modal = document.getElementById('inconsistency-modal');
-                    const inconsistencyMessage = document.getElementById('inconsistency-message');
-                    inconsistencyMessage.innerHTML = mensajeError + "<br>¿Desea fichar de todos modos?";
-                    modal.style.display = 'flex';
+                if (event.key === 'Escape') {
+                    dniInput.value = '';
                 }
             });
-    
-            // Función para manejar el botón "Aceptar" en el modal
-            document.getElementById('accept-modal-button').onclick = function() {
-                if (!dniInput.value) {
+
+            // Mantener el foco en el campo DNI
+            dniInput.focus();
+            dniInput.addEventListener('blur', function () {
+                setTimeout(() => dniInput.focus(), 10);
+            });
+
+            // Validación de entrada: solo números
+            dniInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            // Manejo del envío del formulario via AJAX
+            movimientoForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // Evita el envío tradicional del formulario
+
+                const tipoMovimiento = document.getElementById('tipo_movimiento').value;
+                const dni = dniInput.value.trim();
+
+                if (!dni) {
+                    mostrarMensaje('error', 'Debe ingresar un DNI válido ⚠️');
+                    return;
+                }
+
+                // Preparar los datos del formulario
+                const formData = new FormData(movimientoForm);
+
+                // Realizar la solicitud AJAX
+                fetch(movimientoForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken') // Función para obtener el token CSRF
+                    },
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarMensaje('success', data.message);
+                            dniInput.value = ''; // Limpiar el campo DNI
+                            dniInput.focus();
+                        } else {
+                            if (data.inconsistencia) {
+                                // Mostrar el modal con el mensaje de inconsistencia
+                                inconsistencyMessage.innerHTML = `${data.descripcion_inconsistencia}<br>¿Desea fichar de todos modos?`;
+                                inconsistencyModal.style.display = 'flex';
+                                inconsistencyModal.setAttribute('aria-hidden', 'false');
+
+                                // Almacenar el tipo de movimiento para el override
+                                inconsistencyModal.dataset.tipoMovimiento = data.tipo_movimiento;
+                            } else {
+                                mostrarMensaje('error', data.message);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarMensaje('error', 'Ocurrió un error al procesar su solicitud.');
+                    });
+            });
+
+            // Manejo del botón "Aceptar" en el modal
+            acceptModalButton.onclick = function () {
+                const tipoMovimiento = inconsistencyModal.dataset.tipoMovimiento;
+                const dni = dniInput.value.trim();
+
+                if (!dni) {
                     alert("Debe ingresar un DNI para continuar.");
                     return;
                 }
-    
-                // Añadir el campo de inconsistencia y enviar el formulario
-                const inconsistencyField = document.createElement('input');
-                inconsistencyField.type = 'hidden';
-                inconsistencyField.name = 'inconsistency_override';
-                inconsistencyField.value = 'True';
-                movimientoForm.appendChild(inconsistencyField);
-    
-                document.getElementById('inconsistency-modal').style.display = 'none';
-                movimientoForm.submit();
-            };
-    
-            document.getElementById('cancel-modal-button').onclick = function() {
-                // Oculta el modal
-                document.getElementById('inconsistency-modal').style.display = 'none';
-                window.location.href = "{% url 'reloj_fichador:home' %}";
-            };
-        });
-    
-        // Manejo de fondo cambiante
-        const images = [
-            "{% static 'images/login-background1.jpg' %}",
-            "{% static 'images/login-background2.jpg' %}",
-            "{% static 'images/login-background3.jpg' %}",
-            "{% static 'images/login-background4.jpg' %}",
-            "{% static 'images/login-background5.jpg' %}",
-            "{% static 'images/login-background6.jpg' %}",
-            "{% static 'images/login-background7.jpg' %}",
-            "{% static 'images/login-background8.jpg' %}"
-        ];
-    
-        let currentIndex = 0;
-    
-        function changeBackground() {
-            document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
-            currentIndex = (currentIndex + 1) % images.length;
-        }
-    
-        setInterval(changeBackground, 60000);
-    
-        function updateDateTime() {
-            const currentDateTime = new Date();
-            const formattedDateTime = currentDateTime.toLocaleString();
-            document.getElementById("current-date-time").textContent = formattedDateTime;
-        }
-    
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-    
-        const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1';
-        const cityId = '3864331';
-        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${apiKey}&units=metric&lang=es`;
-    
-        function updateWeather() {
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('weather-location').textContent = data.name;
-                    document.getElementById('weather-temp').textContent = `${Math.round(data.main.temp)}°C`;
-                    document.getElementById('weather-description').textContent = data.weather[0].description;
+
+                // Crear un nuevo formulario con override
+                const formData = new FormData();
+                formData.append('dni', dni);
+                formData.append('tipo_movimiento', tipoMovimiento);
+                formData.append('inconsistency_override', 'True');
+
+                // Realizar la solicitud AJAX con override
+                fetch("{% url 'reloj_fichador:registrar_movimiento_tipo' 'placeholder_tipo' %}".replace('placeholder_tipo', tipoMovimiento), {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: formData
                 })
-                .catch(error => console.error('Error al obtener los datos:', error));
-        }
-    
-        updateWeather();
-        setInterval(updateWeather, 600000);
-    </script>    
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarMensaje('success', data.message);
+                            inconsistencyModal.style.display = 'none';
+                            inconsistencyModal.setAttribute('aria-hidden', 'true');
+                            dniInput.value = '';
+                            dniInput.focus();
+                        } else {
+                            mostrarMensaje('error', data.message);
+                            inconsistencyModal.style.display = 'none';
+                            inconsistencyModal.setAttribute('aria-hidden', 'true');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarMensaje('error', 'Ocurrió un error al procesar su solicitud.');
+                        inconsistencyModal.style.display = 'none';
+                        inconsistencyModal.setAttribute('aria-hidden', 'true');
+                    });
+            };
+
+            // Manejo del botón "Cancelar" en el modal
+            cancelModalButton.onclick = function () {
+                inconsistencyModal.style.display = 'none';
+                inconsistencyModal.setAttribute('aria-hidden', 'true');
+                mostrarMensaje('info', 'Fichada cancelada.');
+                dniInput.value = '';
+                dniInput.focus();
+            };
+
+            // Permitir cerrar el modal al hacer clic fuera de él
+            window.onclick = function (event) {
+                if (event.target == inconsistencyModal) {
+                    inconsistencyModal.style.display = 'none';
+                    inconsistencyModal.setAttribute('aria-hidden', 'true');
+                    mostrarMensaje('info', 'Fichada cancelada.');
+                    dniInput.value = '';
+                    dniInput.focus();
+                }
+            };
+
+            // Función para mostrar mensajes
+            function mostrarMensaje(tipo, mensaje) {
+                messagesDiv.innerHTML = `<div class="${tipo}">${mensaje}</div>`;
+                messagesDiv.style.display = 'block';
+                setTimeout(() => {
+                    messagesDiv.style.display = 'none';
+                    messagesDiv.innerHTML = '';
+                }, 5000); // Ocultar después de 5 segundos
+            }
+
+            // Función para obtener el token CSRF
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Verificar si esta cookie corresponde al nombre
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Manejo de fondo cambiante
+            const images = [
+                "{% static 'images/login-background1.jpg' %}",
+                "{% static 'images/login-background2.jpg' %}",
+                "{% static 'images/login-background3.jpg' %}",
+                "{% static 'images/login-background4.jpg' %}",
+                "{% static 'images/login-background5.jpg' %}",
+                "{% static 'images/login-background6.jpg' %}",
+                "{% static 'images/login-background7.jpg' %}",
+                "{% static 'images/login-background8.jpg' %}"
+            ];
+
+            let currentIndex = 0;
+
+            function changeBackground() {
+                document.body.style.backgroundImage = `url('${images[currentIndex]}')`;
+                currentIndex = (currentIndex + 1) % images.length;
+            }
+
+            setInterval(changeBackground, 60000);
+            changeBackground(); // Cambiar inmediatamente al cargar
+
+            // Actualización de fecha y hora en tiempo real
+            function updateDateTime() {
+                const currentDateTime = new Date();
+                const formattedDateTime = currentDateTime.toLocaleString('es-ES', { hour12: false });
+                document.getElementById("current-date-time").textContent = formattedDateTime;
+            }
+
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            // Widget del clima con OpenWeatherMap API
+            const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1';
+            const cityId = '3864331';
+            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${apiKey}&units=metric&lang=es`;
+
+            function updateWeather() {
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('weather-location').textContent = data.name;
+                        document.getElementById('weather-temp').textContent = `${Math.round(data.main.temp)}°C`;
+                        document.getElementById('weather-description').textContent = data.weather[0].description;
+                    })
+                    .catch(error => console.error('Error al obtener los datos:', error));
+            }
+
+            updateWeather();
+            setInterval(updateWeather, 600000);
+        });
+
+    </script>
 </body>
+
 </html>

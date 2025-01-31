@@ -9,7 +9,18 @@ from datetime import datetime
 import os
 from django.conf import settings
 import openpyxl
+import threading
+from contextlib import contextmanager
 
+_thread_locals = threading.local()
+
+@contextmanager
+def suppress_signal():
+    _thread_locals.in_save = True
+    try:
+        yield
+    finally:
+        _thread_locals.in_save = False
 
 
 # Helper para calcular el ancho de columnas basado en el contenido
