@@ -1,0 +1,17 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}400 - Petición incorrecta{% endblock %}
+
+{% block error_code %}400{% endblock %}
+
+{% block error_title %}Petición incorrecta{% endblock %}
+
+{% block error_message %}
+Lo sentimos, pero tu solicitud no pudo ser procesada porque contiene datos incorrectos o incompletos.
+Por favor, verifica la información enviada e intenta nuevamente.
+{% endblock %}
+
+{% block action_buttons %}
+<a href="javascript:history.back()" class="btn btn-secondary">Volver atrás</a>
+<a href="{% url 'admin:index' %}" class="btn">Ir al inicio</a>
+{% endblock %} 

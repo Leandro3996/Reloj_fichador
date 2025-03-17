@@ -125,10 +125,11 @@ services:
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
     ports:
-      - "6000:8080"
+      - "6003:8088"
     volumes:
+      - ./reportes:/usr/local/tomcat/webapps/birt/WEB-INF/reports
       - ./birt/birt.war:/usr/local/tomcat/webapps/birt.war
-      - ./birt_drivers/mysql-connector-j-8.0.33.jar:/usr/local/tomcat/lib/mysql-connector-j-8.0.33.jar
+      - ./birt_drivers/mysql-connector-j-9.1.0.jar:/usr/local/tomcat/lib/mysql-connector-j-9.1.0.jar
     depends_on:
       - db
     networks:

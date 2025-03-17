@@ -39,13 +39,6 @@ def actualizar_asistencia_despues_de_borrar(sender, instance, **kwargs):
 
 @receiver(post_save, sender=RegistroDiario)
 def actualizar_horas_despues_de_guardar(sender, instance, **kwargs):
-    """
-    Cada vez que se guarda un RegistroDiario nuevo o se actualiza uno existente,
-    recalculamos horas trabajadas, extras y totales.
-    
-    Además, haremos el 'recorte' de horas normales/nocturnas a 8h
-    solo después de que Horas_extras ya haya visto la cifra real.
-    """
     if getattr(_thread_locals, 'in_save', False):
         return  # Prevenir recursión si la lógica vuelve a disparar la señal
 
@@ -60,30 +53,26 @@ def actualizar_horas_despues_de_guardar(sender, instance, **kwargs):
         # 2) Calculamos horas extras (usa las horas normales+nocturnas reales)
         Horas_extras.calcular_horas_extras(operario, fecha_logica)
         
-        # 3) Calculamos horas totales del mes
-        Horas_totales.calcular_horas_totales(operario, mes_logico)
-
-        # 4) Ahora SÍ recortamos en Horas_trabajadas a un máximo de 8h (u 8h30, según reglas).
+        # 3) **Primero recortamos en Horas_trabajadas a un máximo de 8h**
         try:
             ht = Horas_trabajadas.objects.get(operario=operario, fecha=fecha_logica)
-            # Suma real (guardada en horas_trabajadas)
             total_reales = ht.horas_normales + ht.horas_nocturnas
-            limite_jornada = timedelta(hours=8)  # Cambia aquí si quieres 8h30, etc.
+            limite_jornada = timedelta(hours=8)  # O 8h30, según tus reglas
 
             if total_reales > limite_jornada:
-                # Repartimos las 8 horas entre normales y nocturnas de forma proporcional
                 ratio_n = ht.horas_normales / total_reales if total_reales else 0
                 ratio_noct = ht.horas_nocturnas / total_reales if total_reales else 0
 
                 ht.horas_normales = limite_jornada * ratio_n
                 ht.horas_nocturnas = limite_jornada * ratio_noct
 
-            # Guardamos el recorte
             ht.save()
-
         except Horas_trabajadas.DoesNotExist:
-            # Si no existe, simplemente no hacemos nada
             pass
+
+        # 4) Ahora que Horas_trabajadas tiene los valores recortados, recalculamos Horas_totales
+        Horas_totales.calcular_horas_totales(operario, mes_logico)
+
 
 
 @receiver(post_delete, sender=RegistroDiario)

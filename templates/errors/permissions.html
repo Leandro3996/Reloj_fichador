@@ -1,0 +1,24 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Permiso insuficiente{% endblock %}
+
+{% block error_code %}Acceso restringido{% endblock %}
+
+{% block error_title %}No tienes suficientes permisos{% endblock %}
+
+{% block error_message %}
+Lo sentimos, pero no tienes los permisos necesarios para acceder a este recurso.
+{% if permission_required %}
+Se requiere el permiso: <strong>{{ permission_required }}</strong>
+{% endif %}
+{% endblock %}
+
+{% block action_buttons %}
+<a href="javascript:history.back()" class="btn btn-secondary">Volver atrás</a>
+<a href="{% url 'admin:index' %}" class="btn">Ir al inicio</a>
+{% if user.is_authenticated %}
+<a href="{% url 'admin:logout' %}" class="btn">Cerrar sesión</a>
+{% else %}
+<a href="{% url 'admin:login' %}" class="btn">Iniciar sesión</a>
+{% endif %}
+{% endblock %} 

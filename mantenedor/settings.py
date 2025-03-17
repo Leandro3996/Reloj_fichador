@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 import environ
+import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env()
@@ -23,7 +24,9 @@ SECRET_KEY = 'django-insecure-mp&6m=!k202ckikyskc^td9pj3r&luzc$kuo+v1!9@$q@l7c0q
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost','192.168.10.12','192.168.10.43',
+                 '192.168.10.18', '192.168.10.11','192.168.10.17',
+                 '192.168.10.8','192.168.10.4','192.168.10.13',]
 #ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51', '192.168.68.54']
 
 INSTALLED_APPS = [
@@ -36,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.reloj_fichador',
+    'mantenedor',
 
     # Aplicaciones de terceros
     'simple_history',
@@ -52,11 +56,14 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     #'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    # Middlewares personalizados para manejo de errores
+    'apps.reloj_fichador.middleware.PermissionMiddleware',
+    'apps.reloj_fichador.middleware.ErrorHandlerMiddleware',
 ]
 
 ROOT_URLCONF = 'mantenedor.urls'
@@ -72,6 +79,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Context processors personalizados
+                'apps.reloj_fichador.context_processors.permissions',
             ],
         },
     },
@@ -136,6 +145,8 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:5080','http://192.168.0.228:5080','htt
 # Duración de la sesión y el token CSRF
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
 CSRF_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
+SESSION_COOKIE_NAME = "session_5080"
+
 
 # Guardar la sesión en cada solicitud para prolongar su duración
 SESSION_SAVE_EVERY_REQUEST = True
@@ -182,3 +193,15 @@ LOGGING = {
         },
     },
 }
+
+# Configuración especial para las pruebas
+if 'test' in sys.argv:
+    print("Usando SQLite en memoria para las pruebas")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+    DEBUG = False

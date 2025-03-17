@@ -1,0 +1,21 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}403 - Acceso denegado{% endblock %}
+
+{% block error_code %}403{% endblock %}
+
+{% block error_title %}Acceso denegado{% endblock %}
+
+{% block error_message %}
+Lo sentimos, pero no tienes permiso para acceder a esta página.
+{% endblock %}
+
+{% block action_buttons %}
+<a href="javascript:history.back()" class="btn btn-secondary">Volver atrás</a>
+<a href="{% url 'admin:index' %}" class="btn">Ir al inicio</a>
+{% if user.is_authenticated %}
+<a href="{% url 'admin:logout' %}" class="btn">Cerrar sesión</a>
+{% else %}
+<a href="{% url 'admin:login' %}" class="btn">Iniciar sesión</a>
+{% endif %}
+{% endblock %} 

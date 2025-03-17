@@ -1,0 +1,17 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}404 - Página no encontrada{% endblock %}
+
+{% block error_code %}404{% endblock %}
+
+{% block error_title %}Página no encontrada{% endblock %}
+
+{% block error_message %}
+Lo sentimos, pero la página que estás buscando no existe o ha sido movida.
+Por favor, verifica la URL o utiliza los botones de abajo para navegar a una página diferente.
+{% endblock %}
+
+{% block action_buttons %}
+<a href="javascript:history.back()" class="btn btn-secondary">Volver atrás</a>
+<a href="{% url 'admin:index' %}" class="btn">Ir al inicio</a>
+{% endblock %} 

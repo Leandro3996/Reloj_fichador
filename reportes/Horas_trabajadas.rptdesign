@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.26" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.18.0.v202411161754</property>
+    <list-property name="propertyBindings">
+        <structure>
+            <property name="name">databaseName</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">username</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">password</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">URL</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">driverClass</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">jarList</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">OdaConnProfileName</property>
+            <property name="id">4</property>
+        </structure>
+        <structure>
+            <property name="name">OdaConnProfileStorePath</property>
+            <property name="id">4</property>
+        </structure>
+    </list-property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <property name="imageDPI">96</property>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc.dbprofile" name="Data Source" id="4">
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.drivers.defnType</name>
+                    <value>org.eclipse.datatools.enablement.mysql.4_0.driverTemplate</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.oda.profile.db.provider.id</name>
+                    <value>org.eclipse.datatools.enablement.mysql.connectionProfile</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.vendor</name>
+                    <value>MySql</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.driverDefinitionID</name>
+                    <value>DriverDefn.org.eclipse.datatools.enablement.mysql.4_0.driverTemplate.MySQL JDBC Driver</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.savePWD</name>
+                    <value>true</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.connectionProperties</name>
+                    <value>zeroDateTimeBehavior=convertToNull</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.version</name>
+                    <value>4.0</value>
+                </ex-property>
+            </list-property>
+            <property name="databaseName">docker_horesdb</property>
+            <property name="username">root</property>
+            <encrypted-property name="password" encryptionID="base64">UzFzdDNtYXMuMTk5OQ==</encrypted-property>
+            <property name="URL">jdbc:mysql://localhost:53306/docker_horesdb?allowPublicKeyRetrieval=true&amp;useSSL=false</property>
+            <property name="driverClass">com.mysql.jdbc.Driver</property>
+            <property name="jarList">C:\Proyectos_Docker\Reloj_fichador\birt_drivers\mysql-connector-j-9.1.0.jar</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.dbprofile.sqbDataSet" name="Data Set" id="7">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">id_registro</property>
+                    <text-property name="displayName">id_registro</text-property>
+                    <text-property name="heading">id_registro</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">hora_fichada</property>
+                    <text-property name="displayName">hora_fichada</text-property>
+                    <text-property name="heading">hora_fichada</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">tipo_movimiento</property>
+                    <text-property name="displayName">tipo_movimiento</text-property>
+                    <text-property name="heading">tipo_movimiento</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">operario_id</property>
+                    <text-property name="displayName">operario_id</text-property>
+                    <text-property name="heading">operario_id</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">origen_fichada</property>
+                    <text-property name="displayName">origen_fichada</text-property>
+                    <text-property name="heading">origen_fichada</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">inconsistencia</property>
+                    <text-property name="displayName">inconsistencia</text-property>
+                    <text-property name="heading">inconsistencia</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">valido</property>
+                    <text-property name="displayName">valido</text-property>
+                    <text-property name="heading">valido</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">descripcion_inconsistencia</property>
+                    <text-property name="displayName">descripcion_inconsistencia</text-property>
+                    <text-property name="heading">descripcion_inconsistencia</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">dif_entrada_salida</property>
+                    <text-property name="displayName">dif_entrada_salida</text-property>
+                    <text-property name="heading">dif_entrada_salida</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">dif_entrada_salida2</property>
+                    <text-property name="displayName">dif_entrada_salida2</text-property>
+                    <text-property name="heading">dif_entrada_salida2</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">dif_entrada_salida_total</property>
+                    <text-property name="displayName">dif_entrada_salida_total</text-property>
+                    <text-property name="heading">dif_entrada_salida_total</text-property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">id_registro</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">hora_fichada</property>
+                        <property name="dataType">date-time</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">tipo_movimiento</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">operario_id</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">origen_fichada</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">inconsistencia</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">valido</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">descripcion_inconsistencia</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">dif_entrada_salida</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">dif_entrada_salida2</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">11</property>
+                        <property name="name">dif_entrada_salida_total</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">id_registro</property>
+                    <property name="nativeName">id_registro</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">hora_fichada</property>
+                    <property name="nativeName">hora_fichada</property>
+                    <property name="dataType">date-time</property>
+                    <property name="nativeDataType">93</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">tipo_movimiento</property>
+                    <property name="nativeName">tipo_movimiento</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">operario_id</property>
+                    <property name="nativeName">operario_id</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">-5</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">origen_fichada</property>
+                    <property name="nativeName">origen_fichada</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">inconsistencia</property>
+                    <property name="nativeName">inconsistencia</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">-7</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">valido</property>
+                    <property name="nativeName">valido</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">-7</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">descripcion_inconsistencia</property>
+                    <property name="nativeName">descripcion_inconsistencia</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">dif_entrada_salida</property>
+                    <property name="nativeName">dif_entrada_salida</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">-5</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">dif_entrada_salida2</property>
+                    <property name="nativeName">dif_entrada_salida2</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">-5</property>
+                </structure>
+                <structure>
+                    <property name="position">11</property>
+                    <property name="name">dif_entrada_salida_total</property>
+                    <property name="nativeName">dif_entrada_salida_total</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">-5</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[SELECT *
+  FROM `docker_horesdb`.RELOJ_FICHADOR_REGISTRODIARIO
+]]></xml-property>
+            <structure name="designerState">
+                <property name="version">1.0</property>
+                <property name="stateContentAsString">&lt;?xml version="1.0" encoding="UTF-8"?>&#13;
+&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="Data Set" version="1.0">&#13;
+&lt;SQLStatement>SELECT *&amp;#x0A;  FROM `docker_horesdb`.RELOJ_FICHADOR_REGISTRODIARIO&amp;#x0A;&lt;/SQLStatement>&#13;
+&lt;connInfo>MySql_4.0:Transient.org.eclipse.datatools.enablement.mysql.connectionProfile:docker_horesdb:Leandro.3996&lt;/connInfo>&#13;
+&lt;omitSchemaInfo>false:true:&lt;/omitSchemaInfo>&#13;
+&lt;editorInputUsageOptions>useWindowState=true&lt;/editorInputUsageOptions>&#13;
+&lt;windowState height="482" version="1.0" width="687">&#13;
+&lt;control height="146" isHideable="true" isVisible="true" name="SQLSourceViewer" width="660"/>&#13;
+&lt;control height="151" isHideable="true" isVisible="true" name="DesignViewer" width="673"/>&#13;
+&lt;control height="147" isHideable="true" isVisible="true" name="GraphControl" width="665"/>&#13;
+&lt;control height="151" isHideable="true" isVisible="false" name="OutlineViewer" width="198"/>&#13;
+&lt;/windowState>&#13;
+&lt;/SQLQueryBuilder></property>
+            </structure>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>id_registro</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>4</design:nativeDataTypeCode>
+            <design:precision>10</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>id_registro</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>id_registro</design:label>
+            <design:formattingHints>
+              <design:displaySize>10</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>hora_fichada</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>93</design:nativeDataTypeCode>
+            <design:precision>26</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>hora_fichada</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>hora_fichada</design:label>
+            <design:formattingHints>
+              <design:displaySize>26</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>tipo_movimiento</design:name>
+              <design:position>3</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>20</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>tipo_movimiento</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>tipo_movimiento</design:label>
+            <design:formattingHints>
+              <design:displaySize>20</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>operario_id</design:name>
+              <design:position>4</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>19</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>operario_id</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>operario_id</design:label>
+            <design:formattingHints>
+              <design:displaySize>19</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>origen_fichada</design:name>
+              <design:position>5</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>10</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>origen_fichada</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>origen_fichada</design:label>
+            <design:formattingHints>
+              <design:displaySize>10</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>inconsistencia</design:name>
+              <design:position>6</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-7</design:nativeDataTypeCode>
+            <design:precision>1</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>inconsistencia</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>inconsistencia</design:label>
+            <design:formattingHints>
+              <design:displaySize>1</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>valido</design:name>
+              <design:position>7</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-7</design:nativeDataTypeCode>
+            <design:precision>1</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>valido</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>valido</design:label>
+            <design:formattingHints>
+              <design:displaySize>1</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>descripcion_inconsistencia</design:name>
+              <design:position>8</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>536870911</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>descripcion_inconsistencia</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>descripcion_inconsistencia</design:label>
+            <design:formattingHints>
+              <design:displaySize>536870911</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>dif_entrada_salida</design:name>
+              <design:position>9</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>19</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>dif_entrada_salida</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>dif_entrada_salida</design:label>
+            <design:formattingHints>
+              <design:displaySize>19</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>dif_entrada_salida2</design:name>
+              <design:position>10</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>19</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>dif_entrada_salida2</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>dif_entrada_salida2</design:label>
+            <design:formattingHints>
+              <design:displaySize>19</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>dif_entrada_salida_total</design:name>
+              <design:position>11</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>-5</design:nativeDataTypeCode>
+            <design:precision>19</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>Nullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>dif_entrada_salida_total</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>dif_entrada_salida_total</design:label>
+            <design:formattingHints>
+              <design:displaySize>19</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria>
+        <design:rowOrdering/>
+      </design:criteria>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <page-footer>
+                <text id="3">
+                    <property name="contentType">html</property>
+                    <text-property name="content"><![CDATA[<value-of>new Date()</value-of>]]></text-property>
+                </text>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <label name="titulo" id="56">
+            <property name="backgroundColor">#EEFAC0</property>
+            <property name="fontSize">24pt</property>
+            <property name="textAlign">center</property>
+            <text-property name="text">Registro Diario</text-property>
+        </label>
+        <table id="57">
+            <property name="dataSet">Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">hora_fichada</property>
+                    <text-property name="displayName">hora_fichada</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["hora_fichada"]</expression>
+                    <property name="dataType">date-time</property>
+                </structure>
+                <structure>
+                    <property name="name">tipo_movimiento</property>
+                    <text-property name="displayName">tipo_movimiento</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["tipo_movimiento"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">operario_id</property>
+                    <text-property name="displayName">operario_id</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["operario_id"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">origen_fichada</property>
+                    <text-property name="displayName">origen_fichada</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["origen_fichada"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">inconsistencia</property>
+                    <text-property name="displayName">inconsistencia</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["inconsistencia"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">valido</property>
+                    <text-property name="displayName">valido</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["valido"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <column id="91"/>
+            <column id="92"/>
+            <column id="93"/>
+            <column id="94"/>
+            <column id="95"/>
+            <column id="96"/>
+            <header>
+                <row id="58">
+                    <cell id="59">
+                        <label id="60">
+                            <text-property name="text">Hora Fichada</text-property>
+                        </label>
+                    </cell>
+                    <cell id="61">
+                        <label id="62">
+                            <text-property name="text">Tipo de movimiento</text-property>
+                        </label>
+                    </cell>
+                    <cell id="63">
+                        <label id="64">
+                            <text-property name="text">Operario</text-property>
+                        </label>
+                    </cell>
+                    <cell id="65">
+                        <label id="66">
+                            <text-property name="text">Origen de fichada</text-property>
+                        </label>
+                    </cell>
+                    <cell id="67">
+                        <label id="68">
+                            <text-property name="text">Inconsistencia</text-property>
+                        </label>
+                    </cell>
+                    <cell id="69">
+                        <label id="70">
+                            <text-property name="text">Valido</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="71">
+                    <cell id="72">
+                        <data id="73">
+                            <property name="resultSetColumn">hora_fichada</property>
+                        </data>
+                    </cell>
+                    <cell id="74">
+                        <data id="75">
+                            <property name="resultSetColumn">tipo_movimiento</property>
+                        </data>
+                    </cell>
+                    <cell id="76">
+                        <data id="77">
+                            <property name="resultSetColumn">operario_id</property>
+                        </data>
+                    </cell>
+                    <cell id="78">
+                        <data id="79">
+                            <property name="resultSetColumn">origen_fichada</property>
+                        </data>
+                    </cell>
+                    <cell id="80">
+                        <data id="81">
+                            <property name="resultSetColumn">inconsistencia</property>
+                        </data>
+                    </cell>
+                    <cell id="82">
+                        <data id="83">
+                            <property name="resultSetColumn">valido</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="84">
+                    <cell id="85"/>
+                    <cell id="86"/>
+                    <cell id="87"/>
+                    <cell id="88"/>
+                    <cell id="89"/>
+                    <cell id="90"/>
+                </row>
+            </footer>
+        </table>
+    </body>
+</report>

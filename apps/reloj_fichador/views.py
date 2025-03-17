@@ -77,11 +77,13 @@ def registrar_movimiento_tipo(request, tipo_movimiento):
             hora_fichada=timezone.now(),
             inconsistencia=True,
             valido=True,
-            descripcion_inconsistencia="Fichada con inconsistencia por decisión del operario."
         )
         try:
             registro.save()
             tipo_movimiento_legible = registro.get_tipo_movimiento_display()
+            # Actualizar la descripción del tipo de movimiento
+            registro.descripcion_inconsistencia = f"El operario {operario.nombre} {operario.apellido} registró 2 veces el movimiento {tipo_movimiento_legible}."
+            registro.save(update_fields=['descripcion_inconsistencia'])
             success_message = f"REGISTRO CON INCONSISTENCIA: {operario.nombre} {operario.apellido} - {tipo_movimiento_legible} - {registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')}"
             logger.info(f"Registro creado con inconsistencia: {success_message}")
             return JsonResponse({'success': True, 'message': success_message})
@@ -128,3 +130,50 @@ def generar_reporte_view(request):
 
     # Renderizar la plantilla
     return render(request, 'reloj_fichador/reporte.html', context)
+
+# Vistas para manejar errores HTTP
+def error_400(request, exception=None):
+    """
+    Maneja errores 400 (Bad Request).
+    """
+    context = {
+        'error_details': str(exception) if exception else None,
+        'user': request.user,
+    }
+    return render(request, 'errors/400.html', context, status=400)
+
+def error_403(request, exception=None):
+    """
+    Maneja errores 403 (Forbidden).
+    """
+    context = {
+        'error_details': str(exception) if exception else None,
+        'user': request.user,
+        'show_permissions_info': True,
+    }
+    return render(request, 'errors/403.html', context, status=403)
+
+def error_404(request, exception=None):
+    """
+    Maneja errores 404 (Page Not Found).
+    """
+    context = {
+        'error_details': str(exception) if exception else None,
+        'user': request.user,
+    }
+    return render(request, 'errors/404.html', context, status=404)
+
+def error_500(request):
+    """
+    Maneja errores 500 (Server Error).
+    """
+    context = {
+        'user': request.user,
+    }
+    # Solo mostrar detalles técnicos a superusuarios
+    if request.user.is_superuser:
+        import sys
+        import traceback
+        context['error_details'] = traceback.format_exc()
+        
+    return render(request, 'errors/500.html', context, status=500)

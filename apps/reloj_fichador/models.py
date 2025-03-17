@@ -10,9 +10,9 @@ import os
 import logging
 import threading
 from .utils import suppress_signal
+from django.conf import settings
 
 logger = logging.getLogger('reloj_fichador')
-
 
 # ------------------------------------------------------------------------------------
 # REGLAS DE HORAS (según tu descripción resumida)
@@ -43,52 +43,104 @@ def redondear_salida(dt):
     # Tu función "pura" de redondeo a la baja es esta:
     return dt.replace(minute=0, second=0, microsecond=0)
 
-
-def calcular_horas_por_franjas(inicio, fin):
+def calcular_horas_por_franjas(inicio, fin, limites=None):
     """
-    Calcula las horas normales y nocturnas en el rango [inicio, fin)
-    basado en los requisitos de cada tipo.
+    Calcula las horas normales y nocturnas entre dos momentos dados.
+    
+    Horas normales: Condiciones
+    - Entrada válida: Ingreso posterior a las 4 am e inferior a las 21hs
+    - Salida válida: Posterior a las 5 am e inferior a las 22hs (siempre posterior a la entrada)
+    
+    Horas nocturnas: Condiciones
+    - Entrada válida: Ingreso posterior a las 20hs o inferior a las 5 am del día siguiente
+    - Salida válida: Posterior a las 21hs o inferior a las 6 am del día siguiente (siempre posterior a la entrada)
+    
+    Args:
+        inicio: Timestamp de inicio (datetime)
+        fin: Timestamp de fin (datetime)
+        limites: Diccionario opcional con los límites de franjas horarias
+    
+    Returns:
+        Tupla (horas_normales, horas_nocturnas) como objetos timedelta
     """
-    if fin <= inicio:
-        return timedelta(0), timedelta(0)
-
-    total_normales = timedelta(0)
-    total_nocturnas = timedelta(0)
-
-    # Definir los límites horarios
-    base_date = inicio.date()
-    dia_siguiente = base_date + timedelta(days=1)
-
-    limites = {
-        'normales_inicio': datetime(base_date.year, base_date.month, base_date.day, 4, 0, 0),
-        'normales_fin': datetime(base_date.year, base_date.month, base_date.day, 22, 0, 0),
-        'nocturnas_inicio': datetime(base_date.year, base_date.month, base_date.day, 20, 0, 0),
-        'nocturnas_fin': datetime(dia_siguiente.year, dia_siguiente.month, dia_siguiente.day, 6, 0, 0),
-    }
-
-    actual = inicio
+    from django.utils import timezone
+    from django.conf import settings
+    
+    # Solo normalizamos fechas si USE_TZ está habilitado
+    if getattr(settings, 'USE_TZ', False):
+        # Normalizar fechas de entrada solo si USE_TZ es True
+        if hasattr(inicio, 'tzinfo') and inicio.tzinfo is None:
+            inicio = timezone.make_aware(inicio)
+        if hasattr(fin, 'tzinfo') and fin.tzinfo is None:
+            fin = timezone.make_aware(fin)
+        
+    if limites is None:
+        # Valores por defecto para los límites de las franjas
+        fecha_base = inicio.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Límites para horas nocturnas (20:00 a 06:00)
+        nocturnas_inicio = fecha_base.replace(hour=20)
+        nocturnas_fin = (fecha_base + timedelta(days=1)).replace(hour=6)
+        
+        # Límites para horas normales (04:00 a 22:00)
+        normales_inicio = fecha_base.replace(hour=4)
+        normales_fin = fecha_base.replace(hour=22)
+        
+        limites = {
+            'nocturnas_inicio': nocturnas_inicio,
+            'nocturnas_fin': nocturnas_fin,
+            'normales_inicio': normales_inicio,
+            'normales_fin': normales_fin
+        }
+    
+    # Inicialización de variables
+    actual = inicio  # Punto de inicio actual
+    total_normales = timedelta(0)  # Acumulador de horas normales
+    total_nocturnas = timedelta(0)  # Acumulador de horas nocturnas
+    
+    # Mientras no hayamos llegado al final
     while actual < fin:
-        siguiente = fin  # Por defecto, asumimos que el bloque termina en fin.
-
-        # Verificar si cumple los 4 requisitos de Horas Nocturnas
-        if (
-            (actual.time() >= time(20, 0) or actual.time() < time(5, 0)) and  # Entrada válida
-            (siguiente.time() >= time(21, 0) or siguiente.time() < time(6, 0))  # Salida válida
-        ):
-            siguiente = min(fin, limites['nocturnas_fin'])
-            total_nocturnas += siguiente - actual
-
-        # Verificar si cumple los 4 requisitos de Horas Normales
-        elif (
-            (actual.time() >= time(4, 0) and actual.time() < time(21, 0)) and  # Entrada válida
-            (siguiente.time() >= time(5, 0) and siguiente.time() < time(22, 0))  # Salida válida
-        ):
-            siguiente = min(fin, limites['normales_fin'])
+        # Primero, determinamos el siguiente punto de corte
+        # El próximo límite dependerá de en qué franja nos encontramos actualmente
+        
+        # Inicializamos siguiente como el fin por defecto
+        siguiente = fin
+        
+        # Determinamos los posibles puntos de corte basados en los límites
+        posibles_cortes = [fin]
+        
+        # Añadimos los límites relevantes como posibles puntos de corte
+        # Solo consideramos los límites futuros (superiores a actual)
+        for key, value in limites.items():
+            if value > actual:
+                posibles_cortes.append(value)
+        
+        # El siguiente punto es el mínimo de todos los puntos de corte posibles
+        siguiente = min(posibles_cortes)
+        
+        # Si el siguiente punto calculado es igual a actual, avanzamos 1 hora para evitar bucle infinito
+        if siguiente <= actual:
+            siguiente = actual + timedelta(hours=1)
+            if siguiente > fin:
+                siguiente = fin
+        
+        # Ahora clasificamos el segmento de tiempo según los criterios específicos
+        
+        # Verificar si cumple los requisitos de Horas Normales
+        # Entrada válida: 4am a 21hs + Salida válida: 5am a 22hs
+        if ((actual.time() >= time(4, 0) and actual.time() < time(21, 0)) and
+            (siguiente.time() >= time(5, 0) and siguiente.time() < time(22, 0))):
             total_normales += siguiente - actual
-
-        # Avanzar al siguiente tramo
+            
+        # Verificar si cumple los requisitos de Horas Nocturnas
+        # Entrada válida: 20hs a 5am + Salida válida: 21hs a 6am
+        elif ((actual.time() >= time(20, 0) or actual.time() < time(5, 0)) and
+              (siguiente.time() >= time(21, 0) or siguiente.time() < time(6, 0))):
+            total_nocturnas += siguiente - actual
+            
+        # Avanzar al siguiente punto de corte
         actual = siguiente
-
+    
     return total_normales, total_nocturnas
 
 
@@ -220,9 +272,17 @@ class RegistroDiario(models.Model):
         Calcula la fecha lógica de un registro en función de si pertenece a un turno nocturno.
         Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente,
         pero permite personalizar cómo manejar las horas tempranas.
+        
+        Compatible con configuraciones USE_TZ=True o False.
         """
         if not hora_fichada:
             return None
+
+        # Normalizar la fecha si tiene zona horaria y estamos en USE_TZ=False
+        from django.conf import settings
+        if not getattr(settings, 'USE_TZ', False) and hasattr(hora_fichada, 'tzinfo') and hora_fichada.tzinfo is not None:
+            # Quitar la zona horaria si estamos en modo USE_TZ=False
+            hora_fichada = hora_fichada.replace(tzinfo=None)
 
         # Mantener la hora límite para turnos nocturnos
         hora_limite = datetime.strptime("06:00", "%H:%M").time()
@@ -288,11 +348,32 @@ class RegistroDiario(models.Model):
     def clean(self):
         super().clean()
 
+        from django.conf import settings
+
         if not self.hora_fichada:
             self.hora_fichada = timezone.now()
+            
+        # Normalizar la fecha si tiene zona horaria y estamos en USE_TZ=False
+        hora_fichada_normalizada = self.hora_fichada
+        if not getattr(settings, 'USE_TZ', False) and hasattr(self.hora_fichada, 'tzinfo') and self.hora_fichada.tzinfo is not None:
+            hora_fichada_normalizada = self.hora_fichada.replace(tzinfo=None)
+            # Actualizar el campo para que sea compatible con SQLite
+            self.hora_fichada = hora_fichada_normalizada
 
-        movimiento_fecha = RegistroDiario.calcular_fecha_logica(self.hora_fichada)
+        movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada)
 
+        # Mostrar mensaje informativo sobre registros desbalanceados
+        print(f"Registros desbalancados para el operario {self.operario} en la fecha {movimiento_fecha}.")
+
+        # Si el registro está marcado como inconsistencia, no validamos la secuencia
+        # Esto permite que los operarios puedan registrar movimientos fuera de secuencia si es necesario
+        # y que un administrador pueda revisar y decidir posteriormente si son válidos
+        if self.inconsistencia:
+            # El registro está marcado como inconsistente, omitimos validaciones adicionales
+            # Este comportamiento es intencional para que la aplicación no bloquee al operario
+            # en caso de que necesite registrar su asistencia a pesar de una inconsistencia
+            return
+        
         registros_del_dia = RegistroDiario.objects.filter(
             operario=self.operario,
             hora_fichada__date=movimiento_fecha,
@@ -324,7 +405,6 @@ class RegistroDiario(models.Model):
 
         if inconsistencias:
             raise ValidationError({'tipo_movimiento': inconsistencias})
-
 
 class Horas_trabajadas(models.Model):
     operario = models.ForeignKey('Operario', on_delete=models.CASCADE)
@@ -376,6 +456,8 @@ class Horas_trabajadas(models.Model):
                 diferencia_total = salida_real - entrada_redondeada
                 if diferencia_total > timedelta(hours=8, minutes=30):  # Límite para calcular horas extras
                     exceso = diferencia_total - timedelta(hours=8, minutes=30)
+                    # Añadir 30 minutos iniciales.
+                    exceso += timedelta(minutes=30)
                     # Convertir el exceso a bloques de 15 minutos
                     bloques_15_min = (exceso.total_seconds() // 900)  # 900 segundos = 15 minutos
                     total_horas_extras += timedelta(minutes=15 * bloques_15_min)

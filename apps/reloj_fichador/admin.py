@@ -7,7 +7,11 @@ from django.contrib.admin.models import LogEntry
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.html import format_html
-from .models import Operario, RegistroDiario, Horas_trabajadas, Horas_extras, Horas_totales, Area, Horario, Licencia, RegistroAsistencia
+from .models import (
+    Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
+    Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
+    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario
+)
 from django.urls import path, reverse
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +19,13 @@ from .forms import LicenciaForm
 from .utils import generar_pdf, generar_excel
 from import_export.admin import ExportMixin
 from datetime import datetime
+from django.http import HttpResponse
+import os
+from django.conf import settings
+from simple_history.admin import SimpleHistoryAdmin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from django.http import HttpResponseRedirect
 
 
 class Command(BaseCommand):
@@ -55,16 +66,69 @@ class LicenciaInline(admin.TabularInline):
     fields = ['archivo', 'fecha_subida']
     readonly_fields = ['fecha_subida']
 
+def exportar_pdf(modeladmin, request, queryset, calculate_hours_total=None):
+    """
+    Función genérica para exportar cualquier modelo a PDF.
+    Determina automáticamente los campos y encabezados basados en el ModelAdmin
+    
+    Args:
+        calculate_hours_total: Si es None, autodetecta. Si es True, fuerza el cálculo de totales.
+                           Si es False, no calcula totales.
+    """
+    # Obtener lista de campos a mostrar del list_display del ModelAdmin
+    if hasattr(modeladmin, 'list_display'):
+        campos = [field for field in modeladmin.list_display]
+    else:
+        # Si no tiene list_display, usamos los campos definidos en el modelo
+        campos = [field.name for field in modeladmin.model._meta.fields]
+    
+    # Generar los encabezados a partir de los nombres cortos de los campos o del HEADER_MAP si existe
+    encabezados = []
+    for campo in campos:
+        if hasattr(modeladmin, 'HEADER_MAP') and campo in modeladmin.HEADER_MAP:
+            encabezados.append(modeladmin.HEADER_MAP[campo])
+        else:
+            # Intentar obtener el verbose_name o short_description
+            try:
+                # Si es un método con short_description
+                if hasattr(getattr(modeladmin, campo), 'short_description'):
+                    encabezados.append(getattr(modeladmin, campo).short_description)
+                # Si es un campo del modelo
+                elif campo in [field.name for field in modeladmin.model._meta.fields]:
+                    encabezados.append(modeladmin.model._meta.get_field(campo).verbose_name)
+                else:
+                    # Usar el nombre del campo capitalizado como fallback
+                    encabezados.append(campo.replace('_', ' ').capitalize())
+            except:
+                # Si todo falla, usar el nombre del campo
+                encabezados.append(campo.replace('_', ' ').capitalize())
+    
+    # Obtener el título del reporte basado en el verbose_name_plural del modelo
+    titulo = f"Reporte de {modeladmin.model._meta.verbose_name_plural.capitalize()}"
+    
+    # Generar el PDF usando la función generar_pdf
+    return generar_pdf(modeladmin, request, queryset, campos, encabezados, titulo, calculate_hours_total=calculate_hours_total)
+
+exportar_pdf.short_description = "Exportar seleccionados a PDF"
+
+# Mixin para añadir la acción de exportar a PDF
+class ExportarPDFMixin:
+    actions = ['exportar_pdf']
+    
+    def exportar_pdf(self, request, queryset):
+        return exportar_pdf(self, request, queryset)
+    exportar_pdf.short_description = "Exportar seleccionados a PDF"
+
 @admin.register(Operario)
-class OperarioAdmin(ExportMixin, admin.ModelAdmin):
+class OperarioAdmin(ExportMixin, SimpleHistoryAdmin):
     inlines = [LicenciaInline]
     list_display = (
-        'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo'
+        'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo', 'view_history_button'
     )
     list_filter = ('areas', ('fecha_nacimiento', DateRangeFilter), ('fecha_ingreso_empresa', DateRangeFilter), 'titulo_tecnico', ActivoInactivoFilter)
     search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico')
     filter_horizontal = ('areas',)
-    actions = ['asignar_area', 'generar_reporte', 'exportar_excel']
+    actions = ['asignar_area', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
 
     readonly_fields = ('foto_tag', 'get_areas')
 
@@ -77,6 +141,17 @@ class OperarioAdmin(ExportMixin, admin.ModelAdmin):
             return format_html(f'<img src="{obj.foto.url}" style="max-width: 150px; height: auto;" />')
         return "(Sin foto)"
     foto_tag.short_description = 'Foto del operario'
+
+    def view_history_button(self, obj):
+        """Mostrar un botón para ver el historial del operario"""
+        if obj.pk:
+            url = reverse('admin:reloj_fichador_historicaloperario_changelist') + f"?id={obj.pk}"
+            return format_html(
+                '<a class="button" href="{}">Ver Historial</a>',
+                url
+            )
+        return ""
+    view_history_button.short_description = "Historial"
 
     def generar_reporte(self, request, queryset):
         registros = list(queryset)
@@ -149,13 +224,13 @@ class OperarioAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(RegistroDiario)
-class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
+class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
     list_display = ('get_dni', 'get_nombre', 'get_apellido', 'tipo_movimiento', 'formatted_hora_fichada', 
-                    'origen_fichada', 'mostrar_inconsistencia','mostrar_valido')
+                    'origen_fichada', 'mostrar_inconsistencia', 'mostrar_valido', 'view_history_button')
     list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    fields = ('operario', 'tipo_movimiento', 'hora_fichada', 'valido')
-    actions = ['generar_reporte', 'exportar_excel']      
+    fields = ('operario', 'tipo_movimiento', 'hora_fichada', 'valido','descripcion_inconsistencia',)
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']      
 
     HEADER_MAP = {
         'get_dni': 'DNI',
@@ -202,6 +277,17 @@ class RegistroDiarioAdmin(ExportMixin, admin.ModelAdmin):
             return format_html('<span style="color: red;">No</span>')
     mostrar_valido.short_description = 'Válido'
     mostrar_valido.admin_order_field = 'valido'
+
+    def view_history_button(self, obj):
+        """Mostrar un botón para ver el historial del registro"""
+        if obj.pk:
+            url = reverse('admin:reloj_fichador_historicalregistrodiario_changelist') + f"?id={obj.pk}"
+            return format_html(
+                '<a class="button" href="{}">Ver Historial</a>',
+                url
+            )
+        return ""
+    view_history_button.short_description = "Historial"
 
     def generar_reporte(self, request, queryset):
         registros = list(queryset)  # Convertir a lista para poder trabajar con slicing
@@ -294,7 +380,7 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
 
     def get_queryset(self, request):
         """
@@ -390,13 +476,17 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+    def exportar_pdf(self, request, queryset):
+        # Usar la función generar_pdf con cálculo automático de totales de horas
+        return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
 
 @admin.register(Horas_extras)
 class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
 
     def get_queryset(self, request):
         """
@@ -483,6 +573,10 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+    def exportar_pdf(self, request, queryset):
+        # Usar la función generar_pdf con cálculo automático de totales de horas
+        return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
 
 
 @admin.register(Horas_totales)
@@ -490,7 +584,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('get_dni', 'operario', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
-    actions = ['generar_reporte', 'exportar_excel']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
 
     def get_queryset(self, request):
         """
@@ -609,6 +703,10 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+    def exportar_pdf(self, request, queryset):
+        # Usar la función generar_pdf con cálculo automático de totales de horas
+        return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
 
 @admin.register(RegistroAsistencia)
 class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
@@ -617,7 +715,7 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
     )
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    actions = ['marcar_justificado', 'marcar_no_justificado', 'generar_reporte', 'exportar_excel']
+    actions = ['marcar_justificado', 'marcar_no_justificado', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
 
     def estado_justificacion_selector(self, obj):
         return '✅' if obj.estado_justificacion else '❌'
@@ -733,19 +831,34 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+    def exportar_pdf(self, request, queryset):
+        # Usar la función generar_pdf con cálculo automático de totales de horas
+        return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
 @admin.register(Horario)
-class HorarioAdmin(admin.ModelAdmin):
+class HorarioAdmin(ExportarPDFMixin, admin.ModelAdmin):
     list_display = ('nombre', 'hora_inicio', 'hora_fin')
     search_fields = ('nombre',)
 
 @admin.register(Area)
-class AreaAdmin(admin.ModelAdmin):
+class AreaAdmin(ExportarPDFMixin, admin.ModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
     filter_horizontal = ('horarios',)
 
+@admin.register(Horas_feriado)
+class HorasFeriadoAdmin(ExportMixin, admin.ModelAdmin):
+    list_display = ('operario', 'fecha', 'horas_feriado')
+    search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
+    list_filter = ('fecha', ('fecha', DateRangeFilter))
+    actions = ['exportar_pdf', 'exportar_excel']
+
+    def exportar_pdf(self, request, queryset):
+        # Usar la función generar_pdf con cálculo automático de totales de horas
+        return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
 @admin.register(LogEntry)
-class LogEntryAdmin(admin.ModelAdmin):
+class LogEntryAdmin(ExportarPDFMixin, admin.ModelAdmin):
     list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
     list_filter = ('action_flag', 'user', 'content_type')
     search_fields = ('object_repr', 'change_message', 'user__username')
@@ -773,3 +886,138 @@ class LogEntryAdmin(admin.ModelAdmin):
         return obj.action_flag
 
     action_flag.short_description = 'Acción'
+
+# Registro de modelos históricos
+@admin.register(HistoricalOperario)
+class HistoricalOperarioAdmin(admin.ModelAdmin):
+    list_display = ('dni', 'nombre', 'apellido', 'activo', 'history_date', 'history_user', 'history_type')
+    list_filter = ('history_date', 'history_type', 'activo')
+    search_fields = ('dni', 'nombre', 'apellido', 'history_user__username')
+    readonly_fields = ('dni', 'nombre', 'apellido', 'history_date', 'history_user', 'history_type')
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+@admin.register(HistoricalRegistroDiario)
+class HistoricalRegistroDiarioAdmin(admin.ModelAdmin):
+    list_display = ('get_operario', 'tipo_movimiento', 'formatted_hora_fichada', 'valido', 'inconsistencia', 'history_date', 'history_user', 'history_type')
+    list_filter = ('history_date', 'history_type', 'tipo_movimiento', 'valido', 'inconsistencia')
+    search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido', 'history_user__username')
+    readonly_fields = ('tipo_movimiento', 'hora_fichada', 'valido', 'inconsistencia', 'history_date', 'history_user', 'history_type')
+    
+    def formatted_hora_fichada(self, obj):
+        return obj.hora_fichada.strftime('%d/%m/%Y %H:%M:%S') if obj.hora_fichada else '—'
+    formatted_hora_fichada.short_description = 'Hora Fichada'
+    
+    def get_operario(self, obj):
+        return f"{obj.operario}" if obj.operario else '—'
+    get_operario.short_description = 'Operario'
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+# Asignar la función exportar_pdf a cada clase
+OperarioAdmin.exportar_pdf = exportar_pdf
+RegistroDiarioAdmin.exportar_pdf = exportar_pdf  # Usar la versión sin cálculo de totales
+HorarioAdmin.exportar_pdf = exportar_pdf
+AreaAdmin.exportar_pdf = exportar_pdf
+LogEntryAdmin.exportar_pdf = exportar_pdf
+RegistroAsistenciaAdmin.exportar_pdf = exportar_pdf
+
+# Personalizar exportar_pdf para añadir totales en reportes de horas
+def exportar_pdf_con_totales(modeladmin, request, queryset):
+    """Función específica para exportar reportes con totales de horas"""
+    return exportar_pdf(modeladmin, request, queryset, calculate_hours_total=True)
+
+exportar_pdf_con_totales.short_description = "Exportar seleccionados a PDF (con totales)"
+
+# Asignar la función personalizada SOLO a las clases de horas
+HorasTrabajadasAdmin.exportar_pdf = exportar_pdf_con_totales
+HorasExtrasAdmin.exportar_pdf = exportar_pdf_con_totales
+HorasTotalesAdmin.exportar_pdf = exportar_pdf_con_totales
+HorasFeriadoAdmin.exportar_pdf = exportar_pdf_con_totales
+
+# Personalizar el admin de User para limitar permisos
+class RestrictedUserAdmin(UserAdmin):
+    """
+    Administrador personalizado para User que restringe la edición
+    de usuarios de manera que los usuarios staff solo puedan editar
+    su propio perfil, mientras que los superusuarios pueden editar cualquiera.
+    """
+    
+    def has_change_permission(self, request, obj=None):
+        # Si el usuario es superusuario, tiene permiso completo
+        if request.user.is_superuser:
+            return True
+        
+        # Si estamos comprobando permisos generales (sin objeto específico)
+        if obj is None:
+            return True
+        
+        # Los usuarios solo pueden modificar sus propios datos
+        return obj == request.user
+    
+    def get_list_filter(self, request):
+        # Mostrar filtros solo a superusuarios
+        if request.user.is_superuser:
+            return super().get_list_filter(request)
+        return []
+    
+    def get_queryset(self, request):
+        # Superusuarios ven todos los usuarios, el resto solo se ve a sí mismo
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(pk=request.user.pk)
+    
+    def changelist_view(self, request, extra_context=None):
+        # Si el usuario no es superusuario, redirigir directamente a su página de edición
+        if not request.user.is_superuser:
+            return HttpResponseRedirect(
+                reverse('admin:auth_user_change', args=(request.user.id,))
+            )
+        return super().changelist_view(request, extra_context)
+    
+    def has_module_permission(self, request):
+        # Todos los usuarios staff pueden ver el módulo
+        return request.user.is_staff
+    
+    def has_add_permission(self, request):
+        # Solo superusuarios pueden añadir usuarios
+        return request.user.is_superuser
+    
+    def has_delete_permission(self, request, obj=None):
+        # Solo superusuarios pueden eliminar usuarios
+        return request.user.is_superuser
+    
+    def get_fieldsets(self, request, obj=None):
+        # Definir los campos visibles según el tipo de usuario
+        if not obj:
+            return super().get_fieldsets(request, obj)
+        
+        # Si es superusuario, mostrar todos los campos
+        if request.user.is_superuser:
+            return super().get_fieldsets(request, obj)
+        
+        # Para usuarios normales, limitar los campos visibles
+        # Eliminar campos de permisos para usuarios no superusuarios
+        return [
+            (None, {'fields': ('username', 'password')}),
+            ('Información personal', {'fields': ('first_name', 'last_name', 'email')}),
+        ]
+
+# Desregistrar el UserAdmin predeterminado y registrar nuestro RestrictedUserAdmin
+admin.site.unregister(User)
+admin.site.register(User, RestrictedUserAdmin)
