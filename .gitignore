@@ -1,2 +1,8 @@
 mysql_data/*
 error.log
+*.log
+*.sql
+*.pyc
+*.ps1
+error.log
+*.md

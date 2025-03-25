@@ -1,0 +1,115 @@
+/* Estilos para el calendario de días feriados */
+.feriados-calendar {
+    margin-bottom: 30px;
+}
+
+.feriados-calendar table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.feriados-calendar th {
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+    background-color: #f2f2f2;
+}
+
+.feriados-calendar td {
+    height: 100px;
+    vertical-align: top;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+.feriados-calendar td.empty {
+    background-color: #f5f5f5;
+}
+
+.feriados-calendar td.feriado-laborable {
+    background-color: #ffffd0;
+    /* Amarillo claro para feriados laborables */
+}
+
+.feriados-calendar td.feriado-no-laborable {
+    background-color: #ffdddd;
+    /* Rojo claro para feriados no laborables */
+}
+
+.feriados-calendar .day-number {
+    font-weight: bold;
+    float: left;
+}
+
+.feriados-calendar .actions {
+    float: right;
+}
+
+.calendar-nav {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-secondary:hover {
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+
+.feriado-descripcion {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.feriado-estado {
+    font-size: 11px;
+}
+
+.estado-laborable {
+    color: #006400;
+    /* Verde oscuro */
+}
+
+.estado-no-laborable {
+    color: #8b0000;
+    /* Rojo oscuro */
+}
+
+.add-feriado {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.add-feriado a {
+    color: #417690;
+}
+
+/* Para los iconos de Material Design */
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');

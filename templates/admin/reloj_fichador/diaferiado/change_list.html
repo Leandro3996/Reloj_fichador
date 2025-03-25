@@ -1,0 +1,92 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block content %}
+<div id="content-main">
+  <!-- Contenido original de Django Admin -->
+  <div class="module filtered" id="changelist">
+    {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
+
+    <!-- Selector de calendario -->
+    <div class="calendar-nav" style="margin-bottom: 20px; padding: 10px; background-color: #f8f8f8; border-radius: 4px;">
+      <h2 style="margin-bottom: 10px;">Calendario de Días Feriados - {{ calendar.mes_nombre }} {{ calendar.year }}</h2>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <a href="?month={{ calendar.prev_month }}&year={{ calendar.prev_year }}" class="btn btn-secondary">&laquo; Mes Anterior</a>
+        <a href="?month={{ calendar.next_month }}&year={{ calendar.next_year }}" class="btn btn-secondary">Mes Siguiente &raquo;</a>
+      </div>
+    </div>
+
+    <!-- Calendario mensual -->
+    <div class="feriados-calendar" style="margin-bottom: 30px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Lunes</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Martes</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Miércoles</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Jueves</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Viernes</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Sábado</th>
+            <th style="text-align: center; padding: 8px; border: 1px solid #ddd;">Domingo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for week in calendar.month_days %}
+            <tr>
+              {% for day in week %}
+                {% if day.day %}
+                  <!-- Día con contenido -->
+                  <td style="height: 100px; vertical-align: top; border: 1px solid #ddd; padding: 5px; 
+                             {% if day.feriado %}background-color: {% if day.data.es_laborable %}#ffffd0{% else %}#ffdddd{% endif %}{% endif %}">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                      <span style="font-weight: bold;">{{ day.day }}</span>
+                      {% if day.feriado %}
+                        <div>
+                          <a href="{% url 'admin:reloj_fichador_diaferiado_change' day.data.id %}" 
+                             title="Editar feriado"
+                             style="color: #417690;">
+                            <span style="font-size: 16px;">✏️</span>
+                          </a>
+                        </div>
+                      {% endif %}
+                    </div>
+                    
+                    {% if day.feriado %}
+                      <div style="font-size: 12px; margin-top: 5px;">
+                        <strong>{{ day.data.descripcion }}</strong><br>
+                        <span style="color: {% if day.data.es_laborable %}#006400{% else %}#8b0000{% endif %}">
+                          {% if day.data.es_laborable %}Laborable{% else %}No laborable{% endif %}
+                        </span>
+                      </div>
+                    {% else %}
+                      <div style="text-align: center; margin-top: 30px;">
+                        <a href="{% url 'admin:reloj_fichador_diaferiado_add' %}?fecha={{ calendar.year }}-{{ calendar.month }}-{{ day.day }}" 
+                           title="Marcar como feriado"
+                           style="color: #417690;">
+                          <span style="font-size: 24px;">➕</span>
+                        </a>
+                      </div>
+                    {% endif %}
+                  </td>
+                {% else %}
+                  <!-- Día fuera del mes actual -->
+                  <td style="background-color: #f5f5f5; border: 1px solid #ddd;"></td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Lista estándar de Django Admin -->
+    <form id="changelist-form" method="post" novalidate>{% csrf_token %}
+      {% block result_list %}
+        {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+        {% result_list cl %}
+        {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+      {% endblock %}
+    </form>
+  </div>
+</div>
+{% endblock %} 
