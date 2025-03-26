@@ -63,3 +63,4 @@ htmlcov/
 output/
 node_modules/
 .DS_Store
+/mysql_data
