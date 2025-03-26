@@ -19,7 +19,7 @@ services:
     build: .
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- bash -c " python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
+      /app/wait-for-it.sh db:3306 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles

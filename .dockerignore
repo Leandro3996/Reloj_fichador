@@ -1,27 +1,103 @@
-# Ignorar archivos y carpetas innecesarios
+# Control de versiones
+.git
+.gitignore
+.gitattributes
+
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Ignorar carpetas específicas de herramientas y entornos
-.git/
+# Entornos virtuales
+venv/
+env/
+ENV/
+.env
+.venv/
+
+# IDEs y editores
+.idea/
 .vscode/
-node_modules/
-.env  # Archivo de variables de entorno
-env/  # Carpeta de entorno virtual de Python
-mysql_data/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# Ignorar archivos grandes o estáticos que no son necesarios para la construcción
+# Logs y bases de datos
+*.log
+*.sqlite3
+mysql_data/
+data/
+*.db
+logs/
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Documentación
+docs/
+*.md
+!README.md
+
+# Archivos de desarrollo
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+.dockerignore
+Dockerfile.*
+
+# Archivos estáticos y media
+media/*
+!media/admin-interface/
+static/*
+!static/admin-interface/
+staticfiles/*
+!staticfiles/admin-interface/
 *.jpg
 *.jpeg
 *.png
+!media/admin-interface/logo/*.png
+!static/admin-interface/logo/*.png
 *.gif
 *.pdf
 *.mp4
+*.mov
+*.avi
 
-# Ignorar directorios media y static
-/media/
-/static/
-
-# Ignorar cualquier archivo o directorio personalizado que no sea necesario
+# Otros
+node_modules/
 .megaignore
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.bak
+*.swp
+*.tmp

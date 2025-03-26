@@ -1,2 +1,65 @@
-mysql_data/*
-error.log
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.env
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs y bases de datos
+*.log
+*.sqlite3
+mysql_data/
+*.db
+
+# Archivos de configuración local
+local_settings.py
+
+# Archivos estáticos y media
+media/
+staticfiles/
+static/
+
+# Archivos de caché
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos temporales
+*.bak
+*.tmp
+*~
+
+# Archivos específicos del proyecto
+output/
+node_modules/
+.DS_Store

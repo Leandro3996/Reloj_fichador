@@ -362,18 +362,70 @@ class RegistroDiario(models.Model):
 
         movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada)
 
-        # Mostrar mensaje informativo sobre registros desbalanceados
-        print(f"Registros desbalancados para el operario {self.operario} en la fecha {movimiento_fecha}.")
-
         # Si el registro está marcado como inconsistencia, no validamos la secuencia
-        # Esto permite que los operarios puedan registrar movimientos fuera de secuencia si es necesario
-        # y que un administrador pueda revisar y decidir posteriormente si son válidos
         if self.inconsistencia:
-            # El registro está marcado como inconsistente, omitimos validaciones adicionales
-            # Este comportamiento es intencional para que la aplicación no bloquee al operario
-            # en caso de que necesite registrar su asistencia a pesar de una inconsistencia
             return
         
+        inconsistencias = []
+        
+        # Obtener el último registro válido
+        ultimo_valido = self.get_last_valid_record()
+        
+        if self.tipo_movimiento == 'entrada':
+            if ultimo_valido:
+                # Validación 1: No puede haber una entrada si no hubo salida el día anterior
+                if ultimo_valido.tipo_movimiento != 'salida':
+                    inconsistencias.append(
+                        "No puede registrar una entrada sin una salida previa."
+                    )
+                
+                # Validación 2: No puede haber una entrada si es menor a la última salida
+                if self.hora_fichada <= ultimo_valido.hora_fichada:
+                    inconsistencias.append(
+                        "La hora de entrada no puede ser menor o igual a la última salida."
+                    )
+        
+        elif self.tipo_movimiento == 'salida':
+            # Validación 3: No puede haber una salida sin una entrada previa en el mismo día
+            entrada_del_dia = RegistroDiario.objects.filter(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada__date=movimiento_fecha,
+                valido=True
+            ).exists()
+            
+            if not entrada_del_dia:
+                inconsistencias.append(
+                    "No puede registrar una salida sin una entrada previa en el día actual."
+                )
+
+        elif self.tipo_movimiento in ['salida_transitoria', 'entrada_transitoria']:
+            # Validación para movimientos transitorios
+            entrada_del_dia = RegistroDiario.objects.filter(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada__date=movimiento_fecha,
+                valido=True
+            ).exists()
+
+            salida_del_dia = RegistroDiario.objects.filter(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada__date=movimiento_fecha,
+                valido=True
+            ).exists()
+
+            if not entrada_del_dia:
+                inconsistencias.append(
+                    "Los movimientos transitorios solo son válidos después de una entrada."
+                )
+            
+            if salida_del_dia:
+                inconsistencias.append(
+                    "No se pueden registrar movimientos transitorios después de la salida."
+                )
+
+        # Validación de secuencia de movimientos existente
         registros_del_dia = RegistroDiario.objects.filter(
             operario=self.operario,
             hora_fichada__date=movimiento_fecha,
@@ -381,11 +433,8 @@ class RegistroDiario(models.Model):
         ).exclude(pk=self.pk).order_by('hora_fichada')
 
         movimientos_del_dia = list(registros_del_dia.values_list('tipo_movimiento', flat=True))
-        ultimo_valido = self.get_last_valid_record()
         last_movement = ultimo_valido.tipo_movimiento if ultimo_valido else None
         day_changed = ultimo_valido and ultimo_valido.hora_fichada.date() != movimiento_fecha
-
-        inconsistencias = []
 
         # Validación básica de secuencia de movimientos
         if not (day_changed or (last_movement == 'salida' and self.tipo_movimiento == 'entrada')):
