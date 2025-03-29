@@ -1,9 +1,10 @@
-# Python
+# Archivos Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -15,52 +16,87 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
+
+# Archivos Docker
+.env
+.env.prod
+.env.dev
+
+# Datos de MySQL
+mysql_data/
+
+# Backups
+backups/
+
+# Archivos estáticos y media
+/staticfiles/
+/media/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Archivos de logs
+logs/
+
 # Entornos virtuales
 venv/
-env/
+myvenv/
 ENV/
-.env
 
-# IDEs y editores
+# IDE y editores
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Archivos de sistema
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Logs y bases de datos
-*.log
-*.sqlite3
-mysql_data/
-*.db
-
-# Archivos de configuración local
-local_settings.py
-
-# Archivos estáticos y media
-media/
-staticfiles/
-static/
-
-# Archivos de caché
-.cache/
-.pytest_cache/
+# Archivos de prueba
 .coverage
 htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Dependencias y directorios node
+node_modules/
+npm-debug.log
+
+# Cache
+.cache/
+__pycache__/
+*.py[cod]
 
 # Archivos temporales
-*.bak
 *.tmp
-*~
+*.bak
+*.swp
+*~.nib
 
-# Archivos específicos del proyecto
-output/
-node_modules/
-.DS_Store
-/mysql_data
+# Otros
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 
