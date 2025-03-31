@@ -109,11 +109,12 @@ services:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     volumes:
       - ./backups:/backups
       - ./wait-for-it.sh:/wait-for-it.sh
       - ./my_backup.cnf:/root/.my.cnf
-    entrypoint: [ "/bin/sh", "-c", "while true; do /wait-for-it.sh db:3306 -- mysqldump -h db ${MYSQL_DATABASE} > /backups/backup_$(date +%F_%T).sql; sleep 7200; done" ]
+    entrypoint: [ "/bin/sh", "-c", "chmod 600 /root/.my.cnf && while true; do /wait-for-it.sh db:3306 -- mysqldump -h db -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} > /backups/backup_$(date +%F_%H.%M.%S).sql; sleep 3600; done" ]
     depends_on:
       - db
     networks:
