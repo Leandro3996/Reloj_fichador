@@ -11,6 +11,7 @@ import logging
 import threading
 from .utils import suppress_signal
 from django.conf import settings
+import pytz
 
 logger = logging.getLogger('reloj_fichador')
 
@@ -278,10 +279,17 @@ class RegistroDiario(models.Model):
         if not hora_fichada:
             return None
 
-        # Normalizar la fecha si tiene zona horaria y estamos en USE_TZ=False
+        # Normalizar la fecha según la configuración de USE_TZ
         from django.conf import settings
-        if not getattr(settings, 'USE_TZ', False) and hasattr(hora_fichada, 'tzinfo') and hora_fichada.tzinfo is not None:
-            # Quitar la zona horaria si estamos en modo USE_TZ=False
+        
+        if getattr(settings, 'USE_TZ', False):
+            # Si USE_TZ=True, asegurarse de que la fecha esté en la zona horaria de Argentina
+            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+            if hora_fichada.tzinfo is None:
+                hora_fichada = pytz.utc.localize(hora_fichada)
+            hora_fichada = hora_fichada.astimezone(argentina_tz)
+        elif hasattr(hora_fichada, 'tzinfo') and hora_fichada.tzinfo is not None:
+            # Si USE_TZ=False pero tiene zona horaria, quitarla
             hora_fichada = hora_fichada.replace(tzinfo=None)
 
         # Mantener la hora límite para turnos nocturnos
@@ -349,15 +357,23 @@ class RegistroDiario(models.Model):
         super().clean()
 
         from django.conf import settings
+        import pytz
 
         if not self.hora_fichada:
             self.hora_fichada = timezone.now()
             
-        # Normalizar la fecha si tiene zona horaria y estamos en USE_TZ=False
+        # Normalizar la fecha según la configuración de USE_TZ
         hora_fichada_normalizada = self.hora_fichada
-        if not getattr(settings, 'USE_TZ', False) and hasattr(self.hora_fichada, 'tzinfo') and self.hora_fichada.tzinfo is not None:
-            hora_fichada_normalizada = self.hora_fichada.replace(tzinfo=None)
-            # Actualizar el campo para que sea compatible con SQLite
+        if getattr(settings, 'USE_TZ', False):
+            # Si USE_TZ=True, asegurarse de que la fecha esté en la zona horaria de Argentina
+            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+            if hora_fichada_normalizada.tzinfo is None:
+                hora_fichada_normalizada = pytz.utc.localize(hora_fichada_normalizada)
+            hora_fichada_normalizada = hora_fichada_normalizada.astimezone(argentina_tz)
+        elif hasattr(hora_fichada_normalizada, 'tzinfo') and hora_fichada_normalizada.tzinfo is not None:
+            # Si USE_TZ=False pero tiene zona horaria, quitarla
+            hora_fichada_normalizada = hora_fichada_normalizada.replace(tzinfo=None)
+            # Actualizar el campo para que sea compatible con la base de datos
             self.hora_fichada = hora_fichada_normalizada
 
         movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada)

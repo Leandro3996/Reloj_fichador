@@ -196,6 +196,66 @@ Además de las recomendaciones anteriores, se sugiere:
 ### Validación post-corrección:
 Después de implementar los cambios, se monitoreará el servicio `celery-beat` durante 48 horas para confirmar que no se repite el error y que todas las tareas programadas se ejecutan correctamente.
 
+## 10/04/2025 - Creación de guía para activar USE_TZ en Django
+
+### Contexto
+Tras detectar y corregir los problemas con zonas horarias en Celery, se ha identificado que la configuración `USE_TZ = False` en Django es la raíz del problema. Para ofrecer una solución más robusta, se ha creado una guía detallada para cambiar esta configuración a `USE_TZ = True` minimizando el impacto en el funcionamiento actual del sistema.
+
+### Acciones realizadas
+1. Se ha desarrollado una guía paso a paso detallada: [`documentacion/analista/guia_activacion_TZ.md`](../guia_activacion_TZ.md)
+2. La guía incluye:
+   - Procedimiento para realizar pruebas en un entorno aislado
+   - Script para convertir las fechas existentes en la base de datos
+   - Puntos clave del código a revisar y actualizar
+   - Instrucciones para pruebas exhaustivas
+   - Plan de implementación en producción
+   - Estrategia de rollback en caso de problemas
+
+### Consideraciones técnicas
+El cambio de `USE_TZ = False` a `USE_TZ = True` requiere especial atención en:
+- Conversión de fechas existentes en la base de datos para añadir información de zona horaria
+- Actualización de consultas que comparan fechas directamente
+- Revisión de formularios con campos de fecha/hora
+- Verificación de funcionalidades que dependen de cálculos de tiempo
+
+### Próximos pasos
+1. Implementar la guía en un entorno de pruebas
+2. Validar todas las funcionalidades críticas
+3. Planificar la implementación en producción durante un período de baja actividad
+
+### Documentación relacionada
+- [Guía de activación de USE_TZ](../guia_activacion_TZ.md)
+- [Script de verificación de Celery y zonas horarias](../verificar_celery_timezone.sh)
+
+## 11/04/2025 - Activación de soporte de zonas horarias en Django (USE_TZ=True)
+
+### Descripción
+Se ha modificado la configuración de Django para habilitar el soporte completo de zonas horarias mediante el cambio de `USE_TZ = False` a `USE_TZ = True` en el archivo `mantenedor/settings.py`.
+
+### Motivación
+Este cambio se realiza para solucionar problemas de consistencia en el manejo de fechas y horas entre Django y Celery, especialmente en la programación de tareas periódicas con django-celery-beat. Con la configuración anterior (USE_TZ=False), existía una discrepancia entre cómo Django y Celery interpretaban los tiempos.
+
+### Implicaciones
+La activación de `USE_TZ=True` tiene las siguientes implicaciones importantes:
+
+1. **Almacenamiento de fechas**: Django ahora almacenará todas las fechas en UTC en la base de datos, independientemente de la zona horaria configurada.
+2. **Consistencia con Celery**: Mejora la compatibilidad con Celery y django-celery-beat, que funcionan mejor con fechas conscientes de zonas horarias.
+3. **Cambios en el comportamiento de la aplicación**: Este cambio puede requerir ajustes en la forma en que se manejan las fechas en toda la aplicación:
+   - Las consultas de fechas pueden necesitar ser actualizadas para tener en cuenta la zona horaria.
+   - Las comparaciones de fechas podrían comportarse de manera diferente.
+   - La visualización de fechas en la interfaz de usuario podría requerir ajustes.
+
+### Acciones requeridas
+Este cambio debe ser probado exhaustivamente en un entorno de prueba antes de implementarse en producción:
+
+1. Verificar el funcionamiento de todas las funcionalidades relacionadas con fechas y horas.
+2. Revisar y ajustar las consultas a la base de datos que involucren fechas.
+3. Comprobar que las tareas programadas de Celery se ejecuten en los momentos correctos.
+4. Actualizar los tests que incluyan comparaciones de fechas.
+
+### Seguimiento
+Tras la implementación de este cambio, se requiere un período de observación para detectar cualquier comportamiento inesperado relacionado con las fechas y horas en el sistema.
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 

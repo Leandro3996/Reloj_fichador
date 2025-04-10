@@ -26,6 +26,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponseRedirect
+import pytz
 
 
 class Command(BaseCommand):
@@ -254,7 +255,14 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
     get_apellido.short_description = 'Apellido'
 
     def formatted_hora_fichada(self, obj):
-        return obj.hora_fichada.strftime('%d/%m/%Y %H:%M:%S')
+        if obj.hora_fichada:
+            # Convertir a la zona horaria de Argentina
+            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+            hora_local = obj.hora_fichada
+            if hora_local.tzinfo is not None:  # Si la fecha tiene zona horaria
+                hora_local = hora_local.astimezone(argentina_tz)
+            return hora_local.strftime('%d/%m/%Y %H:%M:%S')
+        return ''
     formatted_hora_fichada.short_description = 'Hora Fichada'
 
     def save_model(self, request, obj, form, change):
@@ -297,14 +305,22 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         # Definir los encabezados manualmente
         encabezados = ['DNI', 'Nombre', 'Apellido','Hora Fichada', 'Tipo Movimiento', 'Origen Fichada']
 
+        # Preparar zona horaria de Argentina
+        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+
         # Filas con valores de cada campo
         filas = []
         for registro in registros:
+            # Convertir hora a zona horaria de Argentina
+            hora_local = registro.hora_fichada
+            if hora_local.tzinfo is not None:
+                hora_local = hora_local.astimezone(argentina_tz)
+            
             fila = [
                 registro.operario.dni,
                 registro.operario.nombre,
                 registro.operario.apellido,
-                registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S'),
+                hora_local.strftime('%d/%m/%Y %H:%M:%S'),
                 registro.tipo_movimiento.replace('_', ' ').capitalize(),
                 registro.origen_fichada.capitalize(),
             ]
@@ -317,13 +333,15 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         # Definir el título dinámico
         titulo_reporte = "Reporte de Registro Diario"
 
+        # Obtener hora actual en Argentina para el reporte
+        hora_actual = timezone.now().astimezone(argentina_tz)
 
         # Renderizar el template HTML con los datos dinámicos
         context = {
             'encabezados': encabezados,
             'page_filas': page_filas,  # Pasamos las filas ya divididas por páginas
             'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'current_date': hora_actual.strftime('%d/%m/%Y %H:%M'),
             'current_page': 1,  # Este valor se puede manejar mejor dentro del template
             'total_pages': total_pages,  # Total de páginas
             'num_items_filtrados': len(registros),  # Número de registros filtrados
@@ -344,6 +362,9 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         # Definir los encabezados manualmente
         encabezados = ['DNI', 'Nombre', 'Apellido', 'Hora Fichada', 'Tipo Movimiento', 'Origen Fichada']
         
+        # Preparar zona horaria de Argentina
+        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+        
         # Crear un nuevo archivo Excel
         workbook = openpyxl.Workbook()
         sheet = workbook.active
@@ -354,11 +375,16 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         
         # Filas con valores de cada campo
         for registro in registros:
+            # Convertir hora a zona horaria de Argentina
+            hora_local = registro.hora_fichada
+            if hora_local.tzinfo is not None:
+                hora_local = hora_local.astimezone(argentina_tz)
+                
             fila = [
                 registro.operario.dni,
                 registro.operario.nombre,
                 registro.operario.apellido,
-                registro.hora_fichada.strftime('%d/%m/%Y %H:%M:%S'),
+                hora_local.strftime('%d/%m/%Y %H:%M:%S'),
                 registro.tipo_movimiento.replace('_', ' ').capitalize(),
                 registro.origen_fichada.capitalize(),
             ]
@@ -912,7 +938,14 @@ class HistoricalRegistroDiarioAdmin(admin.ModelAdmin):
     readonly_fields = ('tipo_movimiento', 'hora_fichada', 'valido', 'inconsistencia', 'history_date', 'history_user', 'history_type')
     
     def formatted_hora_fichada(self, obj):
-        return obj.hora_fichada.strftime('%d/%m/%Y %H:%M:%S') if obj.hora_fichada else '—'
+        if obj.hora_fichada:
+            # Convertir a la zona horaria de Argentina
+            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+            hora_local = obj.hora_fichada
+            if hora_local.tzinfo is not None:  # Si la fecha tiene zona horaria
+                hora_local = hora_local.astimezone(argentina_tz)
+            return hora_local.strftime('%d/%m/%Y %H:%M:%S')
+        return ''
     formatted_hora_fichada.short_description = 'Hora Fichada'
     
     def get_operario(self, obj):

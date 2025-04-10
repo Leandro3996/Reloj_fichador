@@ -13,6 +13,7 @@ from .tables import OperarioTable
 from datetime import datetime
 import logging
 from django.core.exceptions import ValidationError
+import pytz
 
 # Configura el logger
 logger = logging.getLogger(__name__)
@@ -42,12 +43,16 @@ def registrar_movimiento_tipo(request, tipo_movimiento):
         logger.error(f"Operario con DNI={dni} no encontrado.")
         return JsonResponse({'success': False, 'message': error_message}, status=404)
 
+    # Obtener la hora actual con la zona horaria de Argentina
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    hora_actual = timezone.now().astimezone(argentina_tz)
+    
     if not inconsistency_override:
         # Intentar crear y validar el registro
         registro = RegistroDiario(
             operario=operario,
             tipo_movimiento=tipo_movimiento,
-            hora_fichada=timezone.now(),
+            hora_fichada=hora_actual,
         )
         try:
             registro.full_clean()  # Ejecuta la validación personalizada
@@ -74,7 +79,7 @@ def registrar_movimiento_tipo(request, tipo_movimiento):
         registro = RegistroDiario(
             operario=operario,
             tipo_movimiento=tipo_movimiento,
-            hora_fichada=timezone.now(),
+            hora_fichada=hora_actual,
             inconsistencia=True,
             valido=True,
         )

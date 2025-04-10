@@ -131,7 +131,7 @@ USE_I18N = True
 # IMPORTANTE: Se recomienda cambiar este valor a True para un mejor manejo de zonas horarias
 # con Celery y django-celery-beat. Sin embargo, esto requiere pruebas extensivas ya que 
 # puede afectar al comportamiento de fechas en toda la aplicación.
-USE_TZ = False
+USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
