@@ -26,7 +26,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost','192.168.10.12','192.168.10.43',
                  '192.168.10.18', '192.168.10.11','192.168.10.17',
-                 '192.168.10.8','192.168.10.4','192.168.10.13',]
+                 '192.168.10.8','192.168.10.4','192.168.10.13','190.96.116.202',]
 #ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51', '192.168.68.54']
 
 INSTALLED_APPS = [
@@ -100,7 +100,9 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'auth_plugin': 'caching_sha2_password',
+            'auth_plugin': 'mysql_native_password',
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }

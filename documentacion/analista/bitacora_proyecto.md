@@ -35,6 +35,36 @@
 5. Considerar la implementación de una API REST para facilitar integraciones futuras
 6. Implementar los diagramas ASCII mejorados en la documentación oficial del proyecto
 
+## 10/04/2025 - Actualización de la solución a problemas de arranque en Docker
+
+### Problema identificado:
+Después de aplicar la solución anterior, se detectó que el servicio MySQL seguía fallando con un nuevo error:
+
+```
+[ERROR] [MY-013797] [Server] Option --authentication-policy is set to an invalid value. Please check if the specified authentication plugins are valid.
+```
+
+### Causa raíz:
+La configuración `--authentication_policy=mysql_native_password` era incorrecta. El parámetro `authentication_policy` en MySQL 8.4.0 espera un formato específico con una lista delimitada por comas de políticas de autenticación, no el nombre del plugin directamente.
+
+### Solución implementada:
+Se modificó el archivo `docker-compose.yml` para utilizar una política de autenticación válida:
+
+```yaml
+command: >
+  --authentication_policy='*,,' --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --explicit_defaults_for_timestamp=1
+```
+
+La configuración `'*,,'` indica que:
+- El primer asterisco (`*`) permite todos los métodos de autenticación para el primer factor
+- Las comas vacías indican que no se requieren segundo y tercer factores de autenticación
+
+### Validación:
+Se reiniciaron los contenedores con `docker-compose down` y `docker-compose up -d`, verificando que todos los servicios arranquen correctamente.
+
+### Nota adicional:
+Este cambio refleja una evolución en el manejo de la autenticación en MySQL 8.4, donde se ha adoptado un enfoque más flexible de autenticación multifactor. Es importante consultar la documentación oficial para comprender correctamente el formato y las opciones disponibles del parámetro `authentication_policy`.
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 
