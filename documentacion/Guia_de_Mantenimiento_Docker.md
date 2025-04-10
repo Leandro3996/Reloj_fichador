@@ -128,6 +128,40 @@ El script `wait-for-it.sh` ya está configurado para gestionar estas dependencia
 3. Esperar 30 segundos para asegurar que la base de datos esté completamente iniciada
 4. Ejecutar `docker-compose up -d` para iniciar el resto de servicios
 
+### Problema 4: Discrepancia en Zona Horaria de Celery
+
+**Síntomas:**
+- Las tareas programadas se ejecutan en horarios inesperados
+- Inconsistencia entre la hora reportada en los logs y la hora real esperada
+- Diferencias entre timestamps generados por Django y Celery
+
+**Causa:**
+Por defecto, Celery utiliza UTC para la programación de tareas, mientras que Django puede estar configurado para usar la zona horaria local. Si no se configura explícitamente, puede haber discrepancias, especialmente si `USE_TZ = False` en Django.
+
+**Solución:**
+1. Configurar explícitamente la zona horaria en Celery:
+   ```python
+   # En celery.py
+   app.conf.timezone = 'America/Argentina/Buenos_Aires'
+   app.conf.enable_utc = False
+   ```
+
+2. Verificar que la configuración de zona horaria en Django es consistente:
+   ```python
+   # En settings.py
+   TIME_ZONE = 'America/Argentina/Buenos_Aires'
+   USE_TZ = True  # Considerar cambiar a True para mejor manejo de zonas horarias
+   ```
+
+3. Revisar y actualizar los comentarios en las definiciones de tareas programadas para reflejar el horario real:
+   ```python
+   # Antes
+   'schedule': crontab(hour=9, minute=10),  # Se ejecuta todos los días a las 1:00 AM
+   
+   # Después
+   'schedule': crontab(hour=9, minute=10),  # Se ejecuta todos los días a las 9:10 AM (Argentina)
+   ```
+
 ## Buenas Prácticas
 
 ### Actualización de Imágenes

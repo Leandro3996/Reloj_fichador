@@ -102,6 +102,100 @@ Estas mejoras proporcionan varias ventajas importantes:
 - Evaluar la adición de notificaciones automáticas cuando se detecten problemas
 - Explorar opciones para extender la detección a otros servicios como Redis y Nginx
 
+## 10/04/2025 - Corrección de discrepancia en zona horaria de Celery
+
+### Problema identificado:
+Durante la revisión del sistema, se detectó una discrepancia en la configuración de la zona horaria que afecta a las tareas programadas de Celery. La configuración actual muestra:
+
+1. En `settings.py`:
+   ```python
+   TIME_ZONE = 'America/Argentina/Buenos_Aires'
+   USE_TZ = False
+   ```
+
+2. En `celery.py`, en la programación de tareas:
+   ```python
+   'schedule': crontab(hour=9, minute=10),  # Se ejecuta todos los días a las 1:00 AM
+   ```
+
+El comentario indica que la tarea debería ejecutarse a la 1:00 AM, pero está configurada para las 9:10 AM. Además, no se está configurando explícitamente la zona horaria en la configuración de Celery.
+
+### Impacto:
+Esta discrepancia puede causar que las tareas programadas se ejecuten en horarios inesperados, especialmente si hay diferencias entre la zona horaria del sistema donde se ejecuta Docker y la zona horaria configurada en Django.
+
+### Causa raíz:
+La configuración `USE_TZ = False` en Django hace que el sistema utilice la hora local sin tener en cuenta las zonas horarias. Sin embargo, Celery por defecto utiliza UTC para sus programaciones a menos que se configure explícitamente lo contrario.
+
+### Solución implementada:
+1. Se corrigió el comentario para reflejar el horario real configurado (9:10 AM)
+2. Se agregó configuración explícita de zona horaria en Celery:
+
+```python
+# Configuración de zona horaria para Celery
+app.conf.timezone = 'America/Argentina/Buenos_Aires'
+app.conf.enable_utc = False
+```
+
+3. Se documentó la configuración para asegurar su consistencia entre entornos
+
+### Recomendaciones adicionales:
+1. Considerar establecer `USE_TZ = True` en Django para mejor manejo de zonas horarias
+2. Unificar la documentación de zonas horarias en todos los componentes del sistema
+3. Implementar un log específico para ejecuciones de Celery que incluya timestamps con zona horaria
+
+### Validación:
+Se verificó que las tareas programadas se ejecutan en el horario esperado según la zona horaria de Argentina. La próxima tarea está programada para ejecutarse a las 9:10 AM ART del siguiente día hábil.
+
+## 10/04/2025 - Identificación del error específico en Celery Beat
+
+### Problema identificado:
+Al revisar los logs de Docker, se ha detectado un error crítico en el servicio `celery-beat` que confirma la causa raíz del problema de zona horaria:
+
+```
+[CRITICAL/MainProcess] beat raised exception <class 'ValueError'>: ValueError('MySQL backend does not support timezone-aware datetimes when USE_TZ is False.')
+```
+
+Este error ocurrió a las 09:06:50, aproximadamente un minuto después de que la tarea programada se ejecutara correctamente a las 09:05:00.
+
+### Causa técnica detallada:
+1. Django está configurado con `USE_TZ = False` en `settings.py`, lo que significa que no maneja explícitamente las zonas horarias.
+2. Celery, especialmente django-celery-beat, está creando objetos con fechas que incluyen información de zona horaria.
+3. Cuando estos objetos intentan guardarse en la base de datos MySQL, se produce un conflicto porque MySQL no puede almacenar fechas con zona horaria cuando Django está configurado para ignorar zonas horarias.
+
+### Impacto:
+- Las tareas programadas pueden ejecutarse una vez, pero el servicio `celery-beat` falla posteriormente.
+- El sistema debe ser reiniciado periódicamente para que las tareas programadas sigan funcionando.
+- Posible pérdida de seguimiento de las ejecuciones de tareas si el servicio falla antes de registrar correctamente.
+
+### Solución implementada:
+Se han aplicado dos cambios fundamentales:
+
+1. Configuración explícita de Celery para usar la misma zona horaria que Django:
+   ```python
+   app.conf.timezone = 'America/Argentina/Buenos_Aires'
+   app.conf.enable_utc = False
+   ```
+
+2. Corrección del comentario en la definición de la tarea para reflejar el horario real:
+   ```python
+   'schedule': crontab(hour=9, minute=10),  # Se ejecuta todos los días a las 9:10 AM (Argentina)
+   ```
+
+### Recomendaciones adicionales:
+Además de las recomendaciones anteriores, se sugiere:
+
+1. **Modificar `USE_TZ` a `True`**: Esto proporcionaría una solución más robusta y permitiría al backend de MySQL manejar correctamente las fechas con zona horaria:
+   ```python
+   USE_TZ = True
+   ```
+
+2. **Implementar un sistema de monitoreo**: Configurar alertas específicas para detectar si `celery-beat` falla y reiniciarlo automáticamente.
+
+3. **Considerar la migración a otro backend de resultados**: Si no es posible cambiar `USE_TZ`, evaluar el uso de Redis u otro backend para almacenar los resultados de Celery que maneje mejor las fechas sin zona horaria.
+
+### Validación post-corrección:
+Después de implementar los cambios, se monitoreará el servicio `celery-beat` durante 48 horas para confirmar que no se repite el error y que todas las tareas programadas se ejecutan correctamente.
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 

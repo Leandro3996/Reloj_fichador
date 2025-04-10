@@ -14,6 +14,10 @@ app.conf.update(
 # Lee la configuración de Django y la aplica a Celery
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+# Configuración de zona horaria para Celery (explícita)
+app.conf.timezone = 'America/Argentina/Buenos_Aires'
+app.conf.enable_utc = False
+
 # Descubre automáticamente las tareas en todos los archivos tasks.py
 app.autodiscover_tasks()
 
@@ -25,7 +29,7 @@ def debug_task(self):
 app.conf.beat_schedule = {
     'generar-registros-asistencia-5am': {
         'task': 'apps.reloj_fichador.tasks.generar_registros_asistencia',  # Ruta a la tarea
-        'schedule': crontab(hour=9, minute=10),  # Se ejecuta todos los días a las 1:00 AM
+        'schedule': crontab(hour=9, minute=45),  # Se ejecuta todos los días a las 9:10 AM (Argentina)
     },
 }
 
