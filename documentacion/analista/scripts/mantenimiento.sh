@@ -44,7 +44,7 @@ crear_backup() {
     BACKUP_FILE="backups/db_backup_$TIMESTAMP.sql"
     
     # Ejecutar backup usando Docker
-    if docker-compose exec -T db mysqldump -u root -p$MYSQL_ROOT_PASSWORD --databases docker_horesdb > "$BACKUP_FILE"; then
+    if docker-compose exec -T db mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --databases docker_horesdb > "$BACKUP_FILE"; then
         echo -e "${VERDE}Backup creado exitosamente: $BACKUP_FILE${RESET}"
         # Comprimir el archivo
         gzip "$BACKUP_FILE"
@@ -68,7 +68,7 @@ limpiar_logs() {
         echo -e "Archivando $nombre_base"
         gzip -c "$log_file" > "logs/archivados/${nombre_base}_$(date +%Y%m%d).gz"
         # Vaciar el contenido del archivo original
-        > "$log_file"
+        true > "$log_file"
     done
     
     echo -e "${VERDE}Limpieza de logs completada${RESET}"
@@ -97,7 +97,7 @@ actualizar_codigo() {
         echo -e "${AMARILLO}ADVERTENCIA: Hay cambios locales no confirmados${RESET}"
         git status --short
         echo
-        read -p "¿Desea continuar con la actualización? (s/n): " respuesta
+        read -r -p "¿Desea continuar con la actualización? (s/n): " respuesta
         if [[ ! $respuesta =~ ^[Ss]$ ]]; then
             echo -e "${ROJO}Actualización cancelada${RESET}"
             return 1

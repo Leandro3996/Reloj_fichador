@@ -14,7 +14,8 @@ NC='\033[0m' # Sin Color
 log() {
     local nivel=$1
     local mensaje=$2
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    local timestamp
+    timestamp=$(date "+%Y-%m-%d %H:%M:%S")
     
     case $nivel in
         ERROR)
@@ -61,33 +62,33 @@ fi
 
 # Mostrar estado actual de los contenedores
 log INFO "Estado actual de los contenedores:"
-$DOCKER_COMPOSE -f $COMPOSE_FILE ps
+"$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps
 
 # Verificar si todos los contenedores están en funcionamiento
-TOTAL_CONTAINERS=$($DOCKER_COMPOSE -f $COMPOSE_FILE ps --services | wc -l)
-RUNNING_CONTAINERS=$($DOCKER_COMPOSE -f $COMPOSE_FILE ps | grep "Up" | wc -l)
+TOTAL_CONTAINERS=$("$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps --services | wc -l)
+RUNNING_CONTAINERS=$("$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps | grep -c "Up")
 
 log INFO "Contenedores totales: $TOTAL_CONTAINERS, En ejecución: $RUNNING_CONTAINERS"
 
-if [ $RUNNING_CONTAINERS -lt $TOTAL_CONTAINERS ]; then
+if [ "$RUNNING_CONTAINERS" -lt "$TOTAL_CONTAINERS" ]; then
     log WARN "No todos los contenedores están en ejecución."
     
     # Verificar logs de los contenedores con problemas
-    for service in $($DOCKER_COMPOSE -f $COMPOSE_FILE ps --services); do
-        if ! $DOCKER_COMPOSE -f $COMPOSE_FILE ps | grep $service | grep -q "Up"; then
+    for service in $("$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps --services); do
+        if ! "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps | grep "$service" | grep -q "Up"; then
             log WARN "El servicio $service no está en ejecución. Revisando logs..."
-            $DOCKER_COMPOSE -f $COMPOSE_FILE logs --tail=50 $service | grep -i "error\|fail\|exception"
+            "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" logs --tail=50 "$service" | grep -i "error\|fail\|exception"
         fi
     done
     
     # Verificar específicamente si MySQL muestra errores relacionados con la autenticación
-    if $DOCKER_COMPOSE -f $COMPOSE_FILE logs db | grep -q "unknown variable 'default-authentication-plugin"; then
+    if "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" logs db | grep -q "unknown variable 'default-authentication-plugin"; then
         log ERROR "Detectado problema de configuración en MySQL: default-authentication-plugin"
         log INFO "Este error debe corregirse modificando docker-compose.yml para usar --authentication_policy en lugar de --default-authentication-plugin"
     fi
     
     # Verificar error de valor inválido en authentication_policy
-    if $DOCKER_COMPOSE -f $COMPOSE_FILE logs db | grep -q "Option --authentication-policy is set to an invalid value"; then
+    if "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" logs db | grep -q "Option --authentication-policy is set to an invalid value"; then
         log ERROR "Detectado valor inválido en --authentication-policy"
         log INFO "Este error debe corregirse modificando docker-compose.yml para usar --authentication_policy='*,,' en lugar del valor actual"
     fi
@@ -95,19 +96,19 @@ if [ $RUNNING_CONTAINERS -lt $TOTAL_CONTAINERS ]; then
     # Reiniciar servicios si se pasó el parámetro "reiniciar"
     if [ "$1" = "reiniciar" ]; then
         log INFO "Reiniciando todos los contenedores..."
-        $DOCKER_COMPOSE -f $COMPOSE_FILE down
-        $DOCKER_COMPOSE -f $COMPOSE_FILE up -d
+        "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" down
+        "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" up -d
         
         # Esperar y verificar de nuevo
         log INFO "Esperando 30 segundos para que los servicios arranquen..."
         sleep 30
         
-        RUNNING_CONTAINERS_AFTER=$($DOCKER_COMPOSE -f $COMPOSE_FILE ps | grep "Up" | wc -l)
-        if [ $RUNNING_CONTAINERS_AFTER -eq $TOTAL_CONTAINERS ]; then
+        RUNNING_CONTAINERS_AFTER=$("$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps | grep -c "Up")
+        if [ "$RUNNING_CONTAINERS_AFTER" -eq "$TOTAL_CONTAINERS" ]; then
             log INFO "Todos los contenedores están ahora en ejecución."
         else
             log ERROR "Algunos contenedores siguen sin iniciarse. Revisa los logs para más detalles."
-            $DOCKER_COMPOSE -f $COMPOSE_FILE ps
+            "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" ps
         fi
     else
         log INFO "Para reiniciar los contenedores, ejecuta: $0 reiniciar"
@@ -119,7 +120,7 @@ fi
 # Función para verificar la conexión a la base de datos MySQL
 check_mysql_connection() {
     log INFO "Verificando conexión a MySQL..."
-    if $DOCKER_COMPOSE -f $COMPOSE_FILE exec -T db mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" &> /dev/null; then
+    if "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" exec -T db mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1;" &> /dev/null; then
         log INFO "Conexión a MySQL exitosa."
         return 0
     else
@@ -129,10 +130,12 @@ check_mysql_connection() {
 }
 
 # Extraer variables de entorno del archivo .env
-if [ -f "../../../.env" ]; then
-    source "../../../.env"
+ENV_FILE="../../../.env"
+if [ -f "$ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
     # Verificar conexión a MySQL solo si tenemos las credenciales
-    if [ ! -z "$MYSQL_USER" ] && [ ! -z "$MYSQL_PASSWORD" ]; then
+    if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then
         check_mysql_connection
     else
         log WARN "No se encontraron credenciales de MySQL en el archivo .env"

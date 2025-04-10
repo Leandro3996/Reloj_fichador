@@ -65,6 +65,43 @@ Se reiniciaron los contenedores con `docker-compose down` y `docker-compose up -
 ### Nota adicional:
 Este cambio refleja una evolución en el manejo de la autenticación en MySQL 8.4, donde se ha adoptado un enfoque más flexible de autenticación multifactor. Es importante consultar la documentación oficial para comprender correctamente el formato y las opciones disponibles del parámetro `authentication_policy`.
 
+## 10/04/2025 - Mejoras en el script de verificación de contenedores Docker
+
+### Actividad realizada:
+Se ha optimizado el script `verificacion_docker.sh` para mejorar su robustez y fiabilidad. Las mejoras incluyen:
+
+1. **Correcciones de seguridad**:
+   - Implementación de comillas dobles en todas las variables para prevenir problemas de expansión y globbing
+   - Eliminación de posibles vulnerabilidades en el manejo de argumentos
+
+2. **Optimizaciones de rendimiento**:
+   - Reemplazo de construcciones ineficientes como `grep | wc -l` por alternativas más directas como `grep -c`
+   - Mejora en el manejo de condicionales y comparaciones
+
+3. **Claridad y mantenibilidad**:
+   - Separación de la declaración y asignación de variables para evitar enmascarar valores de retorno
+   - Manejo explícito de rutas de archivo para mayor claridad
+   - Inclusión de directivas específicas para herramientas de análisis estático de código
+
+### Documentación:
+Se ha creado documentación completa del script en `documentacion/analista/documentacion_script_verificacion.md`, que incluye:
+- Descripción detallada de todas las funciones
+- Guía de uso con ejemplos
+- Procedimientos para solución de problemas
+- Instrucciones para mantenimiento y extensión
+
+### Beneficios:
+Estas mejoras proporcionan varias ventajas importantes:
+- Mayor fiabilidad en la detección y solución de problemas en los contenedores
+- Reducción de falsos positivos y comportamientos inesperados
+- Facilidad de mantenimiento para futuros desarrolladores
+- Base sólida para añadir detección de nuevos patrones de error
+
+### Próximos pasos:
+- Considerar la posibilidad de integrar este script en un sistema de monitoreo continuo
+- Evaluar la adición de notificaciones automáticas cuando se detecten problemas
+- Explorar opciones para extender la detección a otros servicios como Redis y Nginx
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 

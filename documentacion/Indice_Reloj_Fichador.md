@@ -9,6 +9,7 @@ Este documento sirve como punto central de navegación para la documentación de
 - [[Diagrama_de_flujo_Fichador|Diagramas de Flujo (Mermaid)]]: Diagramas principales en formato Mermaid
 - [[Diagrama_de_flujo_Visual|Diagramas de Flujo Visuales]]: Diagramas mejorados con elementos gráficos
 - [[Diagrama_de_flujo_ASCII|Diagramas de Flujo ASCII]]: Diagramas en formato ASCII art
+- [[Guia_de_Mantenimiento_Docker|Guía de Mantenimiento Docker]]: Gestión y solución de problemas en contenedores
 
 ## Navegación por Temas
 
@@ -32,6 +33,14 @@ Este documento sirve como punto central de navegación para la documentación de
 - [[Diagrama_de_flujo_Visual#Proceso Principal de Fichaje|Fichaje Visual]]
 - [[Diagrama_de_flujo_ASCII#3. Cálculo de Horas Trabajadas|Cálculo de Horas en ASCII]]
 - [[Diagrama_de_flujo_Visual#Cálculo de Horas Trabajadas|Cálculo de Horas Visual]]
+
+### Mantenimiento del Sistema
+- [[Guia_de_Mantenimiento_Docker#Arquitectura de Contenedores|Arquitectura de Contenedores Docker]]
+- [[Guia_de_Mantenimiento_Docker#Scripts de Mantenimiento|Scripts de Mantenimiento y Verificación]]
+- [[Guia_de_Mantenimiento_Docker#Problemas Comunes y Soluciones|Problemas Comunes y Soluciones]]
+- [[Guia_de_Mantenimiento_Docker#Buenas Prácticas|Buenas Prácticas para Docker]]
+- [[documentacion/analista/documentacion_script_verificacion|Documentación del Script de Verificación]]
+- [[documentacion/analista/bitacora_proyecto#10/04/2025 - Actualización de la solución a problemas de arranque en Docker|Bitácora: Solución de Problemas de MySQL 8.4.0]]
 
 ## Guía de Uso de esta Documentación
 

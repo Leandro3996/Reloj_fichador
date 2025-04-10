@@ -214,4 +214,31 @@ La documentación está organizada en varios archivos Markdown interconectados:
 
 ---
 
-Para cualquier duda o sugerencia sobre esta documentación, por favor contacta al equipo de desarrollo. 
+Para cualquier duda o sugerencia sobre esta documentación, por favor contacta al equipo de desarrollo.
+
+## Actualizaciones Recientes
+
+### 10/04/2025 - Mejora en la gestión de contenedores Docker
+
+Se han implementado importantes mejoras en la gestión y mantenimiento de los contenedores Docker:
+
+1. **Solución de problemas de compatibilidad con MySQL 8.4.0**
+   - Corrección de parámetros de autenticación obsoletos
+   - Implementación de la nueva política de autenticación multifactor
+
+2. **Herramientas de diagnóstico y mantenimiento**
+   - Script de verificación `verificacion_docker.sh` para detección y solución de problemas
+   - Script de mantenimiento `mantenimiento.sh` para tareas rutinarias
+   - Ambos scripts implementan las mejores prácticas de shell scripting
+
+3. **Documentación completa**
+   - Nueva [Guía de Mantenimiento Docker](./Guia_de_Mantenimiento_Docker.md) con información detallada
+   - Actualización del índice de documentación para facilitar navegación
+   - Documentación técnica de los scripts
+
+4. **Mejoras en la robustez del sistema**
+   - Optimización de la configuración de servicios
+   - Estrategias de respaldo y recuperación mejoradas
+   - Recomendaciones de monitorización y verificación proactiva
+
+Estas mejoras proporcionan mayor estabilidad y facilitan el mantenimiento continuo del sistema. 
