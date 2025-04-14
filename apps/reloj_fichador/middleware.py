@@ -140,7 +140,11 @@ class TerminalCriticoMiddleware(MiddlewareMixin):
         """
         terminal_ip = request.META.get('REMOTE_ADDR')
         # Lista de IPs de terminales críticos que necesitan disponibilidad 24/7
-        terminales_criticos = ['192.168.10.12']
+        terminales_criticos = [
+            '192.168.10.12', 
+            '192.168.10.11',  # Terminal con problemas en los logs
+            '172.18.0.1',     # IP interna de Docker que también aparece en los logs
+        ]
         
         # Verificar si es la terminal crítica
         if terminal_ip in terminales_criticos:
