@@ -14,6 +14,7 @@ from datetime import datetime
 import logging
 from django.core.exceptions import ValidationError
 import pytz
+from django.views.decorators.csrf import csrf_exempt
 
 # Configura el logger
 logger = logging.getLogger(__name__)
@@ -182,3 +183,15 @@ def error_500(request):
         context['error_details'] = traceback.format_exc()
         
     return render(request, 'errors/500.html', context, status=500)
+
+@csrf_exempt
+def health_check(request):
+    """
+    Endpoint simple para verificar el estado de salud del sistema.
+    Útil para monitoreo y para garantizar que el servidor está respondiendo.
+    """
+    return JsonResponse({
+        'status': 'ok',
+        'environment': 'production',
+        'timestamp': str(timezone.now()),
+    })

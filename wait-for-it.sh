@@ -46,16 +46,24 @@ wait_for()
         fi
         sleep 1
     done
-    return $WAITFORIT_result
+    return "$WAITFORIT_result"
 }
 
 wait_for_wrapper()
 {
     # In order to support SIGINT during timeout: http://unix.stackexchange.com/a/57692
     if [[ $WAITFORIT_QUIET -eq 1 ]]; then
-        timeout "$WAITFORIT_BUSYTIMEFLAG" "$WAITFORIT_TIMEOUT" "$0" --quiet --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        if [[ $WAITFORIT_BUSYTIMEFLAG ]]; then
+            timeout "$WAITFORIT_BUSYTIMEFLAG" "$WAITFORIT_TIMEOUT" "$0" --quiet --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        else
+            timeout "$WAITFORIT_TIMEOUT" "$0" --quiet --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        fi
     else
-        timeout "$WAITFORIT_BUSYTIMEFLAG" "$WAITFORIT_TIMEOUT" "$0" --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        if [[ $WAITFORIT_BUSYTIMEFLAG ]]; then
+            timeout "$WAITFORIT_BUSYTIMEFLAG" "$WAITFORIT_TIMEOUT" "$0" --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        else
+            timeout "$WAITFORIT_TIMEOUT" "$0" --child --host="$WAITFORIT_HOST" --port="$WAITFORIT_PORT" --timeout="$WAITFORIT_TIMEOUT" &
+        fi
     fi
     WAITFORIT_PID=$!
     trap 'kill -INT -$WAITFORIT_PID' INT
@@ -137,7 +145,7 @@ if [[ "$WAITFORIT_HOST" == "" || "$WAITFORIT_PORT" == "" ]]; then
     usage
 fi
 
-WAITFORIT_TIMEOUT=${WAITFORIT_TIMEOUT:-15}
+WAITFORIT_TIMEOUT=${WAITFORIT_TIMEOUT:-60}
 WAITFORIT_STRICT=${WAITFORIT_STRICT:-0}
 WAITFORIT_CHILD=${WAITFORIT_CHILD:-0}
 WAITFORIT_QUIET=${WAITFORIT_QUIET:-0}
@@ -161,10 +169,10 @@ fi
 if [[ $WAITFORIT_CHILD -gt 0 ]]; then
     wait_for
     WAITFORIT_RESULT=$?
-    exit $WAITFORIT_RESULT
+    exit "$WAITFORIT_RESULT"
 else
     if [[ $WAITFORIT_TIMEOUT -gt 0 ]]; then
-        wait_for_wrapper
+        wait_for
         WAITFORIT_RESULT=$?
     else
         wait_for
@@ -172,7 +180,7 @@ else
     fi
 fi
 
-if [[ $WAITFORIT_CLI != "" ]]; then
+if [[ "${WAITFORIT_CLI[*]}" != "" ]]; then
     if [[ $WAITFORIT_RESULT -ne 0 && $WAITFORIT_STRICT -eq 1 ]]; then
         echoerr "$WAITFORIT_cmdname: strict mode, refusing to execute subprocess"
         exit "$WAITFORIT_RESULT"

@@ -16,12 +16,17 @@ services:
       - app_network_fichador
     command: >
       --authentication_policy='*,,' --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --explicit_defaults_for_timestamp=1
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   web:
     build: .
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -29,7 +34,8 @@ services:
     ports:
       - "58000:58000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_NAME=${MYSQL_DATABASE}
       - DB_USER=${MYSQL_USER}
@@ -46,14 +52,16 @@ services:
     build: .
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- bash -c "celery -A mantenedor worker --loglevel=info --uid=nobody --gid=nogroup"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info --uid=nobody --gid=nogroup"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/5
       - LANG=${LANG}
@@ -66,14 +74,16 @@ services:
     build: .
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/5
       - LANG=${LANG}
@@ -89,6 +99,11 @@ services:
       - "6381:6379"
     networks:
       - app_network_fichador
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nginx:
     image: nginx:latest
@@ -100,7 +115,8 @@ services:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     depends_on:
-      - web
+      web:
+        condition: service_started
     networks:
       - app_network_fichador
 
@@ -115,10 +131,11 @@ services:
     volumes:
       - ./backups:/backups
       - ./wait-for-it.sh:/wait-for-it.sh
-      - ./my_backup.cnf:/root/.my.cnf
-    entrypoint: [ "/bin/sh", "-c", "chmod 600 /root/.my.cnf && while true; do /wait-for-it.sh db:3306 -- mysqldump -h db --no-tablespaces -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} > /backups/backup_$(date +%F_%H.%M.%S).sql; echo 'Limpiando backups antiguos...'; cd /backups && ls -t *.sql | tail -n +11 | xargs -r rm -f; echo 'Limpieza completada. Se mantienen los 10 backups más recientes.'; sleep 1800; done" ]
+      - ./my_backup.cnf:/etc/my.cnf
+    entrypoint: [ "/bin/sh", "-c", "if [ ! -f /root/.my.cnf ]; then echo '[client] user=${MYSQL_USER} password=${MYSQL_PASSWORD} host=db protocol=tcp' > /root/.my.cnf && chmod 600 /root/.my.cnf; fi && while true; do /wait-for-it.sh db:3306 -t 120 -- mysqldump -h db -u${MYSQL_USER} -p${MYSQL_PASSWORD} --no-tablespaces ${MYSQL_DATABASE} > /backups/backup_$(date +%F_%H.%M.%S).sql; echo 'Limpiando backups antiguos...'; cd /backups && ls -t *.sql | tail -n +11 | xargs -r rm -f; echo 'Limpieza completada. Se mantienen los 10 backups más recientes.'; sleep 1800; done" ]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app_network_fichador
 
@@ -134,7 +151,8 @@ services:
       - ./birt/birt.war:/usr/local/tomcat/webapps/birt.war
       - ./birt_drivers/mysql-connector-j-9.1.0.jar:/usr/local/tomcat/lib/mysql-connector-j-9.1.0.jar
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app_network_fichador
 

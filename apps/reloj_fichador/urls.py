@@ -9,4 +9,5 @@ urlpatterns = [
     path('registrar/<str:tipo_movimiento>/', registrar_movimiento_tipo, name='registrar_movimiento_tipo'),
     path('operarios/', OperarioListView.as_view(), name='operarios-list'),
     path('reporte/', generar_reporte_view, name='generar_reporte'),
+    path('api/health/', views.health_check, name='health_check'),
 ]

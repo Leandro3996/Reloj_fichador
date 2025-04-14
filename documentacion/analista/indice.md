@@ -25,6 +25,38 @@
 3. Auditoría de Seguridad - Revisión de prácticas de seguridad
 4. Plan de Pruebas - Estrategia para pruebas exhaustivas
 
+## Documentación Técnica
+- [Análisis inicial del sistema](analisis_inicial.md)
+- [Análisis de modelos](analisis_modelos.md)
+- [Análisis del algoritmo de horas](analisis_algoritmo_horas.md)
+- [Guía de configuración de MySQL 8.4.0](guia_configuracion_mysql.md)
+- [Diagnóstico de tareas programadas en Celery](diagnostico_celery_scheduled_tasks.md)
+
+## Bitácoras y Reportes
+- [Bitácora del proyecto](bitacora_proyecto.md)
+- [Reporte de implementación](reporte_implementacion.md)
+
+## Zonas Horarias
+- [Guía de zonas horarias](guia_zonas_horarias.md)
+- [Implementación de zonas horarias](implementacion_zonas_horarias.md)
+- [Ajustes de zonas horarias](ajustes_zonas_horarias.md)
+- [Guía de activación de TZ](guia_activacion_TZ.md)
+
+## Scripts y Utilidades
+- [Documentación de scripts de verificación](documentacion_script_verificacion.md)
+- [Script de verificación de Celery timezone](verificar_celery_timezone.sh)
+
+## Recomendaciones
+- [Recomendaciones de Docker](recomendaciones_docker.md)
+- [Propuesta de actualización de diagramas](propuesta_actualizacion_diagramas.md)
+
+## Diagramas
+- [Comparativa de diagramas](comparativa_diagramas.md)
+- [Diagramas mejorados](/diagramas_mejorados)
+
+## Diseño
+- [Guías de diseño](/diseño)
+
 ---
 
 Esta documentación está siendo desarrollada como parte del análisis técnico del Sistema Reloj Fichador. Su objetivo es proporcionar una visión clara de la arquitectura actual, identificar áreas de mejora y establecer estándares técnicos para el desarrollo continuo. 

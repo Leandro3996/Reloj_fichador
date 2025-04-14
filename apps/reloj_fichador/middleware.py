@@ -126,4 +126,29 @@ class PermissionMiddleware(MiddlewareMixin):
             
             return HttpResponseForbidden(html)
         
+        return None
+
+class TerminalCriticoMiddleware(MiddlewareMixin):
+    """
+    Middleware para garantizar la disponibilidad 24/7 de la terminal crítica de fichaje.
+    Exime a la terminal crítica (192.168.10.12) de verificaciones CSRF estrictas.
+    """
+    def process_request(self, request):
+        """
+        Verifica si la solicitud viene de la terminal crítica y exime 
+        de verificaciones CSRF si es necesario.
+        """
+        terminal_ip = request.META.get('REMOTE_ADDR')
+        # Lista de IPs de terminales críticos que necesitan disponibilidad 24/7
+        terminales_criticos = ['192.168.10.12']
+        
+        # Verificar si es la terminal crítica
+        if terminal_ip in terminales_criticos:
+            # Si es POST desde la terminal crítica, relajar verificación CSRF
+            if request.method == 'POST':
+                # Registrar que se ha eximido la verificación (opcional)
+                logger.info(f"Terminal crítico {terminal_ip} eximido de verificación CSRF")
+                # Indicar que no se debe aplicar verificación CSRF estricta
+                request._dont_enforce_csrf_checks = True
+                
         return None 

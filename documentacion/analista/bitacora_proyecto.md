@@ -256,6 +256,83 @@ Este cambio debe ser probado exhaustivamente en un entorno de prueba antes de im
 ### Seguimiento
 Tras la implementación de este cambio, se requiere un período de observación para detectar cualquier comportamiento inesperado relacionado con las fechas y horas en el sistema.
 
+## 12/04/2025 - Corrección de problemas de acceso en MySQL 8.4.0 y optimización de la configuración
+
+### Problema identificado:
+Al analizar los logs de Docker, se detectaron errores críticos que impedían el arranque correcto de los servicios `web` y `celery-beat`:
+
+```
+Access denied; you need (at least one of) the SYSTEM_VARIABLES_ADMIN or SESSION_VARIABLES_ADMIN privilege(s) for this operation
+```
+
+También se observó un error en el servicio de backup:
+
+```
+mysqldump: [ERROR] unknown variable 'defaults-file=/root/.my.cnf'
+```
+
+### Causa raíz:
+1. El usuario de la base de datos no tenía los privilegios necesarios para modificar variables de sesión de MySQL 8.4.0, una operación que Django intenta realizar automáticamente durante la conexión.
+2. La sintaxis del comando de backup en `docker-compose.yml` era incorrecta.
+3. Los archivos de configuración contenían credenciales inconsistentes.
+
+### Solución implementada:
+1. **Creación de un usuario con privilegios adecuados**:
+   - Se configuró el usuario `sistemas` con los permisos necesarios para las operaciones que requiere Django.
+   - Se otorgaron explícitamente los privilegios `SYSTEM_VARIABLES_ADMIN` y `SESSION_VARIABLES_ADMIN`.
+   - Se asignaron permisos específicos para operaciones de backup.
+
+2. **Ajuste de configuración de Django**:
+   - Se modificó el archivo `settings.py` para establecer un conjunto específico de modos SQL.
+   - Se ajustaron los parámetros de conexión a la base de datos para mejorar la compatibilidad con MySQL 8.4.0.
+   - Se añadieron opciones para autocommit y nivel de aislamiento.
+
+3. **Estandarización de credenciales**:
+   - Se actualizaron los archivos `.env` y `my_backup.cnf` con credenciales consistentes.
+   - Se eliminaron caracteres especiales en las contraseñas que podían causar problemas en scripts de shell.
+
+### Cambios específicos:
+
+1. En `settings.py`, se modificó la configuración de la base de datos:
+```python
+'OPTIONS': {
+    'init_command': "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'",
+    'charset': 'utf8mb4',
+    'connect_timeout': 30,
+    'autocommit': True,
+    'isolation_level': 'READ COMMITTED',
+},
+```
+
+2. Se ejecutaron comandos de MySQL para otorgar privilegios al usuario:
+```sql
+CREATE USER IF NOT EXISTS 'sistemas'@'%' IDENTIFIED BY 'S1st3mas2024';
+GRANT ALL PRIVILEGES ON *.* TO 'sistemas'@'%' WITH GRANT OPTION;
+GRANT SYSTEM_VARIABLES_ADMIN, SESSION_VARIABLES_ADMIN ON *.* TO 'sistemas'@'%';
+GRANT SELECT, RELOAD, LOCK TABLES, PROCESS, SHOW VIEW, EVENT ON *.* TO 'sistemas'@'%';
+FLUSH PRIVILEGES;
+```
+
+3. Se actualizaron las credenciales en archivos de configuración:
+   - En `.env`: Se estableció `MYSQL_USER=sistemas` y `MYSQL_PASSWORD=S1st3mas2024`
+   - En `my_backup.cnf`: Se configuró directamente `user=sistemas` y `password=S1st3mas2024`
+
+### Resultados:
+- Todos los contenedores arrancan correctamente.
+- El servicio web está operando sin errores.
+- El programador de tareas (celery-beat) funciona normalmente.
+- El servicio de backup puede realizar copias de seguridad sin problemas.
+- Se ha eliminado el error de permisos en MySQL.
+
+### Observaciones adicionales:
+Durante el análisis, se detectó una discrepancia en `mantenedor/celery.py`, donde el comentario indica "Se ejecuta todos los días a las 1:00 AM (Argentina)" pero la configuración real es `crontab(hour=8, minute=34)`. Esta inconsistencia deberá ser revisada posteriormente.
+
+### Próximos pasos recomendados:
+1. Revisar y corregir los comentarios en las tareas programadas de Celery para evitar confusiones.
+2. Implementar monitoreo de logs para detectar tempranamente problemas similares.
+3. Considerar la creación de scripts de diagnóstico para verificar periódicamente la configuración del sistema.
+4. Establecer un procedimiento para la rotación segura de credenciales de la base de datos.
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 

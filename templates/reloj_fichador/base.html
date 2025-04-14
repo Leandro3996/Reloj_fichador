@@ -74,6 +74,57 @@
 
     <!-- Scripts JavaScript Mejorados -->
     <script>
+        // SCRIPT DE VERIFICACIÓN DE SESIÓN 24/7
+        // Este script garantiza que la sesión y el token CSRF se mantengan activos continuamente
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para garantizar que la sesión está activa
+            function verificarSesion() {
+                console.log("Verificando sesión y token CSRF: " + new Date().toLocaleTimeString());
+                
+                // Realizar una petición GET para mantener activa la sesión
+                fetch(window.location.href + '?keep_alive=' + Date.now(), {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                }).then(function() {
+                    console.log("Sesión verificada correctamente");
+                }).catch(function(error) {
+                    console.error("Error al verificar sesión:", error);
+                    // Intentar recuperar automáticamente después de un error
+                    setTimeout(verificarSesion, 30000); // Reintentar después de 30 segundos
+                });
+            }
+            
+            // Verificar inmediatamente
+            verificarSesion();
+            
+            // Verificar periódicamente (cada 2 horas)
+            setInterval(verificarSesion, 2 * 60 * 60 * 1000);
+            
+            // Verificar después de inactividad
+            let inactivityTimer;
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(verificarSesion, 30 * 60 * 1000); // Verificar después de 30 min de inactividad
+            }
+            
+            // Eventos que reinician el timer de inactividad
+            ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(function(event) {
+                document.addEventListener(event, resetInactivityTimer);
+            });
+            
+            // Verificar en eventos de recuperación de enfoque
+            window.addEventListener('focus', verificarSesion);
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    verificarSesion();
+                }
+            });
+            
+            // Iniciar timer de inactividad
+            resetInactivityTimer();
+        });
+
         function setTipoMovimiento(tipo) {
             document.querySelectorAll('.menu-button').forEach(button => {
                 button.classList.remove('active');

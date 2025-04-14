@@ -1,5 +1,5 @@
 [client]
-user=${MYSQL_USER}
-password=${MYSQL_PASSWORD}
+user=sistemas
+password=S1st3mas2024
 host=db
 protocol=tcp

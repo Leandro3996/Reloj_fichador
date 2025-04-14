@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'apps.reloj_fichador.middleware.TerminalCriticoMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -94,15 +95,17 @@ WSGI_APPLICATION = 'mantenedor.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'docker_horesdb'),
-        'USER': os.environ.get('DB_USER', 'Leandro.3996'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'S1st3mas.1999'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
-            'auth_plugin': 'mysql_native_password',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'",
             'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'connect_timeout': 30,
+            'autocommit': True,
+            'isolation_level': 'READ COMMITTED',
         },
     }
 }
@@ -142,16 +145,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/5')
 CELERY_BEAT_SCHEDULER = env('CELERY_BEAT_SCHEDULER', default='django_celery_beat.schedulers:DatabaseScheduler')
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5080','http://192.168.0.228:5080','http://192.168.10.11:5080',]
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5080',
+    'http://192.168.0.228:5080',
+    'http://192.168.10.11:5080',
+    'http://192.168.10.12:5080',
+    'http://192.168.10.18:5080',
+    'http://192.168.10.8:5080',
+    'http://192.168.10.4:5080',
+    'http://192.168.10.13:5080',
+    'http://192.168.10.43:5080',
+    'http://192.168.10.17:5080',
+]
 
 
 # Configuraciones adicionales para sesiones y CSRF
 
 # Duración de la sesión y el token CSRF
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
-CSRF_COOKIE_AGE = 60 * 60 * 24 * 365  # 1 año
-SESSION_COOKIE_NAME = "session_5080"
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 días para terminal de fichaje
+CSRF_COOKIE_AGE = 60 * 60 * 24 * 30     # 30 días
 
+# Nombre de cookie personalizado para evitar conflictos
+SESSION_COOKIE_NAME = "fichador_session"
+CSRF_COOKIE_NAME = "fichador_csrf"
+
+# CRÍTICO: Almacenar el token CSRF en la sesión para máxima disponibilidad
+CSRF_USE_SESSIONS = True
 
 # Guardar la sesión en cada solicitud para prolongar su duración
 SESSION_SAVE_EVERY_REQUEST = True
@@ -160,13 +179,13 @@ SESSION_SAVE_EVERY_REQUEST = True
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
-# Establecer SameSite para proteger las cookies contra CSRF
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
+# Establecer SameSite para compatibilidad máxima con navegadores antiguos
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
 
-# Desactivar HTTPOnly para permitir acceso al token CSRF desde JavaScript si es necesario
+# Configuración para permitir acceso JavaScript al CSRF token si es necesario
 CSRF_COOKIE_HTTPONLY = False
-SESSION_COOKIE_HTTPONLY = False
+SESSION_COOKIE_HTTPONLY = True  # Proteger la sesión
 
 LOGGING = {
     'version': 1,
