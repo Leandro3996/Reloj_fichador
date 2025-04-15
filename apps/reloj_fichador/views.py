@@ -190,9 +190,14 @@ def health_check(request):
     """
     Endpoint simple para verificar el estado de salud del sistema.
     Útil para monitoreo y para garantizar que el servidor está respondiendo.
+    También proporciona la hora actual del servidor para sincronización.
     """
+    # Obtener la hora actual con la zona horaria de Argentina
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    hora_actual = timezone.now().astimezone(argentina_tz)
+    
     return JsonResponse({
         'status': 'ok',
         'environment': 'production',
-        'timestamp': str(timezone.now()),
+        'timestamp': hora_actual.isoformat(),
     })

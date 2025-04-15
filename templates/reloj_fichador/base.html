@@ -300,15 +300,47 @@
                 }
             };
 
+            // Variable global para el temporizador de los mensajes
+            let mensajeTimer;
+
             // Función para mostrar mensajes
             function mostrarMensaje(tipo, mensaje) {
+                // Mostrar el mensaje
                 messagesDiv.innerHTML = `<div class="${tipo}">${mensaje}</div>`;
                 messagesDiv.style.display = 'block';
-                setTimeout(() => {
+                
+                // Limpiar el temporizador anterior si existe
+                if (mensajeTimer) {
+                    clearTimeout(mensajeTimer);
+                }
+                
+                // Configurar el nuevo temporizador (30 segundos)
+                iniciarTemporizadorMensaje();
+            }
+            
+            // Función para iniciar o reiniciar el temporizador de mensajes
+            function iniciarTemporizadorMensaje() {
+                // Limpiar el temporizador anterior si existe
+                if (mensajeTimer) {
+                    clearTimeout(mensajeTimer);
+                }
+                
+                // Configurar el nuevo temporizador (30 segundos)
+                mensajeTimer = setTimeout(() => {
                     messagesDiv.style.display = 'none';
                     messagesDiv.innerHTML = '';
-                }, 5000); // Ocultar después de 5 segundos
+                }, 30000);
             }
+            
+            // Reiniciar el temporizador del mensaje cuando hay interacción
+            ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(function(event) {
+                document.addEventListener(event, function() {
+                    // Solo reiniciar si hay un mensaje visible
+                    if (messagesDiv.style.display === 'block') {
+                        iniciarTemporizadorMensaje();
+                    }
+                });
+            });
 
             // Función para obtener el token CSRF
             function getCookie(name) {
@@ -354,15 +386,59 @@
             setInterval(changeBackground, 60000);
             changeBackground(); // Cambiar inmediatamente al cargar
 
-            // Actualización de fecha y hora en tiempo real
-            function updateDateTime() {
-                const currentDateTime = new Date();
-                const formattedDateTime = currentDateTime.toLocaleString('es-ES', { hour12: false });
+            // Variables para el reloj sincronizado
+            let serverTimeOffset = 0; // Diferencia entre hora local y del servidor
+            let lastSyncTime = 0; // Última vez que sincronizamos con el servidor
+
+            // Función para sincronizar con el servidor
+            function syncServerTime() {
+                const beforeRequest = Date.now();
+                
+                fetch('/api/health/', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const afterRequest = Date.now();
+                    const networkLatency = (afterRequest - beforeRequest) / 2; // Estimar latencia
+                    
+                    // Parsear el timestamp del servidor y ajustar por latencia
+                    const serverTime = new Date(data.timestamp);
+                    const adjustedServerTime = serverTime.getTime() + networkLatency;
+                    
+                    // Calcular diferencia entre hora local y del servidor
+                    serverTimeOffset = adjustedServerTime - Date.now();
+                    lastSyncTime = Date.now();
+                    
+                    // Actualizar inmediatamente
+                    updateClockDisplay();
+                    
+                    console.log('Reloj sincronizado con el servidor. Diferencia:', serverTimeOffset, 'ms');
+                })
+                .catch(error => {
+                    console.error('Error al sincronizar con el servidor:', error);
+                });
+            }
+
+            // Función para actualizar el reloj en base a la hora del servidor
+            function updateClockDisplay() {
+                // Calcular hora actual del servidor usando el offset
+                const now = new Date(Date.now() + serverTimeOffset);
+                const formattedDateTime = now.toLocaleString('es-ES', { hour12: false });
                 document.getElementById("current-date-time").textContent = formattedDateTime;
             }
 
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
+            // Sincronizar hora al inicio
+            syncServerTime();
+            
+            // Actualizar el reloj cada segundo localmente sin consultar al servidor
+            setInterval(updateClockDisplay, 1000);
+            
+            // Resincronizar con el servidor cada 5 minutos
+            setInterval(syncServerTime, 5 * 60 * 1000);
 
             // Widget del clima con OpenWeatherMap API
             const apiKey = 'b2155ed715b58e7be1cfbb93879fc4b1';
