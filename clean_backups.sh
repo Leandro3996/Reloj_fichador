@@ -31,9 +31,9 @@ fi
 echo -e "${AZUL}Encontrados $TOTAL_FILES archivos de backup${RESET}"
 
 # Si hay más de 10 archivos, eliminar los más antiguos
-if [ "$TOTAL_FILES" -gt 10 ]; then
+if [ "$TOTAL_FILES" -gt 480 ]; then
     # Calcular cuántos archivos eliminar
-    FILES_TO_DELETE=$((TOTAL_FILES - 10))
+    FILES_TO_DELETE=$((TOTAL_FILES - 480))
     
     echo -e "${AZUL}Se eliminarán los $FILES_TO_DELETE archivos más antiguos...${RESET}"
     
@@ -48,7 +48,7 @@ if [ "$TOTAL_FILES" -gt 10 ]; then
     
     echo -e "${VERDE}Limpieza completada. Se han eliminado $FILES_TO_DELETE archivos.${RESET}"
 else
-    echo -e "${VERDE}No es necesario eliminar archivos. Se mantienen todos los backups (menos de 10).${RESET}"
+    echo -e "${VERDE}No es necesario eliminar archivos. Se mantienen todos los backups (menos de 480).${RESET}"
 fi
 
-echo -e "${VERDE}Se conservan los 10 backups más recientes.${RESET}" 
+echo -e "${VERDE}Se conservan los 480 backups más recientes.${RESET}" 
