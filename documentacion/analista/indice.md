@@ -31,6 +31,7 @@
 - [Análisis del algoritmo de horas](analisis_algoritmo_horas.md)
 - [Guía de configuración de MySQL 8.4.0](guia_configuracion_mysql.md)
 - [Diagnóstico de tareas programadas en Celery](diagnostico_celery_scheduled_tasks.md)
+- [Mejoras en la interfaz de usuario](mejoras_interfaz_usuario.md)
 
 ## Bitácoras y Reportes
 - [Bitácora del proyecto](bitacora_proyecto.md)
@@ -56,6 +57,10 @@
 
 ## Diseño
 - [Guías de diseño](/diseño)
+
+## Mejoras del Sistema
+- [Mejoras en la interfaz de usuario](mejoras_interfaz_usuario.md)
+- [Guía de usuario del sistema](guia_usuario_sistema.md)
 
 ---
 

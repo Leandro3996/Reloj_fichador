@@ -333,6 +333,59 @@ Durante el análisis, se detectó una discrepancia en `mantenedor/celery.py`, do
 3. Considerar la creación de scripts de diagnóstico para verificar periódicamente la configuración del sistema.
 4. Establecer un procedimiento para la rotación segura de credenciales de la base de datos.
 
+## 14/04/2025 - Mejoras en la Experiencia de Usuario del Sistema de Fichaje
+
+### Problemas identificados:
+Durante una revisión exhaustiva del sistema, se identificaron varios problemas que afectaban la experiencia de usuario:
+
+1. **Inconsistencia de Hora**: La hora mostrada en la interfaz utilizaba la hora local del dispositivo cliente, lo que generaba discrepancias con la hora real del servidor utilizada para registrar las fichadas.
+
+2. **Mensajes Temporales Insuficientes**: Los mensajes de notificación (confirmaciones de fichadas, errores) desaparecían automáticamente después de solo 5 segundos, lo que causaba problemas cuando varios operarios fichaban consecutivamente.
+
+3. **Problemas de CSRF**: El sistema experimentaba errores "CSRF cookie not set" que impedían a los usuarios registrar entradas y salidas correctamente, especialmente en navegadores antiguos o terminales con condiciones de red subóptimas.
+
+### Soluciones implementadas:
+
+1. **Sistema de Visualización de Hora Sincronizada con el Servidor**:
+   - Sincronización inicial con el servidor al cargar la página
+   - Cálculo preciso del desfase entre hora local y del servidor, considerando latencia de red
+   - Actualización local del reloj cada segundo usando el desfase calculado
+   - Resincronización periódica cada 5 minutos para corregir posibles derivas
+   - Modificaciones en el endpoint `/api/health/` para proporcionar hora en formato ISO con zona horaria Argentina
+
+2. **Sistema Mejorado de Gestión de Mensajes**:
+   - Aumento de la duración base de los mensajes a 30 segundos
+   - Implementación de reinicio del temporizador basado en interacción del usuario
+   - Sistema centralizado para gestión de temporizadores de mensajes
+   - Gestión inteligente que permite que múltiples operarios vean sus mensajes de confirmación
+
+3. **Corrección de Problemas de CSRF**:
+   - Actualización de la función `getCookie` para manejar correctamente el nombre personalizado de cookie CSRF
+   - Ampliación del middleware CSRF para incluir todas las IPs relevantes de terminales
+   - Adición de exención CSRF a nivel de vista para la funcionalidad crítica de registro de movimientos
+
+### Beneficios obtenidos:
+- **Mayor precisión**: La hora mostrada corresponde siempre a la hora real del servidor
+- **Eficiencia mejorada**: Reducción drástica de peticiones al servidor, de 60 por minuto a solo 1 cada 5 minutos
+- **Experiencia fluida**: Reloj actualizado cada segundo sin saltos ni retardos
+- **Tolerancia a fallos**: Funcionamiento continuado incluso con problemas temporales de conexión
+- **Consistencia visual**: Todos los terminales muestran la misma hora exacta
+- **Mayor visibilidad de notificaciones**: Los mensajes permanecen visibles el tiempo necesario
+- **Adaptabilidad al usuario**: El sistema se adapta a la actividad del usuario
+- **Mayor disponibilidad**: Funcionamiento correcto incluso en navegadores antiguos o con condiciones de red subóptimas
+
+### Documentación generada:
+Se ha creado documentación detallada de las mejoras implementadas en el archivo [`documentacion/analista/mejoras_interfaz_usuario.md`](mejoras_interfaz_usuario.md), que incluye:
+- Descripción detallada de los problemas y soluciones
+- Código implementado con comentarios explicativos
+- Ventajas de cada solución
+- Recomendaciones para futuras mejoras
+
+### Próximos pasos recomendados:
+1. Monitorear el funcionamiento del sistema durante una semana para verificar que las soluciones implementadas resuelven completamente los problemas identificados.
+2. Considerar la implementación de las mejoras adicionales sugeridas en la documentación, especialmente el sistema de caché para terminales sin conexión.
+3. Realizar una encuesta de satisfacción entre los operarios para evaluar la mejora en la experiencia de usuario.
+
 ---
 
 *Este documento se actualizará constantemente como parte del seguimiento del proyecto.* 
