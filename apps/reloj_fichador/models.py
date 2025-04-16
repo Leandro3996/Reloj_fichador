@@ -468,15 +468,35 @@ class RegistroDiario(models.Model):
                     "No se pueden registrar movimientos transitorios después de la salida."
                 )
 
-        # Validación de secuencia de movimientos existente
-        registros_del_dia = RegistroDiario.objects.filter(
+        # Validación de secuencia de movimientos desde la última ENTRADA (jornada lógica)
+        # 1. Buscar la última ENTRADA antes de la hora fichada actual
+        ultima_entrada = RegistroDiario.objects.filter(
             operario=self.operario,
-            hora_fichada__date=movimiento_fecha,
+            tipo_movimiento='entrada',
+            hora_fichada__lt=self.hora_fichada,
             valido=True
-        ).exclude(pk=self.pk).order_by('hora_fichada')
+        ).order_by('-hora_fichada').first()
 
-        movimientos_del_dia = list(registros_del_dia.values_list('tipo_movimiento', flat=True))
-        last_movement = ultimo_valido.tipo_movimiento if ultimo_valido else None
+        if ultima_entrada:
+            # 2. Tomar todos los movimientos válidos desde esa ENTRADA hasta el actual (excluyendo el actual)
+            registros_jornada = RegistroDiario.objects.filter(
+                operario=self.operario,
+                hora_fichada__gt=ultima_entrada.hora_fichada,
+                hora_fichada__lt=self.hora_fichada,
+                valido=True
+            ).order_by('hora_fichada')
+            movimientos_jornada = ['entrada'] + list(registros_jornada.values_list('tipo_movimiento', flat=True))
+        else:
+            # Si no hay ENTRADA previa, usar los movimientos del día como fallback
+            registros_jornada = RegistroDiario.objects.filter(
+                operario=self.operario,
+                hora_fichada__date=movimiento_fecha,
+                hora_fichada__lt=self.hora_fichada,
+                valido=True
+            ).order_by('hora_fichada')
+            movimientos_jornada = list(registros_jornada.values_list('tipo_movimiento', flat=True))
+
+        last_movement = movimientos_jornada[-1] if movimientos_jornada else None
         day_changed = ultimo_valido and ultimo_valido.hora_fichada.date() != movimiento_fecha
 
         # Validación básica de secuencia de movimientos
@@ -487,8 +507,8 @@ class RegistroDiario(models.Model):
                 'entrada_transitoria': ['salida'],
                 'salida': ['entrada']
             }
-            if movimientos_del_dia:
-                last_today = movimientos_del_dia[-1]
+            if movimientos_jornada:
+                last_today = movimientos_jornada[-1]
                 movimientos_permitidos = transiciones_validas.get(last_today, [])
                 if self.tipo_movimiento not in movimientos_permitidos:
                     inconsistencias.append(
