@@ -493,10 +493,16 @@ class Horas_trabajadas(models.Model):
             valido=True
         ).order_by('hora_fichada')
 
+        # Solo considerar ENTRADA y SALIDA para el cálculo de horas trabajadas
         day_records = [
-            r for r in registros 
-            if RegistroDiario.calcular_fecha_logica(r.hora_fichada) == fecha
-            or (r.hora_fichada.time() < time(6, 0) and r.hora_fichada.date() == fecha)
+            r for r in registros
+            if (
+                r.tipo_movimiento in ('entrada', 'salida') and
+                (
+                    RegistroDiario.calcular_fecha_logica(r.hora_fichada) == fecha
+                    or (r.hora_fichada.time() < time(6, 0) and r.hora_fichada.date() == fecha)
+                )
+            )
         ]
 
         total_horas_normales = timedelta()
