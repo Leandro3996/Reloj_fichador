@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.4.0
-    restart: unless-stopped
+    restart: always
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
@@ -24,7 +24,7 @@ services:
 
   web:
     build: .
-    restart: unless-stopped
+    restart: always
     command: >
       /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
@@ -50,7 +50,7 @@ services:
 
   celery:
     build: .
-    restart: unless-stopped
+    restart: always
     command: >
       /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info --uid=nobody --gid=nogroup"
     volumes:
@@ -72,7 +72,7 @@ services:
 
   celery-beat:
     build: .
-    restart: unless-stopped
+    restart: always
     command: >
       /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
     volumes:
@@ -94,7 +94,7 @@ services:
 
   redis:
     image: redis:alpine
-    restart: unless-stopped
+    restart: always
     ports:
       - "6381:6379"
     networks:
@@ -107,7 +107,7 @@ services:
 
   nginx:
     image: nginx:latest
-    restart: unless-stopped
+    restart: always
     ports:
       - "5080:80"
     volumes:
@@ -122,7 +122,7 @@ services:
 
   backup:
     image: mysql:8.4.0
-    restart: unless-stopped
+    restart: always
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
@@ -141,7 +141,7 @@ services:
 
   birt:
     image: tomcat:9.0
-    restart: unless-stopped
+    restart: always
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
     ports:
