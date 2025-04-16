@@ -28,10 +28,17 @@ logger = logging.getLogger('reloj_fichador')
 def redondear_entrada(dt):
     """
     Redondea la hora de entrada hacia arriba a la próxima hora completa.
+    Siempre opera en horario de Argentina.
     """
-    fecha_base = dt.replace(minute=0, second=0, microsecond=0)
-    if dt.minute or dt.second or dt.microsecond:
-        # Si hay minutos o segundos, subimos 1 hora
+    import pytz
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    # Si el datetime tiene tzinfo, convertir a horario local
+    if dt.tzinfo is not None:
+        dt_local = dt.astimezone(argentina_tz)
+    else:
+        dt_local = argentina_tz.localize(dt)
+    fecha_base = dt_local.replace(minute=0, second=0, microsecond=0)
+    if dt_local.minute or dt_local.second or dt_local.microsecond:
         fecha_base += timedelta(hours=1)
     return fecha_base
 
@@ -45,7 +52,21 @@ def redondear_salida(dt):
     return dt.replace(minute=0, second=0, microsecond=0)
 
 def calcular_horas_por_franjas(inicio, fin, limites=None):
+    import pytz
     logger.debug(f"[calcular_horas_por_franjas] INICIO: {inicio}, FIN: {fin}, LIMITES: {limites}")
+    # --- Timezone enforcement: always operate in Argentina timezone ---
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    # Convert both inicio and fin to local timezone if not already
+    if inicio.tzinfo is not None:
+        inicio = inicio.astimezone(argentina_tz)
+    else:
+        inicio = argentina_tz.localize(inicio)
+    if fin.tzinfo is not None:
+        fin = fin.astimezone(argentina_tz)
+    else:
+        fin = argentina_tz.localize(fin)
+    # This ensures all calculations below are done in local time and avoids UTC/local confusion.
+
     """
     Calcula las horas normales y nocturnas entre dos momentos dados.
     
@@ -281,6 +302,7 @@ class RegistroDiario(models.Model):
         """
         return RegistroDiario.objects.filter(
             operario=self.operario,
+            tipo_movimiento='entrada',
             valido=True
         ).exclude(pk=self.pk).order_by('-hora_fichada').first()
 
@@ -288,38 +310,26 @@ class RegistroDiario(models.Model):
     def calcular_fecha_logica(hora_fichada):
         """
         Calcula la fecha lógica de un registro en función de si pertenece a un turno nocturno.
-        Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente,
-        pero permite personalizar cómo manejar las horas tempranas.
-        
-        Compatible con configuraciones USE_TZ=True o False.
+        Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente.
+        Siempre opera en horario de Argentina.
         """
         if not hora_fichada:
             return None
 
-        # Normalizar la fecha según la configuración de USE_TZ
-        from django.conf import settings
-        
-        if getattr(settings, 'USE_TZ', False):
-            # Si USE_TZ=True, asegurarse de que la fecha esté en la zona horaria de Argentina
-            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-            if hora_fichada.tzinfo is None:
-                hora_fichada = pytz.utc.localize(hora_fichada)
-            hora_fichada = hora_fichada.astimezone(argentina_tz)
-        elif hasattr(hora_fichada, 'tzinfo') and hora_fichada.tzinfo is not None:
-            # Si USE_TZ=False pero tiene zona horaria, quitarla
-            hora_fichada = hora_fichada.replace(tzinfo=None)
+        import pytz
+        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
 
-        # Mantener la hora límite para turnos nocturnos
+        # Si el datetime tiene tzinfo, convertir a horario local
+        if hora_fichada.tzinfo is not None:
+            hora_local = hora_fichada.astimezone(argentina_tz)
+        else:
+            hora_local = argentina_tz.localize(hora_fichada)
+
         hora_limite = datetime.strptime("06:00", "%H:%M").time()
-        
-        # Validar si el turno debe ajustarse al día anterior
-        if hora_fichada.time() < hora_limite:
-            # Añadir una condición específica si se necesita ajustar para horarios normales
-            logger.debug(f"Ajustando fecha lógica para hora temprana: {hora_fichada}")
-            return hora_fichada.date() - timedelta(days=1)
-
-        # En caso contrario, mantener la fecha actual
-        return hora_fichada.date()
+        if hora_local.time() < hora_limite:
+            logger.debug(f"Ajustando fecha lógica para hora temprana: {hora_local}")
+            return hora_local.date() - timedelta(days=1)
+        return hora_local.date()
 
 
     def calcular_diferencia_entrada_salida(self):
