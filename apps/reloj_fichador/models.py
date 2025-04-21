@@ -301,8 +301,7 @@ class RegistroDiario(models.Model):
         Obtiene el último registro válido para el operario (excluyendo el actual).
         """
         return RegistroDiario.objects.filter(
-            operario=self.operario,
-            tipo_movimiento='entrada',
+            operario=self.operario,            
             valido=True
         ).exclude(pk=self.pk).order_by('-hora_fichada').first()
 
@@ -311,6 +310,11 @@ class RegistroDiario(models.Model):
         """
         Calcula la fecha lógica de un registro en función de si pertenece a un turno nocturno.
         Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente.
+        
+        NOTA IMPORTANTE: Esta función se usa principalmente para validaciones y agrupamiento lógico.
+        Para el cálculo real de horas trabajadas, cuando hay entradas tempranas (antes de las 6 am),
+        se debe considerar la fecha real del registro para evitar que las horas aparezcan en el día anterior.
+        
         Siempre opera en horario de Argentina.
         """
         if not hora_fichada:
@@ -541,15 +545,16 @@ class Horas_trabajadas(models.Model):
         ).order_by('hora_fichada')
 
         # Solo considerar ENTRADA y SALIDA para el cálculo de horas trabajadas
+        # Ignoramos explícitamente los movimientos transitorios
         day_records = [
             r for r in registros
             if (
                 r.tipo_movimiento in ('entrada', 'salida') and
                 (
                     RegistroDiario.calcular_fecha_logica(r.hora_fichada) == fecha
-                    or (r.hora_fichada.time() < time(6, 0) and r.hora_fichada.date() == fecha)
+                    or (r.hora_fichada.time() < time (6, 0) and r.hora_fichada.date() == fecha)
                 )
-            )
+            )   
         ]
 
         total_horas_normales = timedelta()
@@ -586,15 +591,14 @@ class Horas_trabajadas(models.Model):
                     bloques_15_min = (exceso.total_seconds() // 900)  # 900 segundos = 15 minutos
                     total_horas_extras += timedelta(minutes=15 * bloques_15_min)
 
-                # Guardar en el modelo
-                obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
-                obj.horas_normales = total_horas_normales
-                obj.horas_nocturnas = total_horas_nocturnas
-                obj.horas_extras = total_horas_extras
-                obj.save()
+        # Guardar en el modelo fuera del bucle para acumular todos los pares
+        obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
+        obj.horas_normales = total_horas_normales
+        obj.horas_nocturnas = total_horas_nocturnas
+        obj.horas_extras = total_horas_extras
+        obj.save()
 
-
-                return total_horas_normales, total_horas_nocturnas, total_horas_extras
+        return total_horas_normales, total_horas_nocturnas, total_horas_extras
 
     def __str__(self):
         return (f"{self.operario} - {self.fecha}: "

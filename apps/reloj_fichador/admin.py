@@ -27,6 +27,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.http import HttpResponseRedirect
 import pytz
+from .signals import actualizar_horas_despues_de_guardar
 
 
 class Command(BaseCommand):
@@ -231,7 +232,7 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
     list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     fields = ('operario', 'tipo_movimiento', 'hora_fichada', 'valido','descripcion_inconsistencia',)
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']      
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas']
 
     HEADER_MAP = {
         'get_dni': 'DNI',
@@ -401,20 +402,93 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
 
     exportar_excel.short_description = "Exportar a Excel"
 
+    def recalcular_horas(self, request, queryset):
+        for registro in queryset:
+            # Ejecutar la función de signals manualmente para cada registro
+            actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+        
+        self.message_user(request, f"Se han recalculado las horas para {queryset.count()} registros.")
+    
+    recalcular_horas.short_description = "Recalcular horas trabajadas para estos registros"
+    
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('<int:registro_id>/recalcular/', self.admin_site.admin_view(self.recalcular_registro), 
+                name='reloj_fichador_registrodiario_recalcular'),
+        ]
+        return custom_urls + urls
+    
+    def recalcular_registro(self, request, registro_id):
+        registro = self.get_object(request, registro_id)
+        if registro:
+            actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+            self.message_user(request, f"Se han recalculado las horas para el registro de {registro.operario}.")
+        return HttpResponseRedirect(reverse('admin:reloj_fichador_registrodiario_change', args=[registro_id]))
+    
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_recalcular_button'] = True
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+    def recalcular_todas_horas(self, request):
+        from .models import Operario, RegistroDiario
+        import datetime
+        
+        # Obtener todos los operarios activos
+        operarios = Operario.objects.filter(activo=True)
+        contador = 0
+        
+        for operario in operarios:
+            # Buscar registros de este operario
+            registros = RegistroDiario.objects.filter(
+                operario=operario,
+                valido=True
+            ).order_by('hora_fichada')
+            
+            if registros.exists():
+                # Tomar el registro más reciente
+                registro = registros.last()
+                # Recalcular horas para este operario
+                actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                contador += 1
+        
+        self.message_user(request, f"Se han recalculado las horas para {contador} operarios.")
+        return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_changelist'))
+
+    def recalcular_horas_trabajadas(self, request, queryset):
+        from .models import RegistroDiario
+        for ht in queryset:
+            # Buscar registros de ese operario en esa fecha
+            registros = RegistroDiario.objects.filter(
+                operario=ht.operario,
+                hora_fichada__date=ht.fecha
+            ).order_by('hora_fichada')
+            
+            if registros.exists():
+                # Tomar el primer registro como muestra para recalcular
+                registro = registros.first()
+                actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                
+        self.message_user(request, f"Se han recalculado las horas para {queryset.count()} registros.")
+    
+    recalcular_horas_trabajadas.short_description = "Recalcular horas seleccionadas"
+
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas']
+    change_list_template = 'admin/reloj_fichador/horas_trabajadas/change_list.html'
 
     def get_queryset(self, request):
         """
-        Filtra los registros para ocultar aquellos con 0 horas trabajadas y 0 horas nocturnas.
         Optimiza la consulta con select_related.
+        Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
-        queryset = super().get_queryset(request).select_related('operario')
-        return queryset.exclude(horas_normales=timedelta(0), horas_nocturnas=timedelta(0))
+        return super().get_queryset(request).select_related('operario')
 
     def get_horas_normales(self, obj):
         total_seconds = obj.horas_normales.total_seconds()
@@ -505,6 +579,65 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
     def exportar_pdf(self, request, queryset):
         # Usar la función generar_pdf con cálculo automático de totales de horas
         return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('<int:horas_id>/recalcular/', self.admin_site.admin_view(self.recalcular_horas), 
+                name='reloj_fichador_horas_trabajadas_recalcular'),
+            path('recalcular-todas/', self.admin_site.admin_view(self.recalcular_todas_horas), 
+                name='reloj_fichador_horas_trabajadas_recalcular_todas'),
+        ]
+        return custom_urls + urls
+    
+    def recalcular_horas(self, request, horas_id):
+        from .models import RegistroDiario
+        horas = self.get_object(request, horas_id)
+        if horas:
+            # Buscar registros de ese operario en esa fecha
+            registros = RegistroDiario.objects.filter(
+                operario=horas.operario,
+                hora_fichada__date=horas.fecha
+            ).order_by('hora_fichada')
+            
+            if registros.exists():
+                # Tomar el primer registro como muestra para recalcular
+                registro = registros.first()
+                actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                self.message_user(request, f"Se han recalculado las horas para {horas.operario} en la fecha {horas.fecha}.")
+        
+        return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_change', args=[horas_id]))
+    
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_recalcular_button'] = True
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+    def recalcular_todas_horas(self, request):
+        from .models import Operario, RegistroDiario
+        import datetime
+        
+        # Obtener todos los operarios activos
+        operarios = Operario.objects.filter(activo=True)
+        contador = 0
+        
+        for operario in operarios:
+            # Buscar registros de este operario
+            registros = RegistroDiario.objects.filter(
+                operario=operario,
+                valido=True
+            ).order_by('hora_fichada')
+            
+            if registros.exists():
+                # Tomar el registro más reciente
+                registro = registros.last()
+                # Recalcular horas para este operario
+                actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                contador += 1
+        
+        self.message_user(request, f"Se han recalculado las horas para {contador} operarios.")
+        return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_changelist'))
 
 
 @admin.register(Horas_extras)
@@ -611,19 +744,14 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
+    change_list_template = 'admin/reloj_fichador/horas_totales/change_list.html'
 
     def get_queryset(self, request):
         """
-        Filtra los registros para ocultar aquellos con 0 horas normales, nocturnas, extras y feriado.
         Optimiza la consulta con select_related.
+        Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
-        queryset = super().get_queryset(request).select_related('operario')
-        return queryset.exclude(
-            horas_normales=timedelta(0),
-            horas_nocturnas=timedelta(0),
-            horas_extras=timedelta(0),
-            horas_feriado=timedelta(0)
-        )
+        return super().get_queryset(request).select_related('operario')
 
     def get_dni(self, obj):
         return obj.operario.dni
@@ -732,6 +860,43 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     def exportar_pdf(self, request, queryset):
         # Usar la función generar_pdf con cálculo automático de totales de horas
         return exportar_pdf(self, request, queryset, calculate_hours_total=True)
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('recalcular-todas/', self.admin_site.admin_view(self.recalcular_todas_horas), 
+                name='reloj_fichador_horas_totales_recalcular_todas'),
+        ]
+        return custom_urls + urls
+    
+    def recalcular_todas_horas(self, request):
+        from .models import Operario, RegistroDiario
+        import datetime
+        
+        # Obtener todos los operarios activos
+        operarios = Operario.objects.filter(activo=True)
+        contador = 0
+        
+        # Obtener mes actual en formato YYYY-MM
+        mes_actual = datetime.datetime.now().strftime('%Y-%m')
+        
+        for operario in operarios:
+            # Buscar registros de este operario
+            registros = RegistroDiario.objects.filter(
+                operario=operario,
+                valido=True
+            ).order_by('hora_fichada')
+            
+            if registros.exists():
+                # Tomar el registro más reciente
+                registro = registros.last()
+                # Recalcular horas para este operario
+                actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                contador += 1
+        
+        self.message_user(request, f"Se han recalculado las horas para {contador} operarios.")
+        return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_changelist'))
 
 
 @admin.register(RegistroAsistencia)
