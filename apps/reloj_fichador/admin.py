@@ -79,7 +79,8 @@ def exportar_pdf(modeladmin, request, queryset, calculate_hours_total=None):
     """
     # Obtener lista de campos a mostrar del list_display del ModelAdmin
     if hasattr(modeladmin, 'list_display'):
-        campos = [field for field in modeladmin.list_display]
+        # Excluir el campo view_history_button de la lista de campos
+        campos = [field for field in modeladmin.list_display if field != 'view_history_button']
     else:
         # Si no tiene list_display, usamos los campos definidos en el modelo
         campos = [field.name for field in modeladmin.model._meta.fields]
