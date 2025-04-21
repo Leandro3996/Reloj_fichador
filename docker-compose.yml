@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.4.0
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - ./data:/docker-entrypoint-initdb.d
-      - ./mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - "53306:3306"
     networks:
@@ -23,14 +23,17 @@ services:
       retries: 10
 
   web:
-    build: .
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
     command: >
       /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - ./logs:/app/logs
     ports:
       - "58000:58000"
     depends_on:
@@ -45,18 +48,23 @@ services:
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
 
   celery:
-    build: .
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info --uid=nobody --gid=nogroup"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - ./logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -64,21 +72,30 @@ services:
         condition: service_started
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/5
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_HOST=db
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
 
   celery-beat:
-    build: .
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
     command: >
       /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - ./logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -86,15 +103,21 @@ services:
         condition: service_started
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/5
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_HOST=db
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
 
   redis:
     image: redis:alpine
-    restart: always
+    restart: unless-stopped
     ports:
       - "6381:6379"
     networks:
@@ -104,10 +127,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - redis_data:/data
 
   nginx:
     image: nginx:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - "5080:80"
     volumes:
@@ -122,7 +147,7 @@ services:
 
   backup:
     image: mysql:8.4.0
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
@@ -141,7 +166,7 @@ services:
 
   birt:
     image: tomcat:9.0
-    restart: always
+    restart: unless-stopped
     environment:
       - JAVA_OPTS=-Djava.awt.headless=true
     ports:
@@ -159,6 +184,8 @@ services:
 volumes:
   static_volume:
   media_volume:
+  mysql_data:
+  redis_data:
 
 
 networks:

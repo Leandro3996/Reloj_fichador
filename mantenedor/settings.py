@@ -20,14 +20,13 @@ env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
-SECRET_KEY = 'django-insecure-mp&6m=!k202ckikyskc^td9pj3r&luzc$kuo+v1!9@$q@l7c0q'
+SECRET_KEY = env('SECRET_KEY')
 
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['localhost','192.168.10.12','192.168.10.43',
-                 '192.168.10.18', '192.168.10.11','192.168.10.17',
-                 '192.168.10.8','192.168.10.4','192.168.10.13','190.96.116.202',]
-#ALLOWED_HOSTS = ['localhost', '192.168.10.11', '192.168.100.111', '192.168.10.18', '192.168.10.46', '192.168.68.51', '192.168.68.54']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '192.168.10.12', '192.168.10.43',
+                 '192.168.10.18', '192.168.10.11', '192.168.10.17',
+                 '192.168.10.8', '192.168.10.4', '192.168.10.13', '190.96.116.202'])
 
 INSTALLED_APPS = [
     'admin_interface',
@@ -60,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     # Middlewares personalizados para manejo de errores
     'apps.reloj_fichador.middleware.PermissionMiddleware',
@@ -131,9 +130,7 @@ TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
-# IMPORTANTE: Se recomienda cambiar este valor a True para un mejor manejo de zonas horarias
-# con Celery y django-celery-beat. Sin embargo, esto requiere pruebas extensivas ya que 
-# puede afectar al comportamiento de fechas en toda la aplicación.
+# Para mejor manejo de zonas horarias con Celery y django-celery-beat
 USE_TZ = True
 
 STATIC_URL = '/static/'
@@ -145,23 +142,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/5')
 CELERY_BEAT_SCHEDULER = env('CELERY_BEAT_SCHEDULER', default='django_celery_beat.schedulers:DatabaseScheduler')
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5080',
-    'http://192.168.0.228:5080',
-    'http://192.168.10.11:5080',
-    'http://192.168.10.12:5080',
-    'http://192.168.10.18:5080',
-    'http://192.168.10.8:5080',
-    'http://192.168.10.4:5080',
-    'http://192.168.10.13:5080',
-    'http://192.168.10.43:5080',
-    'http://192.168.10.17:5080',
-]
+# Configuración para HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
+SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
 
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    'https://localhost:5443',
+    'https://192.168.0.228:5443',
+    'https://192.168.10.11:5443',
+    'https://192.168.10.12:5443',
+    'https://192.168.10.18:5443',
+    'https://192.168.10.8:5443',
+    'https://192.168.10.4:5443',
+    'https://192.168.10.13:5443',
+    'https://192.168.10.43:5443',
+    'https://192.168.10.17:5443',
+])
 
 # Configuraciones adicionales para sesiones y CSRF
-
-# Duración de la sesión y el token CSRF
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 días para terminal de fichaje
 CSRF_COOKIE_AGE = 60 * 60 * 24 * 30     # 30 días
 
@@ -169,19 +174,15 @@ CSRF_COOKIE_AGE = 60 * 60 * 24 * 30     # 30 días
 SESSION_COOKIE_NAME = "fichador_session"
 CSRF_COOKIE_NAME = "fichador_csrf"
 
-# CRÍTICO: Almacenar el token CSRF en la sesión para máxima disponibilidad
+# Almacenar el token CSRF en la sesión para máxima disponibilidad
 CSRF_USE_SESSIONS = True
 
 # Guardar la sesión en cada solicitud para prolongar su duración
 SESSION_SAVE_EVERY_REQUEST = True
 
-# Desactivar la seguridad de las cookies ya que no estás utilizando HTTPS
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-
-# Establecer SameSite para compatibilidad máxima con navegadores antiguos
-CSRF_COOKIE_SAMESITE = None
-SESSION_COOKIE_SAMESITE = None
+# Configuración de cookies para entorno seguro
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Configuración para permitir acceso JavaScript al CSRF token si es necesario
 CSRF_COOKIE_HTTPONLY = False
@@ -190,30 +191,40 @@ SESSION_COOKIE_HTTPONLY = True  # Proteger la sesión
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
-            'level': 'DEBUG',  # Cambia a DEBUG temporalmente para más detalles
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/django.log'),
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
-            'level': 'INFO',  # Mantén INFO para evitar demasiados detalles en el core
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
         },
         'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'WARNING',  # Mantén WARNING para evitar SQL detallado
-            'propagate': False,
-        },
-        'reloj_fichador': {  # Agrega tu módulo aquí
-            'handlers': ['console'],
-            'level': 'DEBUG',  # Permite mensajes DEBUG para tu app
-            'propagate': False,
-        },
-        'py.warnings': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'WARNING',
+            'propagate': False,
+        },
+        'reloj_fichador': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
