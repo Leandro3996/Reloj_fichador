@@ -306,14 +306,16 @@ class RegistroDiario(models.Model):
         ).exclude(pk=self.pk).order_by('-hora_fichada').first()
 
     @staticmethod
-    def calcular_fecha_logica(hora_fichada):
+    def calcular_fecha_logica(hora_fichada, tipo_movimiento=None):
         """
         Calcula la fecha lógica de un registro en función de si pertenece a un turno nocturno.
-        Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente.
+        Si la hora es < 06:00 y es un registro de salida, se considera que pertenece al día anterior lógicamente.
+        Para las entradas tempranas (antes de las 6am), se mantiene la fecha real.
         
-        NOTA IMPORTANTE: Esta función se usa principalmente para validaciones y agrupamiento lógico.
-        Para el cálculo real de horas trabajadas, cuando hay entradas tempranas (antes de las 6 am),
-        se debe considerar la fecha real del registro para evitar que las horas aparezcan en el día anterior.
+        Args:
+            hora_fichada: La hora del registro
+            tipo_movimiento: El tipo de movimiento ('entrada', 'salida', etc). Si no se proporciona,
+                             se aplica la regla general (entradas < 6am pertenecen al día actual)
         
         Siempre opera en horario de Argentina.
         """
@@ -330,9 +332,17 @@ class RegistroDiario(models.Model):
             hora_local = argentina_tz.localize(hora_fichada)
 
         hora_limite = datetime.strptime("06:00", "%H:%M").time()
+        
+        # Si es una entrada temprana, no ajustamos la fecha lógica
+        if tipo_movimiento == 'entrada' and hora_local.time() < hora_limite:
+            logger.debug(f"Entrada temprana: Manteniendo fecha real para {hora_local}")
+            return hora_local.date()
+            
+        # Para salidas y otros casos, aplicamos la regla estándar
         if hora_local.time() < hora_limite:
             logger.debug(f"Ajustando fecha lógica para hora temprana: {hora_local}")
             return hora_local.date() - timedelta(days=1)
+            
         return hora_local.date()
 
 
@@ -407,7 +417,7 @@ class RegistroDiario(models.Model):
             # Actualizar el campo para que sea compatible con la base de datos
             self.hora_fichada = hora_fichada_normalizada
 
-        movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada)
+        movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada, self.tipo_movimiento)
 
         # Si el registro está marcado como inconsistencia, no validamos la secuencia
         if self.inconsistencia:
@@ -550,11 +560,8 @@ class Horas_trabajadas(models.Model):
             r for r in registros
             if (
                 r.tipo_movimiento in ('entrada', 'salida') and
-                (
-                    RegistroDiario.calcular_fecha_logica(r.hora_fichada) == fecha
-                    or (r.hora_fichada.time() < time (6, 0) and r.hora_fichada.date() == fecha)
-                )
-            )   
+                RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == fecha
+            )
         ]
 
         total_horas_normales = timedelta()

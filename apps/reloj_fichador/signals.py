@@ -43,7 +43,7 @@ def actualizar_horas_despues_de_guardar(sender, instance, **kwargs):
         return  # Prevenir recursión si la lógica vuelve a disparar la señal
 
     operario = instance.operario
-    fecha_logica = RegistroDiario.calcular_fecha_logica(instance.hora_fichada)
+    fecha_logica = RegistroDiario.calcular_fecha_logica(instance.hora_fichada, instance.tipo_movimiento)
     mes_logico = fecha_logica.strftime('%Y-%m')
 
     with suppress_signal():  # Prevenimos cascadas infinitas de señales
@@ -81,7 +81,7 @@ def actualizar_horas_despues_de_eliminar(sender, instance, **kwargs):
     Cuando se elimina un RegistroDiario, recalculamos todo también.
     """
     operario = instance.operario
-    fecha_logica = RegistroDiario.calcular_fecha_logica(instance.hora_fichada)
+    fecha_logica = RegistroDiario.calcular_fecha_logica(instance.hora_fichada, instance.tipo_movimiento)
     mes_logico = fecha_logica.strftime('%Y-%m')
 
     with suppress_signal():
