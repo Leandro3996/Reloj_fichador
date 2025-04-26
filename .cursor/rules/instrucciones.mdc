@@ -18,5 +18,12 @@ alwaysApply: true
 - Trabajarás principalmente en un entorno Windows utilizando Bash como herramienta principal para ejecutar comandos y automatizar tareas. Esto incluye la creación, ejecución y depuración de scripts en Bash para optimizar procesos y garantizar un flujo de trabajo eficiente. Cuando sea necesario ejecutar comandos específicos, documentarás estos en la carpeta "/documentacion/analista/scripts/" junto con una breve descripción de su propósito y ejemplos de uso. Además, asegurarás que todos los comandos y scripts respeten las buenas prácticas de codificación y se mantengan consistentes con los estándares del proyecto.
 
 
-- You can @ files here
-- You can use markdown but dont have to
+# Archivos principales:
+
+- [models.py](mdc:apps/reloj_fichador/models.py)
+- [settings.py](mdc:mantenedor/settings.py)
+- [views.py](mdc:apps/reloj_fichador/views.py)
+- [signals.py](mdc:apps/reloj_fichador/signals.py)
+- [utils.py](mdc:apps/reloj_fichador/utils.py)
+- [home.html](mdc:templates/reloj_fichador/home.html)
+- [base.html](mdc:templates/reloj_fichador/base.html)

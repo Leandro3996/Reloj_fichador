@@ -526,7 +526,7 @@ class RegistroDiario(models.Model):
                 movimientos_permitidos = transiciones_validas.get(last_today, [])
                 if self.tipo_movimiento not in movimientos_permitidos:
                     inconsistencias.append(
-                        f"Después de {last_today} solo puede ir {', '.join(movimientos_permitidos)}."
+                        f"Inconsistencia: su último movimiento fue {last_today}, por lo que solo puede ir {', '.join(movimientos_permitidos)}."
                     )
 
         if inconsistencias:
