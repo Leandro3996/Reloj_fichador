@@ -193,8 +193,20 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+            'format': '{levelname} {asctime} {module} {message} - IP: {ip}',
             'style': '{',
+        },
+        'request_info': {
+            'format': '{levelname} {asctime} {module} {message} - IP: {ip} - Host: {host} - User-Agent: {agent}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'add_client_info': {
+            '()': 'apps.reloj_fichador.filters.ClientInfoFilter',
         },
     },
     'handlers': {
@@ -202,12 +214,21 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
+            'filters': ['add_client_info'],
         },
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/django.log'),
             'formatter': 'verbose',
+            'filters': ['add_client_info'],
+        },
+        'request_log': {
+            'level': 'INFO', 
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/requests.log'),
+            'formatter': 'request_info',
+            'filters': ['add_client_info'],
         },
     },
     'loggers': {
@@ -223,6 +244,11 @@ LOGGING = {
         },
         'reloj_fichador': {
             'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['request_log', 'console'],
             'level': 'INFO',
             'propagate': False,
         },

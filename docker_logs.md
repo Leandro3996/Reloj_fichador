@@ -1,403 +1,626 @@
-db          | 2025-04-14 11:59:53.167 | 2025-04-14 14:59:53+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
-redis       | 2025-04-14 11:59:53.247 | 1:C 14 Apr 2025 14:59:53.246 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-redis       | 2025-04-14 11:59:53.247 | 1:C 14 Apr 2025 14:59:53.246 * Redis version=7.4.2, bits=64, commit=00000000, modified=0, pid=1, just started
-redis       | 2025-04-14 11:59:53.247 | 1:C 14 Apr 2025 14:59:53.246 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-redis       | 2025-04-14 11:59:53.247 | 1:M 14 Apr 2025 14:59:53.247 * monotonic clock: POSIX clock_gettime
-redis       | 2025-04-14 11:59:53.247 | 1:M 14 Apr 2025 14:59:53.247 * Running mode=standalone, port=6379.
-redis       | 2025-04-14 11:59:53.247 | 1:M 14 Apr 2025 14:59:53.247 * Server initialized
-redis       | 2025-04-14 11:59:53.247 | 1:M 14 Apr 2025 14:59:53.247 * Ready to accept connections tcp
-db          | 2025-04-14 11:59:53.505 | 2025-04-14 14:59:53+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
-db          | 2025-04-14 11:59:53.516 | 2025-04-14 14:59:53+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
-db          | 2025-04-14 11:59:53.684 | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
-db          | 2025-04-14 11:59:53.887 | 2025-04-14T14:59:53.693430Z 0 [System] [MY-015015] [Server] MySQL Server - start.
-db          | 2025-04-14 11:59:53.887 | 2025-04-14T14:59:53.884001Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 1
-db          | 2025-04-14 11:59:53.887 | 2025-04-14T14:59:53.886282Z 0 [Warning] [MY-010159] [Server] Setting lower_case_table_names=2 because file system for /var/lib/mysql/ is case insensitive
-db          | 2025-04-14 11:59:53.895 | 2025-04-14T14:59:53.895509Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
-db          | 2025-04-14 11:59:54.460 | 2025-04-14T14:59:54.460610Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
-db          | 2025-04-14 11:59:54.858 | 2025-04-14T14:59:54.857913Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
-db          | 2025-04-14 11:59:54.858 | 2025-04-14T14:59:54.858186Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
-db          | 2025-04-14 11:59:54.869 | 2025-04-14T14:59:54.869392Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
-db          | 2025-04-14 11:59:54.899 | 2025-04-14T14:59:54.899776Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
-db          | 2025-04-14 11:59:55.155 | 2025-04-14T14:59:55.155405Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
-web         | 2025-04-14 11:59:58.730 | wait-for-it.sh: waiting 120 seconds for db:3306
-web         | 2025-04-14 11:59:58.734 | wait-for-it.sh: db:3306 is available after 0 seconds
-birt        | 2025-04-14 11:59:58.812 | NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-backup      | 2025-04-14 11:59:58.834 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 11:59:58.839 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 11:59:58.844 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-celery      | 2025-04-14 11:59:58.889 | wait-for-it.sh: waiting 120 seconds for db:3306
-celery      | 2025-04-14 11:59:58.893 | wait-for-it.sh: db:3306 is available after 0 seconds
-nginx       | 2025-04-14 11:59:59.058 | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-nginx       | 2025-04-14 11:59:59.058 | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-nginx       | 2025-04-14 11:59:59.061 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-celery-beat | 2025-04-14 11:59:59.064 | wait-for-it.sh: waiting 120 seconds for db:3306
-celery-beat | 2025-04-14 11:59:59.072 | wait-for-it.sh: db:3306 is available after 0 seconds
-nginx       | 2025-04-14 11:59:59.082 | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
-nginx       | 2025-04-14 11:59:59.125 | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
-nginx       | 2025-04-14 11:59:59.125 | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
-nginx       | 2025-04-14 11:59:59.126 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-nginx       | 2025-04-14 11:59:59.130 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
-nginx       | 2025-04-14 11:59:59.132 | /docker-entrypoint.sh: Configuration complete; ready for start up
-backup      | 2025-04-14 11:59:59.227 | Limpiando backups antiguos...
-backup      | 2025-04-14 11:59:59.241 | Limpieza completada. Se mantienen los 10 backups más recientes.
-birt        | 2025-04-14 11:59:59.444 | 14-Apr-2025 14:59:59.439 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version name:   Apache Tomcat/9.0.102
-birt        | 2025-04-14 11:59:59.445 | 14-Apr-2025 14:59:59.445 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server built:          Mar 3 2025 19:33:14 UTC
-birt        | 2025-04-14 11:59:59.445 | 14-Apr-2025 14:59:59.445 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version number: 9.0.102.0
-birt        | 2025-04-14 11:59:59.445 | 14-Apr-2025 14:59:59.445 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Name:               Linux
-birt        | 2025-04-14 11:59:59.446 | 14-Apr-2025 14:59:59.446 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Version:            5.15.167.4-microsoft-standard-WSL2
-birt        | 2025-04-14 11:59:59.446 | 14-Apr-2025 14:59:59.446 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture:          amd64
-birt        | 2025-04-14 11:59:59.446 | 14-Apr-2025 14:59:59.446 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home:             /opt/java/openjdk
-birt        | 2025-04-14 11:59:59.446 | 14-Apr-2025 14:59:59.446 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Version:           21.0.6+7-LTS
-birt        | 2025-04-14 11:59:59.446 | 14-Apr-2025 14:59:59.446 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Vendor:            Eclipse Adoptium
-birt        | 2025-04-14 11:59:59.447 | 14-Apr-2025 14:59:59.447 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:         /usr/local/tomcat
-birt        | 2025-04-14 11:59:59.447 | 14-Apr-2025 14:59:59.447 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:         /usr/local/tomcat
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.io=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.awt.headless=true
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djdk.tls.ephemeralDHKeySize=2048
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.protocol.handler.pkgs=org.apache.catalina.webresources
-birt        | 2025-04-14 11:59:59.487 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dsun.io.useCanonCaches=false
-birt        | 2025-04-14 11:59:59.488 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dorg.apache.catalina.security.SecurityListener.UMASK=0027
-birt        | 2025-04-14 11:59:59.488 | 14-Apr-2025 14:59:59.487 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dignore.endorsed.dirs=
-birt        | 2025-04-14 11:59:59.488 | 14-Apr-2025 14:59:59.488 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.base=/usr/local/tomcat
-birt        | 2025-04-14 11:59:59.488 | 14-Apr-2025 14:59:59.488 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.home=/usr/local/tomcat
-birt        | 2025-04-14 11:59:59.488 | 14-Apr-2025 14:59:59.488 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.io.tmpdir=/usr/local/tomcat/temp
-birt        | 2025-04-14 11:59:59.498 | 14-Apr-2025 14:59:59.498 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent Loaded Apache Tomcat Native library [1.3.1] using APR version [1.7.2].
-birt        | 2025-04-14 11:59:59.498 | 14-Apr-2025 14:59:59.498 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
-birt        | 2025-04-14 11:59:59.498 | 14-Apr-2025 14:59:59.498 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
-birt        | 2025-04-14 11:59:59.505 | 14-Apr-2025 14:59:59.504 INFO [main] org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL successfully initialized [OpenSSL 3.0.13 30 Jan 2024]
-birt        | 2025-04-14 11:59:59.990 | 14-Apr-2025 14:59:59.990 INFO [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:00:00.010 | 14-Apr-2025 15:00:00.010 INFO [main] org.apache.catalina.startup.Catalina.load Server initialization in [828] milliseconds
-birt        | 2025-04-14 12:00:00.067 | 14-Apr-2025 15:00:00.067 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service [Catalina]
-birt        | 2025-04-14 12:00:00.068 | 14-Apr-2025 15:00:00.067 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet engine: [Apache Tomcat/9.0.102]
-birt        | 2025-04-14 12:00:00.089 | 14-Apr-2025 15:00:00.089 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive [/usr/local/tomcat/webapps/birt.war]
-web         | 2025-04-14 12:00:00.239 | Operations to perform:
-web         | 2025-04-14 12:00:00.239 |   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-web         | 2025-04-14 12:00:00.239 | Running migrations:
-web         | 2025-04-14 12:00:00.239 |   No migrations to apply.
-celery      | 2025-04-14 12:00:00.348 |  
-celery      | 2025-04-14 12:00:00.348 |  -------------- celery@c0d08e9bd461 v5.4.0 (opalescent)
-celery      | 2025-04-14 12:00:00.348 | --- ***** ----- 
-celery      | 2025-04-14 12:00:00.348 | -- ******* ---- Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.36 2025-04-14 12:00:00
-celery      | 2025-04-14 12:00:00.348 | - *** --- * --- 
-celery      | 2025-04-14 12:00:00.348 | - ** ---------- [config]
-celery      | 2025-04-14 12:00:00.348 | - ** ---------- .> app:         mantenedor:0x7f882e991310
-celery      | 2025-04-14 12:00:00.348 | - ** ---------- .> transport:   redis://redis:6379/5
-celery      | 2025-04-14 12:00:00.348 | - ** ---------- .> results:     disabled://
-celery      | 2025-04-14 12:00:00.348 | - *** --- * --- .> concurrency: 6 (prefork)
-celery      | 2025-04-14 12:00:00.348 | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
-celery      | 2025-04-14 12:00:00.348 | --- ***** ----- 
-celery      | 2025-04-14 12:00:00.348 |  -------------- [queues]
-celery      | 2025-04-14 12:00:00.348 |                 .> celery           exchange=celery(direct) key=celery
-celery      | 2025-04-14 12:00:00.348 |                 
-celery      | 2025-04-14 12:00:00.348 | 
-celery      | 2025-04-14 12:00:00.348 | [tasks]
-celery      | 2025-04-14 12:00:00.348 |   . apps.reloj_fichador.tasks.crear_asistencia_prueba
-celery      | 2025-04-14 12:00:00.348 |   . apps.reloj_fichador.tasks.generar_registros_asistencia
-celery      | 2025-04-14 12:00:00.348 |   . apps.reloj_fichador.tasks.prueba_tarea
-celery      | 2025-04-14 12:00:00.348 |   . mantenedor.celery.debug_task
-celery      | 2025-04-14 12:00:00.348 | 
-celery-beat | 2025-04-14 12:00:00.549 | Operations to perform:
-celery-beat | 2025-04-14 12:00:00.549 |   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-celery-beat | 2025-04-14 12:00:00.549 | Running migrations:
-celery-beat | 2025-04-14 12:00:00.549 |   No migrations to apply.
-celery      | 2025-04-14 12:00:00.762 | [2025-04-14 12:00:00,761: INFO/MainProcess] Connected to redis://redis:6379/5
-celery      | 2025-04-14 12:00:00.765 | [2025-04-14 12:00:00,765: INFO/MainProcess] mingle: searching for neighbors
-birt        | 2025-04-14 12:00:00.772 | 14-Apr-2025 15:00:00.771 INFO [main] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
-birt        | 2025-04-14 12:00:00.807 | 14-Apr-2025 15:00:00.807 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deployment of web application archive [/usr/local/tomcat/webapps/birt.war] has finished in [718] ms
-birt        | 2025-04-14 12:00:00.810 | 14-Apr-2025 15:00:00.810 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:00:00.823 | 14-Apr-2025 15:00:00.822 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [810] milliseconds
-web         | 2025-04-14 12:00:01.312 | Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-web         | 2025-04-14 12:00:01.312 | Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-web         | 2025-04-14 12:00:01.312 | 
-web         | 2025-04-14 12:00:01.312 | 0 static files copied to '/app/staticfiles', 225 unmodified.
-web         | 2025-04-14 12:00:01.507 | [2025-04-14 15:00:01 +0000] [1] [INFO] Starting gunicorn 23.0.0
-web         | 2025-04-14 12:00:01.507 | [2025-04-14 15:00:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
-web         | 2025-04-14 12:00:01.507 | [2025-04-14 15:00:01 +0000] [1] [INFO] Using worker: sync
-web         | 2025-04-14 12:00:01.509 | [2025-04-14 15:00:01 +0000] [75] [INFO] Booting worker with pid: 75
-web         | 2025-04-14 12:00:01.528 | [2025-04-14 15:00:01 +0000] [76] [INFO] Booting worker with pid: 76
-web         | 2025-04-14 12:00:01.598 | [2025-04-14 15:00:01 +0000] [77] [INFO] Booting worker with pid: 77
-celery-beat | 2025-04-14 12:00:01.739 | [2025-04-14 12:00:01,739: INFO/MainProcess] beat: Starting...
-celery      | 2025-04-14 12:00:01.770 | [2025-04-14 12:00:01,770: INFO/MainProcess] mingle: all alone
-celery-beat | 2025-04-14 12:00:01.778 | [2025-04-14 12:00:01,778: INFO/MainProcess] DatabaseScheduler: Schedule changed.
-celery      | 2025-04-14 12:00:01.778 | [2025-04-14 12:00:01,777: INFO/MainProcess] celery@c0d08e9bd461 ready.
-db          | 2025-04-14 12:24:17.189 | 2025-04-14T15:24:17.189198Z 0 [System] [MY-013172] [Server] Received SHUTDOWN from user <via user signal>. Shutting down mysqld (Version: 8.4.0).
-birt        | 2025-04-14 12:24:17.191 | 14-Apr-2025 15:24:17.191 INFO [Thread-1] org.apache.coyote.AbstractProtocol.pause Pausing ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:24:17.193 | 14-Apr-2025 15:24:17.193 INFO [Thread-1] org.apache.catalina.core.StandardService.stopInternal Stopping service [Catalina]
-celery      | 2025-04-14 12:24:17.199 | 
-celery      | 2025-04-14 12:24:17.199 | worker: Warm shutdown (MainProcess)
-birt        | 2025-04-14 12:24:17.200 | 14-Apr-2025 15:24:17.199 INFO [Thread-1] org.apache.coyote.AbstractProtocol.stop Stopping ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:24:17.203 | 14-Apr-2025 15:24:17.203 INFO [Thread-1] org.apache.coyote.AbstractProtocol.destroy Destroying ProtocolHandler ["http-nio-8080"]
-redis       | 2025-04-14 12:24:17.227 | 1:signal-handler (1744644257) Received SIGTERM scheduling shutdown...
-web         | 2025-04-14 12:24:17.237 | [2025-04-14 15:24:17 +0000] [1] [INFO] Handling signal: term
-web         | 2025-04-14 12:24:17.238 | [2025-04-14 12:24:17 -0300] [76] [INFO] Worker exiting (pid: 76)
-web         | 2025-04-14 12:24:17.238 | [2025-04-14 12:24:17 -0300] [75] [INFO] Worker exiting (pid: 75)
-web         | 2025-04-14 12:24:17.238 | [2025-04-14 12:24:17 -0300] [77] [INFO] Worker exiting (pid: 77)
-redis       | 2025-04-14 12:24:17.277 | 1:M 14 Apr 2025 15:24:17.277 * User requested shutdown...
-redis       | 2025-04-14 12:24:17.278 | 1:M 14 Apr 2025 15:24:17.277 * Saving the final RDB snapshot before exiting.
-redis       | 2025-04-14 12:24:17.281 | 1:M 14 Apr 2025 15:24:17.280 * DB saved on disk
-redis       | 2025-04-14 12:24:17.281 | 1:M 14 Apr 2025 15:24:17.280 # Redis is now ready to exit, bye bye...
-celery-beat | 2025-04-14 12:24:17.412 | celery beat v5.4.0 (opalescent) is starting.
-celery-beat | 2025-04-14 12:24:17.412 | __    -    ... __   -        _
-celery-beat | 2025-04-14 12:24:17.412 | LocalTime -> 2025-04-14 12:00:01
-celery-beat | 2025-04-14 12:24:17.412 | Configuration ->
-celery-beat | 2025-04-14 12:24:17.412 |     . broker -> redis://redis:6379/5
-celery-beat | 2025-04-14 12:24:17.412 |     . loader -> celery.loaders.app.AppLoader
-celery-beat | 2025-04-14 12:24:17.412 |     . scheduler -> django_celery_beat.schedulers.DatabaseScheduler
-celery-beat | 2025-04-14 12:24:17.412 | 
-celery-beat | 2025-04-14 12:24:17.412 |     . logfile -> [stderr]@%INFO
-celery-beat | 2025-04-14 12:24:17.412 |     . maxinterval -> 5.00 seconds (5s)
-web         | 2025-04-14 12:24:17.546 | [2025-04-14 15:24:17 +0000] [1] [INFO] Shutting down: Master
-celery-beat | 2025-04-14 12:24:18.961 | wait-for-it.sh: waiting 120 seconds for db:3306
-nginx       | 2025-04-14 12:24:19.329 | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-nginx       | 2025-04-14 12:24:19.329 | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-nginx       | 2025-04-14 12:24:19.330 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-nginx       | 2025-04-14 12:24:19.331 | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
-nginx       | 2025-04-14 12:24:19.331 | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
-nginx       | 2025-04-14 12:24:19.331 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-nginx       | 2025-04-14 12:24:19.334 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
-nginx       | 2025-04-14 12:24:19.336 | /docker-entrypoint.sh: Configuration complete; ready for start up
-birt        | 2025-04-14 12:24:19.394 | NOTE: Picked up JDK_JAVA_OPTIONS:  --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-redis       | 2025-04-14 12:24:19.467 | 1:C 14 Apr 2025 15:24:19.466 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-redis       | 2025-04-14 12:24:19.467 | 1:C 14 Apr 2025 15:24:19.466 * Redis version=7.4.2, bits=64, commit=00000000, modified=0, pid=1, just started
-redis       | 2025-04-14 12:24:19.467 | 1:C 14 Apr 2025 15:24:19.466 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.466 * monotonic clock: POSIX clock_gettime
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * Running mode=standalone, port=6379.
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * Server initialized
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * Loading RDB produced by version 7.4.2
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * RDB age 2 seconds
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * RDB memory usage when created 1.37 Mb
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * Done loading RDB, keys loaded: 3, keys expired: 0.
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * DB loaded from disk: 0.000 seconds
-redis       | 2025-04-14 12:24:19.467 | 1:M 14 Apr 2025 15:24:19.467 * Ready to accept connections tcp
-web         | 2025-04-14 12:24:19.540 | wait-for-it.sh: waiting 120 seconds for db:3306
-celery      | 2025-04-14 12:24:19.645 | wait-for-it.sh: waiting 120 seconds for db:3306
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.733 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version name:   Apache Tomcat/9.0.102
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server built:          Mar 3 2025 19:33:14 UTC
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Server version number: 9.0.102.0
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Name:               Linux
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log OS Version:            5.15.167.4-microsoft-standard-WSL2
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture:          amd64
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home:             /opt/java/openjdk
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Version:           21.0.6+7-LTS
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log JVM Vendor:            Eclipse Adoptium
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:         /usr/local/tomcat
-birt        | 2025-04-14 12:24:19.736 | 14-Apr-2025 15:24:19.736 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:         /usr/local/tomcat
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.lang.reflect=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.io=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.741 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.741 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.awt.headless=true
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djdk.tls.ephemeralDHKeySize=2048
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.protocol.handler.pkgs=org.apache.catalina.webresources
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dsun.io.useCanonCaches=false
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dorg.apache.catalina.security.SecurityListener.UMASK=0027
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dignore.endorsed.dirs=
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.base=/usr/local/tomcat
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.home=/usr/local/tomcat
-birt        | 2025-04-14 12:24:19.742 | 14-Apr-2025 15:24:19.742 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.io.tmpdir=/usr/local/tomcat/temp
-birt        | 2025-04-14 12:24:19.744 | 14-Apr-2025 15:24:19.744 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent Loaded Apache Tomcat Native library [1.3.1] using APR version [1.7.2].
-birt        | 2025-04-14 12:24:19.745 | 14-Apr-2025 15:24:19.744 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR capabilities: IPv6 [true], sendfile [true], accept filters [false], random [true], UDS [true].
-birt        | 2025-04-14 12:24:19.745 | 14-Apr-2025 15:24:19.744 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent APR/OpenSSL configuration: useAprConnector [false], useOpenSSL [true]
-birt        | 2025-04-14 12:24:19.748 | 14-Apr-2025 15:24:19.748 INFO [main] org.apache.catalina.core.AprLifecycleListener.initializeSSL OpenSSL successfully initialized [OpenSSL 3.0.13 30 Jan 2024]
-db          | 2025-04-14 12:24:19.958 | 2025-04-14T15:24:19.958010Z 0 [System] [MY-010910] [Server] /usr/sbin/mysqld: Shutdown complete (mysqld 8.4.0)  MySQL Community Server - GPL.
-db          | 2025-04-14 12:24:19.958 | 2025-04-14T15:24:19.958038Z 0 [System] [MY-015016] [Server] MySQL Server - end.
-birt        | 2025-04-14 12:24:20.003 | 14-Apr-2025 15:24:20.003 INFO [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:24:20.015 | 14-Apr-2025 15:24:20.015 INFO [main] org.apache.catalina.startup.Catalina.load Server initialization in [436] milliseconds
-birt        | 2025-04-14 12:24:20.042 | 14-Apr-2025 15:24:20.042 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service [Catalina]
-birt        | 2025-04-14 12:24:20.042 | 14-Apr-2025 15:24:20.042 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet engine: [Apache Tomcat/9.0.102]
-birt        | 2025-04-14 12:24:20.060 | 14-Apr-2025 15:24:20.060 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deploying web application archive [/usr/local/tomcat/webapps/birt.war]
-birt        | 2025-04-14 12:24:20.622 | 14-Apr-2025 15:24:20.622 INFO [main] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
-birt        | 2025-04-14 12:24:20.718 | 14-Apr-2025 15:24:20.718 INFO [main] org.apache.catalina.startup.HostConfig.deployWAR Deployment of web application archive [/usr/local/tomcat/webapps/birt.war] has finished in [658] ms
-birt        | 2025-04-14 12:24:20.721 | 14-Apr-2025 15:24:20.721 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8080"]
-birt        | 2025-04-14 12:24:20.728 | 14-Apr-2025 15:24:20.728 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in [711] milliseconds
-db          | 2025-04-14 12:24:20.732 | 2025-04-14 15:24:20+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
-db          | 2025-04-14 12:24:21.036 | 2025-04-14 15:24:21+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
-db          | 2025-04-14 12:24:21.040 | 2025-04-14 15:24:21+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
-db          | 2025-04-14 12:24:21.197 | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
-db          | 2025-04-14 12:24:21.390 | 2025-04-14T15:24:21.206854Z 0 [System] [MY-015015] [Server] MySQL Server - start.
-db          | 2025-04-14 12:24:21.390 | 2025-04-14T15:24:21.387533Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 1
-db          | 2025-04-14 12:24:21.390 | 2025-04-14T15:24:21.389900Z 0 [Warning] [MY-010159] [Server] Setting lower_case_table_names=2 because file system for /var/lib/mysql/ is case insensitive
-db          | 2025-04-14 12:24:21.398 | 2025-04-14T15:24:21.398499Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
-db          | 2025-04-14 12:24:21.948 | 2025-04-14T15:24:21.947880Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
-db          | 2025-04-14 12:24:22.312 | 2025-04-14T15:24:22.311881Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
-db          | 2025-04-14 12:24:22.312 | 2025-04-14T15:24:22.312265Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
-db          | 2025-04-14 12:24:22.323 | 2025-04-14T15:24:22.323110Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
-db          | 2025-04-14 12:24:22.351 | 2025-04-14T15:24:22.350927Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
-nginx       | 2025-04-14 12:24:22.372 | 2025/04/14 15:24:19 [emerg] 1#1: host not found in upstream "web" in /etc/nginx/nginx.conf:39
-nginx       | 2025-04-14 12:24:22.372 | nginx: [emerg] host not found in upstream "web" in /etc/nginx/nginx.conf:39
-db          | 2025-04-14 12:24:22.606 | 2025-04-14T15:24:22.606236Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
-celery      | 2025-04-14 12:24:22.669 | wait-for-it.sh: db:3306 is available after 3 seconds
-nginx       | 2025-04-14 12:24:22.954 | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-nginx       | 2025-04-14 12:24:22.954 | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-nginx       | 2025-04-14 12:24:22.955 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-nginx       | 2025-04-14 12:24:22.957 | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
-nginx       | 2025-04-14 12:24:22.957 | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
-nginx       | 2025-04-14 12:24:22.957 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-nginx       | 2025-04-14 12:24:22.959 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
-nginx       | 2025-04-14 12:24:22.961 | /docker-entrypoint.sh: Configuration complete; ready for start up
-celery-beat | 2025-04-14 12:24:22.973 | wait-for-it.sh: db:3306 is available after 4 seconds
-celery      | 2025-04-14 12:24:23.662 |  
-celery      | 2025-04-14 12:24:23.662 |  -------------- celery@c0d08e9bd461 v5.4.0 (opalescent)
-celery      | 2025-04-14 12:24:23.662 | --- ***** ----- 
-celery      | 2025-04-14 12:24:23.662 | -- ******* ---- Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.36 2025-04-14 12:24:23
-celery      | 2025-04-14 12:24:23.662 | - *** --- * --- 
-celery      | 2025-04-14 12:24:23.662 | - ** ---------- [config]
-celery      | 2025-04-14 12:24:23.662 | - ** ---------- .> app:         mantenedor:0x7f702b58f450
-celery      | 2025-04-14 12:24:23.662 | - ** ---------- .> transport:   redis://redis:6379/5
-celery      | 2025-04-14 12:24:23.662 | - ** ---------- .> results:     disabled://
-celery      | 2025-04-14 12:24:23.662 | - *** --- * --- .> concurrency: 6 (prefork)
-celery      | 2025-04-14 12:24:23.662 | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
-celery      | 2025-04-14 12:24:23.662 | --- ***** ----- 
-celery      | 2025-04-14 12:24:23.662 |  -------------- [queues]
-celery      | 2025-04-14 12:24:23.662 |                 .> celery           exchange=celery(direct) key=celery
-celery      | 2025-04-14 12:24:23.662 |                 
-celery      | 2025-04-14 12:24:23.662 | 
-celery      | 2025-04-14 12:24:23.662 | [tasks]
-celery      | 2025-04-14 12:24:23.662 |   . apps.reloj_fichador.tasks.crear_asistencia_prueba
-celery      | 2025-04-14 12:24:23.662 |   . apps.reloj_fichador.tasks.generar_registros_asistencia
-celery      | 2025-04-14 12:24:23.662 |   . apps.reloj_fichador.tasks.prueba_tarea
-celery      | 2025-04-14 12:24:23.662 |   . mantenedor.celery.debug_task
-celery      | 2025-04-14 12:24:23.662 | 
-celery      | 2025-04-14 12:24:24.006 | [2025-04-14 12:24:24,005: INFO/MainProcess] Connected to redis://redis:6379/5
-celery      | 2025-04-14 12:24:24.008 | [2025-04-14 12:24:24,008: INFO/MainProcess] mingle: searching for neighbors
-celery-beat | 2025-04-14 12:24:24.174 | Operations to perform:
-celery-beat | 2025-04-14 12:24:24.174 |   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-celery-beat | 2025-04-14 12:24:24.174 | Running migrations:
-celery-beat | 2025-04-14 12:24:24.174 |   No migrations to apply.
-web         | 2025-04-14 12:24:24.547 | wait-for-it.sh: db:3306 is available after 5 seconds
-celery      | 2025-04-14 12:24:25.014 | [2025-04-14 12:24:25,013: INFO/MainProcess] mingle: all alone
-celery      | 2025-04-14 12:24:25.021 | [2025-04-14 12:24:25,020: INFO/MainProcess] celery@c0d08e9bd461 ready.
-celery-beat | 2025-04-14 12:24:25.231 | [2025-04-14 12:24:25,231: INFO/MainProcess] beat: Starting...
-celery-beat | 2025-04-14 12:24:25.276 | [2025-04-14 12:24:25,276: INFO/MainProcess] DatabaseScheduler: Schedule changed.
-web         | 2025-04-14 12:24:25.679 | Operations to perform:
-web         | 2025-04-14 12:24:25.679 |   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-web         | 2025-04-14 12:24:25.679 | Running migrations:
-web         | 2025-04-14 12:24:25.679 |   No migrations to apply.
-web         | 2025-04-14 12:24:26.642 | Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-web         | 2025-04-14 12:24:26.643 | Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-web         | 2025-04-14 12:24:26.643 | 
-web         | 2025-04-14 12:24:26.643 | 0 static files copied to '/app/staticfiles', 225 unmodified.
-web         | 2025-04-14 12:24:26.838 | [2025-04-14 15:24:26 +0000] [1] [INFO] Starting gunicorn 23.0.0
-web         | 2025-04-14 12:24:26.838 | [2025-04-14 15:24:26 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
-web         | 2025-04-14 12:24:26.838 | [2025-04-14 15:24:26 +0000] [1] [INFO] Using worker: sync
-web         | 2025-04-14 12:24:26.840 | [2025-04-14 15:24:26 +0000] [79] [INFO] Booting worker with pid: 79
-web         | 2025-04-14 12:24:26.919 | [2025-04-14 15:24:26 +0000] [80] [INFO] Booting worker with pid: 80
-web         | 2025-04-14 12:24:26.996 | [2025-04-14 15:24:26 +0000] [81] [INFO] Booting worker with pid: 81
-backup      | 2025-04-14 12:24:27.786 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 12:24:27.790 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 12:24:27.793 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 12:24:28.052 | Limpiando backups antiguos...
-backup      | 2025-04-14 12:24:28.063 | Limpieza completada. Se mantienen los 10 backups más recientes.
-nginx       | 2025-04-14 12:39:09.887 | 172.18.0.1 - - [14/Apr/2025:15:39:09 +0000] "GET / HTTP/1.1" 200 17241 "-" "Mozilla/5.0 (compatible; InternetMeasurement/1.0; +https://internet-measurement.com/)"
-backup      | 2025-04-14 12:57:48.197 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 12:57:48.200 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 12:57:48.204 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 12:57:48.359 | Limpiando backups antiguos...
-backup      | 2025-04-14 12:57:48.369 | Limpieza completada. Se mantienen los 10 backups más recientes.
-redis       | 2025-04-14 13:24:20.078 | 1:M 14 Apr 2025 16:24:20.078 * 1 changes in 3600 seconds. Saving...
-redis       | 2025-04-14 13:24:20.079 | 1:M 14 Apr 2025 16:24:20.079 * Background saving started by pid 3943
-redis       | 2025-04-14 13:24:20.082 | 3943:C 14 Apr 2025 16:24:20.082 * DB saved on disk
-redis       | 2025-04-14 13:24:20.082 | 3943:C 14 Apr 2025 16:24:20.082 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
-redis       | 2025-04-14 13:24:20.179 | 1:M 14 Apr 2025 16:24:20.179 * Background saving terminated with success
-backup      | 2025-04-14 13:30:01.733 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 13:30:01.735 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 13:30:01.738 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 13:30:01.895 | Limpiando backups antiguos...
-backup      | 2025-04-14 13:30:01.904 | Limpieza completada. Se mantienen los 10 backups más recientes.
-backup      | 2025-04-14 14:00:05.252 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 14:00:05.255 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 14:00:05.258 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 14:00:05.414 | Limpiando backups antiguos...
-backup      | 2025-04-14 14:00:05.423 | Limpieza completada. Se mantienen los 10 backups más recientes.
-nginx       | 2025-04-14 14:03:01.364 | 172.18.0.1 - - [14/Apr/2025:17:03:01 +0000] "\x16\x03\x01\x00\x8C\x01\x00\x00\x88\x03\x03$H\x1BE\xF4\xE7\xBB\xD0\xDA\xCD\xD4\xE8-\xC8\xA1F\xD2\xFB\xA1g\x8F\xB4\xFB\x84$\x9A\x08\xDBT\xA3\xFA\x00\x00\x00\x1A\xC0/\xC0+\xC0\x11\xC0\x07\xC0\x13\xC0\x09\xC0\x14\xC0" 400 157 "-" "-"
-nginx       | 2025-04-14 14:23:53.580 | 172.18.0.1 - - [14/Apr/2025:17:23:53 +0000] "GET / HTTP/1.1" 200 17241 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
-redis       | 2025-04-14 14:24:21.032 | 1:M 14 Apr 2025 17:24:21.031 * 1 changes in 3600 seconds. Saving...
-redis       | 2025-04-14 14:24:21.032 | 1:M 14 Apr 2025 17:24:21.032 * Background saving started by pid 8245
-redis       | 2025-04-14 14:24:21.036 | 8245:C 14 Apr 2025 17:24:21.035 * DB saved on disk
-redis       | 2025-04-14 14:24:21.036 | 8245:C 14 Apr 2025 17:24:21.036 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
-redis       | 2025-04-14 14:24:21.133 | 1:M 14 Apr 2025 17:24:21.132 * Background saving terminated with success
-backup      | 2025-04-14 14:30:08.768 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 14:30:08.772 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 14:30:08.775 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 14:30:08.933 | Limpiando backups antiguos...
-backup      | 2025-04-14 14:30:08.943 | Limpieza completada. Se mantienen los 10 backups más recientes.
-nginx       | 2025-04-14 14:39:14.827 | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-nginx       | 2025-04-14 14:39:14.827 | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-nginx       | 2025-04-14 14:39:14.828 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-nginx       | 2025-04-14 14:39:14.829 | 10-listen-on-ipv6-by-default.sh: info: IPv6 listen already enabled
-nginx       | 2025-04-14 14:39:14.830 | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
-nginx       | 2025-04-14 14:39:14.830 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-nginx       | 2025-04-14 14:39:14.832 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
-nginx       | 2025-04-14 14:39:14.833 | /docker-entrypoint.sh: Configuration complete; ready for start up
-backup      | 2025-04-14 15:00:14.128 | wait-for-it.sh: waiting 120 seconds for db:3306
-backup      | 2025-04-14 15:00:14.131 | wait-for-it.sh: db:3306 is available after 0 seconds
-backup      | 2025-04-14 15:00:14.134 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
-backup      | 2025-04-14 15:00:14.433 | Limpiando backups antiguos...
-backup      | 2025-04-14 15:00:14.445 | Limpieza completada. Se mantienen los 10 backups más recientes.
-nginx       | 2025-04-14 15:02:32.966 | 172.18.0.1 - - [14/Apr/2025:18:02:32 +0000] "GET /admin/reloj_fichador/registrodiario/1015/change/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:32.968 | 172.18.0.1 - - [14/Apr/2025:18:02:32 +0000] "GET /admin/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:32.979 | 172.18.0.1 - - [14/Apr/2025:18:02:32 +0000] "GET /admin HTTP/1.1" 301 5 "-" "-"
-nginx       | 2025-04-14 15:02:33.008 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/reloj_fichador/registrodiario/1015/change/ HTTP/1.1" 200 17387 "-" "-"
-nginx       | 2025-04-14 15:02:33.010 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:33.028 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:02:33.083 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:02:33.091 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:02:33.941 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/reloj_fichador/registrodiario/1015/change/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:33.941 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:33.944 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin HTTP/1.1" 301 5 "-" "-"
-nginx       | 2025-04-14 15:02:33.952 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:02:33.953 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/ HTTP/1.1" 302 0 "-" "-"
-nginx       | 2025-04-14 15:02:33.953 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:02:33.957 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/reloj_fichador/registrodiario/1015/change/ HTTP/1.1" 200 17387 "-" "-"
-nginx       | 2025-04-14 15:02:33.964 | 172.18.0.1 - - [14/Apr/2025:18:02:33 +0000] "GET /admin/login/?next=/admin/ HTTP/1.1" 200 17303 "-" "-"
-nginx       | 2025-04-14 15:11:16.980 | 172.18.0.1 - - [14/Apr/2025:18:11:16 +0000] "GET / HTTP/1.1" 200 17241 "-" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:17.105 | 172.18.0.1 - - [14/Apr/2025:18:11:17 +0000] "GET /?keep_alive=1744654218450 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:17.106 | 172.18.0.1 - - [14/Apr/2025:18:11:17 +0000] "GET /?keep_alive=1744654218452 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:18.536 | 172.18.0.1 - - [14/Apr/2025:18:11:18 +0000] "GET / HTTP/1.1" 200 17241 "-" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:18.568 | 172.18.0.1 - - [14/Apr/2025:18:11:18 +0000] "GET /static/css/styles.css HTTP/1.1" 200 7633 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:18.699 | 172.18.0.1 - - [14/Apr/2025:18:11:18 +0000] "GET /static/images/login-background1.jpg HTTP/1.1" 200 6345054 "http://192.168.10.11:5080/static/css/styles.css" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:18.707 | 172.18.0.1 - - [14/Apr/2025:18:11:18 +0000] "GET /?keep_alive=1744654220082 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:18.709 | 172.18.0.1 - - [14/Apr/2025:18:11:18 +0000] "GET /?keep_alive=1744654220084 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:24.988 | Forbidden (CSRF cookie not set.): /registrar/entrada/
-nginx       | 2025-04-14 15:11:24.989 | 172.18.0.1 - - [14/Apr/2025:18:11:24 +0000] "POST /registrar/entrada/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:30.352 | Forbidden (CSRF cookie not set.): /registrar/salida_transitoria/
-nginx       | 2025-04-14 15:11:30.352 | 172.18.0.1 - - [14/Apr/2025:18:11:30 +0000] "POST /registrar/salida_transitoria/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:32.212 | Forbidden (CSRF cookie not set.): /registrar/entrada_transitoria/
-nginx       | 2025-04-14 15:11:32.212 | 172.18.0.1 - - [14/Apr/2025:18:11:32 +0000] "POST /registrar/entrada_transitoria/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:32.987 | Forbidden (CSRF cookie not set.): /registrar/entrada_transitoria/
-nginx       | 2025-04-14 15:11:32.988 | 172.18.0.1 - - [14/Apr/2025:18:11:32 +0000] "POST /registrar/entrada_transitoria/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:34.167 | Forbidden (CSRF cookie not set.): /registrar/salida/
-nginx       | 2025-04-14 15:11:34.167 | 172.18.0.1 - - [14/Apr/2025:18:11:34 +0000] "POST /registrar/salida/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:36.151 | Forbidden (CSRF cookie not set.): /registrar/salida/
-nginx       | 2025-04-14 15:11:36.151 | 172.18.0.1 - - [14/Apr/2025:18:11:36 +0000] "POST /registrar/salida/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:37.913 | Forbidden (CSRF cookie not set.): /registrar/entrada/
-nginx       | 2025-04-14 15:11:37.913 | 172.18.0.1 - - [14/Apr/2025:18:11:37 +0000] "POST /registrar/entrada/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:38.555 | Forbidden (CSRF cookie not set.): /registrar/entrada/
-nginx       | 2025-04-14 15:11:38.555 | 172.18.0.1 - - [14/Apr/2025:18:11:38 +0000] "POST /registrar/entrada/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:46.135 | 172.18.0.1 - - [14/Apr/2025:18:11:46 +0000] "GET / HTTP/1.1" 200 17241 "-" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:46.158 | 172.18.0.1 - - [14/Apr/2025:18:11:46 +0000] "GET /static/css/styles.css HTTP/1.1" 200 7633 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:46.263 | 172.18.0.1 - - [14/Apr/2025:18:11:46 +0000] "GET /static/images/login-background1.jpg HTTP/1.1" 200 6345054 "http://192.168.10.11:5080/static/css/styles.css" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:46.295 | 172.18.0.1 - - [14/Apr/2025:18:11:46 +0000] "GET /?keep_alive=1744654247658 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:11:50.273 | 172.18.0.1 - - [14/Apr/2025:18:11:50 +0000] "GET /?keep_alive=1744654251692 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-web         | 2025-04-14 15:11:53.002 | Forbidden (CSRF cookie not set.): /registrar/entrada/
-nginx       | 2025-04-14 15:11:53.002 | 172.18.0.1 - - [14/Apr/2025:18:11:53 +0000] "POST /registrar/entrada/ HTTP/1.1" 403 2970 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:12:05.784 | 172.18.0.1 - - [14/Apr/2025:18:12:05 +0000] "GET /?keep_alive=1744654267026 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-nginx       | 2025-04-14 15:12:05.785 | 172.18.0.1 - - [14/Apr/2025:18:12:05 +0000] "GET /?keep_alive=1744654267050 HTTP/1.1" 200 17241 "http://192.168.10.11:5080/" "Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0"
-redis       | 2025-04-14 15:24:22.046 | 1:M 14 Apr 2025 18:24:22.046 * 1 changes in 3600 seconds. Saving...
-redis       | 2025-04-14 15:24:22.046 | 1:M 14 Apr 2025 18:24:22.046 * Background saving started by pid 12547
-redis       | 2025-04-14 15:24:22.049 | 12547:C 14 Apr 2025 18:24:22.049 * DB saved on disk
-redis       | 2025-04-14 15:24:22.049 | 12547:C 14 Apr 2025 18:24:22.049 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
-redis       | 2025-04-14 15:24:22.147 | 1:M 14 Apr 2025 18:24:22.146 * Background saving terminated with success
+2025-04-22T15:26:59.833140187Z wait-for-it.sh: waiting 120 seconds for db:3306
+2025-04-22T15:26:59.834465073Z wait-for-it.sh: db:3306 is available after 0 seconds
+2025-04-22T15:27:00.477811780Z Operations to perform:
+2025-04-22T15:27:00.477841506Z   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
+2025-04-22T15:27:00.477844454Z Running migrations:
+2025-04-22T15:27:00.477846284Z   No migrations to apply.
+2025-04-22T15:27:01.120361164Z Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2025-04-22T15:27:01.120379709Z Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2025-04-22T15:27:01.120382054Z 
+2025-04-22T15:27:01.120383534Z 0 static files copied to '/app/staticfiles', 225 unmodified.
+2025-04-22T15:27:01.259065344Z [2025-04-22 15:27:01 +0000] [1] [INFO] Starting gunicorn 23.0.0
+2025-04-22T15:27:01.259140199Z [2025-04-22 15:27:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
+2025-04-22T15:27:01.259153142Z [2025-04-22 15:27:01 +0000] [1] [INFO] Using worker: sync
+2025-04-22T15:27:01.260043663Z [2025-04-22 15:27:01 +0000] [103] [INFO] Booting worker with pid: 103
+2025-04-22T15:27:01.302870968Z [2025-04-22 15:27:01 +0000] [104] [INFO] Booting worker with pid: 104
+2025-04-22T15:27:01.394103632Z [2025-04-22 15:27:01 +0000] [109] [INFO] Booting worker with pid: 109
+2025-04-22T15:51:09.933571327Z WARNING 2025-04-22 12:51:09,933 base Session data corrupted
+
+22T15:51:11.870022560Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
+2025-04-22T15:51:11.870141410Z   warnings.warn(
+
+22T15:51:26.521190755Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
+2025-04-22T15:51:26.521207258Z   warnings.warn(
+2025-04-22T15:51:28.652004301Z WARNING 2025-04-22 12:51:28,651 log Not Found: /favicon.ico
+
+22T15:51:59.709899887Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
+2025-04-22T15:51:59.709923930Z   warnings.warn(
+2025-04-22T15:52:08.796279890Z WARNING 2025-04-22 12:52:08,796 log Not Found: /favicon.ico
+2025-04-22T15:52:49.293681644Z WARNING 2025-04-22 12:52:49,293 log Not Found: /favicon.ico
+2025-04-22T15:53:09.408101746Z WARNING 2025-04-22 12:53:09,407 log Not Found: /favicon.ico
+2025-04-22T15:53:33.831489462Z WARNING 2025-04-22 12:53:33,831 log Not Found: /favicon.ico
+2025-04-22T15:54:59.865274939Z WARNING 2025-04-22 12:54:59,865 log Not Found: /favicon.ico
+2025-04-22T16:10:32.327419068Z ERROR 2025-04-22 13:10:32,326 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.327438080Z Traceback (most recent call last):
+2025-04-22T16:10:32.327441063Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.327443469Z     response = get_response(request)
+2025-04-22T16:10:32.327445451Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.327447501Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:10:32.327449583Z     response = self.process_request(request)
+2025-04-22T16:10:32.327451552Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.327453512Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:10:32.327456879Z     host = request.get_host()
+2025-04-22T16:10:32.327458921Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.327460888Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:10:32.327463041Z     raise DisallowedHost(msg)
+2025-04-22T16:10:32.327464982Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.328407289Z [2025-04-22 13:10:32 -0300] [103] [ERROR] Error handling request /
+2025-04-22T16:10:32.328421358Z Traceback (most recent call last):
+2025-04-22T16:10:32.328423980Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.328426231Z     response = get_response(request)
+2025-04-22T16:10:32.328428086Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328429936Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:10:32.328431833Z     response = self.process_request(request)
+2025-04-22T16:10:32.328433879Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328435728Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:10:32.328437674Z     host = request.get_host()
+2025-04-22T16:10:32.328439385Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328441119Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:10:32.328443041Z     raise DisallowedHost(msg)
+2025-04-22T16:10:32.328444837Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.328453773Z 
+2025-04-22T16:10:32.328455991Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.328457885Z 
+2025-04-22T16:10:32.328459599Z Traceback (most recent call last):
+2025-04-22T16:10:32.328461329Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
+2025-04-22T16:10:32.328463211Z     response = callback(request, exception=exception)
+2025-04-22T16:10:32.328464982Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328466723Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
+2025-04-22T16:10:32.328468550Z     'user': request.user,
+2025-04-22T16:10:32.328470294Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.328471993Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.328473722Z 
+2025-04-22T16:10:32.328475369Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.328477084Z 
+2025-04-22T16:10:32.328478705Z Traceback (most recent call last):
+2025-04-22T16:10:32.328480404Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.328482237Z     response = get_response(request)
+2025-04-22T16:10:32.328484003Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328485760Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.328487582Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.328489284Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328490996Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.328493530Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.328495353Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328497149Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
+2025-04-22T16:10:32.328499020Z     response = get_exception_response(
+2025-04-22T16:10:32.328500728Z                ^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328502428Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
+2025-04-22T16:10:32.328504292Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
+2025-04-22T16:10:32.328506083Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328507882Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.328509739Z     return callback(request)
+2025-04-22T16:10:32.328513936Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328515916Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.328517798Z     'user': request.user,
+2025-04-22T16:10:32.328519505Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.328521215Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.328523164Z 
+2025-04-22T16:10:32.328524841Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.328526548Z 
+2025-04-22T16:10:32.328528168Z Traceback (most recent call last):
+2025-04-22T16:10:32.328529918Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.328531752Z     response = get_response(request)
+2025-04-22T16:10:32.328533428Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328535102Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.328536865Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.328538514Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328540175Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.328541925Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.328543601Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328545339Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.328547144Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.328548862Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328550566Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.328552438Z     return callback(request)
+2025-04-22T16:10:32.328554374Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328556158Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.328558356Z     'user': request.user,
+2025-04-22T16:10:32.328560274Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.328561981Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.328564045Z 
+2025-04-22T16:10:32.328565785Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.328568665Z 
+2025-04-22T16:10:32.328570946Z Traceback (most recent call last):
+2025-04-22T16:10:32.328572758Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.328574628Z     response = get_response(request)
+2025-04-22T16:10:32.328578767Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328580771Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.328582748Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.328584508Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328586269Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.328588084Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.328589811Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328591575Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.328593393Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.328595096Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328596817Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.328598639Z     return callback(request)
+2025-04-22T16:10:32.328600342Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328602035Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.328604012Z     'user': request.user,
+2025-04-22T16:10:32.328605900Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.328607798Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.328609708Z 
+2025-04-22T16:10:32.328611528Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.328613425Z 
+2025-04-22T16:10:32.328615247Z Traceback (most recent call last):
+2025-04-22T16:10:32.328617131Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+2025-04-22T16:10:32.328619133Z     self.handle_request(listener, req, client, addr)
+2025-04-22T16:10:32.328621056Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+2025-04-22T16:10:32.328623083Z     respiter = self.wsgi(environ, resp.start_response)
+2025-04-22T16:10:32.328624988Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328626895Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
+2025-04-22T16:10:32.328628888Z     response = self.get_response(request)
+2025-04-22T16:10:32.328630768Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328633042Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
+2025-04-22T16:10:32.328635239Z     response = self._middleware_chain(request)
+2025-04-22T16:10:32.328639006Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328641049Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.328643038Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.328644965Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328646856Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.328648866Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.328650733Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328652626Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.328654673Z     return callback(request)
+2025-04-22T16:10:32.328656540Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.328658403Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.328660369Z     'user': request.user,
+2025-04-22T16:10:32.328662202Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.328664061Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.361046564Z ERROR 2025-04-22 13:10:32,360 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.361057275Z Traceback (most recent call last):
+2025-04-22T16:10:32.361059915Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.361062199Z     response = get_response(request)
+2025-04-22T16:10:32.361064053Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361065809Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:10:32.361067721Z     response = self.process_request(request)
+2025-04-22T16:10:32.361069455Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361071205Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:10:32.361073289Z     host = request.get_host()
+2025-04-22T16:10:32.361075218Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361077106Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:10:32.361079118Z     raise DisallowedHost(msg)
+2025-04-22T16:10:32.361080993Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.361755847Z [2025-04-22 13:10:32 -0300] [103] [ERROR] Error handling request /favicon.ico
+2025-04-22T16:10:32.361765984Z Traceback (most recent call last):
+2025-04-22T16:10:32.361768898Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.361779112Z     response = get_response(request)
+2025-04-22T16:10:32.361781495Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361783513Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:10:32.361785613Z     response = self.process_request(request)
+2025-04-22T16:10:32.361787505Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361789501Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:10:32.361791526Z     host = request.get_host()
+2025-04-22T16:10:32.361793428Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361795330Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:10:32.361797516Z     raise DisallowedHost(msg)
+2025-04-22T16:10:32.361799492Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:10:32.361801712Z 
+2025-04-22T16:10:32.361803579Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.361805530Z 
+2025-04-22T16:10:32.361807386Z Traceback (most recent call last):
+2025-04-22T16:10:32.361809286Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
+2025-04-22T16:10:32.361811340Z     response = callback(request, exception=exception)
+2025-04-22T16:10:32.361813278Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361815180Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
+2025-04-22T16:10:32.361817183Z     'user': request.user,
+2025-04-22T16:10:32.361819039Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.361820913Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.361822815Z 
+2025-04-22T16:10:32.361824675Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.361826631Z 
+2025-04-22T16:10:32.361828440Z Traceback (most recent call last):
+2025-04-22T16:10:32.361830329Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.361832324Z     response = get_response(request)
+2025-04-22T16:10:32.361834185Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361836092Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.361838098Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.361840039Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361841950Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.361847719Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.361849945Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361853117Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
+2025-04-22T16:10:32.361855263Z     response = get_exception_response(
+2025-04-22T16:10:32.361857177Z                ^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361859071Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
+2025-04-22T16:10:32.361861140Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
+2025-04-22T16:10:32.361863143Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361865097Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.361867144Z     return callback(request)
+2025-04-22T16:10:32.361869036Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361870885Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.361872849Z     'user': request.user,
+2025-04-22T16:10:32.361874687Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.361876555Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.361878464Z 
+2025-04-22T16:10:32.361880269Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.361882190Z 
+2025-04-22T16:10:32.361884009Z Traceback (most recent call last):
+2025-04-22T16:10:32.361885865Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.361887857Z     response = get_response(request)
+2025-04-22T16:10:32.361889737Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361891652Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.361893639Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.361895525Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361897435Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.361899415Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.361901306Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361903213Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.361905207Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.361907090Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361911430Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.361913633Z     return callback(request)
+2025-04-22T16:10:32.361915516Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361917670Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.361919721Z     'user': request.user,
+2025-04-22T16:10:32.361921622Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.361923526Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.361925542Z 
+2025-04-22T16:10:32.361927371Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.361929336Z 
+2025-04-22T16:10:32.361931143Z Traceback (most recent call last):
+2025-04-22T16:10:32.361933060Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:10:32.361935032Z     response = get_response(request)
+2025-04-22T16:10:32.361936922Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361938781Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:10:32.361941059Z     response = response or self.get_response(request)
+2025-04-22T16:10:32.361943113Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361945069Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.361947123Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.361949023Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361950914Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.361952929Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.361954874Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361956778Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.361958875Z     return callback(request)
+2025-04-22T16:10:32.361960750Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.361962611Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.361964657Z     'user': request.user,
+2025-04-22T16:10:32.361966546Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.361968517Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:10:32.361970455Z 
+2025-04-22T16:10:32.361972331Z During handling of the above exception, another exception occurred:
+2025-04-22T16:10:32.361974235Z 
+2025-04-22T16:10:32.361975995Z Traceback (most recent call last):
+2025-04-22T16:10:32.362035151Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+2025-04-22T16:10:32.362037643Z     self.handle_request(listener, req, client, addr)
+2025-04-22T16:10:32.362039628Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+2025-04-22T16:10:32.362041687Z     respiter = self.wsgi(environ, resp.start_response)
+2025-04-22T16:10:32.362044108Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362046074Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
+2025-04-22T16:10:32.362048085Z     response = self.get_response(request)
+2025-04-22T16:10:32.362050002Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362052277Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
+2025-04-22T16:10:32.362054373Z     response = self._middleware_chain(request)
+2025-04-22T16:10:32.362056238Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362058165Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:10:32.362060160Z     response = response_for_exception(request, exc)
+2025-04-22T16:10:32.362062132Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362064034Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:10:32.362066058Z     response = handle_uncaught_exception(
+2025-04-22T16:10:32.362067910Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362069808Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:10:32.362071820Z     return callback(request)
+2025-04-22T16:10:32.362073667Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:10:32.362075518Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:10:32.362077499Z     'user': request.user,
+2025-04-22T16:10:32.362079374Z             ^^^^^^^^^^^^
+2025-04-22T16:10:32.362081241Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.270268712Z ERROR 2025-04-22 13:25:35,269 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.270282595Z Traceback (most recent call last):
+2025-04-22T16:25:35.270283911Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.270285029Z     response = get_response(request)
+2025-04-22T16:25:35.270286036Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.270286934Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:25:35.270295461Z     response = self.process_request(request)
+2025-04-22T16:25:35.270296381Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.270297255Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:25:35.270298213Z     host = request.get_host()
+2025-04-22T16:25:35.270300171Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.270301076Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:25:35.270302109Z     raise DisallowedHost(msg)
+2025-04-22T16:25:35.270303054Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.271105143Z [2025-04-22 13:25:35 -0300] [103] [ERROR] Error handling request /
+2025-04-22T16:25:35.271114144Z Traceback (most recent call last):
+2025-04-22T16:25:35.271116980Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.271119273Z     response = get_response(request)
+2025-04-22T16:25:35.271121079Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271122891Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:25:35.271124839Z     response = self.process_request(request)
+2025-04-22T16:25:35.271126648Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271128402Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:25:35.271130302Z     host = request.get_host()
+2025-04-22T16:25:35.271132006Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271133702Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:25:35.271135548Z     raise DisallowedHost(msg)
+2025-04-22T16:25:35.271137468Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.271139568Z 
+2025-04-22T16:25:35.271152876Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.271154627Z 
+2025-04-22T16:25:35.271156290Z Traceback (most recent call last):
+2025-04-22T16:25:35.271158048Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
+2025-04-22T16:25:35.271159941Z     response = callback(request, exception=exception)
+2025-04-22T16:25:35.271161625Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271163372Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
+2025-04-22T16:25:35.271165137Z     'user': request.user,
+2025-04-22T16:25:35.271171619Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.271173777Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.271175567Z 
+2025-04-22T16:25:35.271177210Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.271178998Z 
+2025-04-22T16:25:35.271180597Z Traceback (most recent call last):
+2025-04-22T16:25:35.271182318Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.271184213Z     response = get_response(request)
+2025-04-22T16:25:35.271185932Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271187629Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.271189447Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.271191127Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271192825Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.271194995Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.271196884Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271198615Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
+2025-04-22T16:25:35.271200469Z     response = get_exception_response(
+2025-04-22T16:25:35.271202144Z                ^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271203853Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
+2025-04-22T16:25:35.271205702Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
+2025-04-22T16:25:35.271207523Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271209307Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.271211215Z     return callback(request)
+2025-04-22T16:25:35.271212898Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271214593Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.271216378Z     'user': request.user,
+2025-04-22T16:25:35.271218088Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.271219780Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.271221519Z 
+2025-04-22T16:25:35.271223178Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.271225005Z 
+2025-04-22T16:25:35.271226664Z Traceback (most recent call last):
+2025-04-22T16:25:35.271228376Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.271232714Z     response = get_response(request)
+2025-04-22T16:25:35.271234676Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271236429Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.271238247Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.271239973Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271241783Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.271243587Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.271245317Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271247056Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.271248902Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.271250604Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271252354Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.271254200Z     return callback(request)
+2025-04-22T16:25:35.271255986Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271257737Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.271259776Z     'user': request.user,
+2025-04-22T16:25:35.271261596Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.271263386Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.271265225Z 
+2025-04-22T16:25:35.271266988Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.271268829Z 
+2025-04-22T16:25:35.271270467Z Traceback (most recent call last):
+2025-04-22T16:25:35.271272177Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.271274024Z     response = get_response(request)
+2025-04-22T16:25:35.271275729Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271277482Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.271279305Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.271281046Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271282768Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.271284619Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.271286353Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271288110Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.271291945Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.271293811Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271295552Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.271297487Z     return callback(request)
+2025-04-22T16:25:35.271299810Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271301746Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.271303607Z     'user': request.user,
+2025-04-22T16:25:35.271305372Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.271307108Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.271308882Z 
+2025-04-22T16:25:35.271310557Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.271312289Z 
+2025-04-22T16:25:35.271313876Z Traceback (most recent call last):
+2025-04-22T16:25:35.271315586Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+2025-04-22T16:25:35.271317404Z     self.handle_request(listener, req, client, addr)
+2025-04-22T16:25:35.271319258Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+2025-04-22T16:25:35.271321107Z     respiter = self.wsgi(environ, resp.start_response)
+2025-04-22T16:25:35.271322852Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271324599Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
+2025-04-22T16:25:35.271326485Z     response = self.get_response(request)
+2025-04-22T16:25:35.271328177Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271330239Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
+2025-04-22T16:25:35.271332220Z     response = self._middleware_chain(request)
+2025-04-22T16:25:35.271333971Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271335716Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.271337571Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.271339453Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271341269Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.271343162Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.271344967Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271346713Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.271350522Z     return callback(request)
+2025-04-22T16:25:35.271352535Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.271354462Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.271356431Z     'user': request.user,
+2025-04-22T16:25:35.271358350Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.271360200Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.566540338Z ERROR 2025-04-22 13:25:35,566 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.566552157Z Traceback (most recent call last):
+2025-04-22T16:25:35.566553451Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.566554669Z     response = get_response(request)
+2025-04-22T16:25:35.566555710Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.566556949Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:25:35.566558000Z     response = self.process_request(request)
+2025-04-22T16:25:35.566559205Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.566560166Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:25:35.566561186Z     host = request.get_host()
+2025-04-22T16:25:35.566562117Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.566563092Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:25:35.566564123Z     raise DisallowedHost(msg)
+2025-04-22T16:25:35.566565053Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.567679469Z [2025-04-22 13:25:35 -0300] [104] [ERROR] Error handling request /favicon.ico
+2025-04-22T16:25:35.567681367Z Traceback (most recent call last):
+2025-04-22T16:25:35.567682294Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.567683329Z     response = get_response(request)
+2025-04-22T16:25:35.567684293Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567685257Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
+2025-04-22T16:25:35.567686288Z     response = self.process_request(request)
+2025-04-22T16:25:35.567687303Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567688296Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
+2025-04-22T16:25:35.567689328Z     host = request.get_host()
+2025-04-22T16:25:35.567690247Z            ^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567691173Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
+2025-04-22T16:25:35.567697329Z     raise DisallowedHost(msg)
+2025-04-22T16:25:35.567698305Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
+2025-04-22T16:25:35.567699349Z 
+2025-04-22T16:25:35.567700251Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.567701307Z 
+2025-04-22T16:25:35.567702174Z Traceback (most recent call last):
+2025-04-22T16:25:35.567703100Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
+2025-04-22T16:25:35.567704169Z     response = callback(request, exception=exception)
+2025-04-22T16:25:35.567705283Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567706239Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
+2025-04-22T16:25:35.567707283Z     'user': request.user,
+2025-04-22T16:25:35.567708333Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.567709343Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.567710375Z 
+2025-04-22T16:25:35.567711243Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.567712270Z 
+2025-04-22T16:25:35.567713158Z Traceback (most recent call last):
+2025-04-22T16:25:35.567714114Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.567715145Z     response = get_response(request)
+2025-04-22T16:25:35.567716081Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567716997Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.567718004Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.567718959Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567719900Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.567721069Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.567722021Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567722968Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
+2025-04-22T16:25:35.567724016Z     response = get_exception_response(
+2025-04-22T16:25:35.567724965Z                ^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567725922Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
+2025-04-22T16:25:35.567726956Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
+2025-04-22T16:25:35.567729033Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567730033Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.567731056Z     return callback(request)
+2025-04-22T16:25:35.567731972Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567732875Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.567738244Z     'user': request.user,
+2025-04-22T16:25:35.567739137Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.567740435Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.567742073Z 
+2025-04-22T16:25:35.567744468Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.567745477Z 
+2025-04-22T16:25:35.567746347Z Traceback (most recent call last):
+2025-04-22T16:25:35.567747258Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.567748275Z     response = get_response(request)
+2025-04-22T16:25:35.567749198Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567750130Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.567751158Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.567752094Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567753117Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.567754163Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.567755103Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567756042Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.567757072Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.567758007Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567758964Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.567759991Z     return callback(request)
+2025-04-22T16:25:35.567760911Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567761938Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.567762933Z     'user': request.user,
+2025-04-22T16:25:35.567763867Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.567764772Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.567765713Z 
+2025-04-22T16:25:35.567766591Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.567768623Z 
+2025-04-22T16:25:35.567769483Z Traceback (most recent call last):
+2025-04-22T16:25:35.567770405Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
+2025-04-22T16:25:35.567771431Z     response = get_response(request)
+2025-04-22T16:25:35.567772356Z                ^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567773286Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
+2025-04-22T16:25:35.567774274Z     response = response or self.get_response(request)
+2025-04-22T16:25:35.567775190Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567776147Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.567777140Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.567778074Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567779018Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.567780064Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.567780963Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567781880Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.567782920Z     return callback(request)
+2025-04-22T16:25:35.567783820Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567784738Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.567785718Z     'user': request.user,
+2025-04-22T16:25:35.567786603Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.567787535Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-22T16:25:35.567788469Z 
+2025-04-22T16:25:35.567789343Z During handling of the above exception, another exception occurred:
+2025-04-22T16:25:35.567790353Z 
+2025-04-22T16:25:35.567791225Z Traceback (most recent call last):
+2025-04-22T16:25:35.567792160Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+2025-04-22T16:25:35.567793170Z     self.handle_request(listener, req, client, addr)
+2025-04-22T16:25:35.567794123Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+2025-04-22T16:25:35.567795156Z     respiter = self.wsgi(environ, resp.start_response)
+2025-04-22T16:25:35.567796073Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567796993Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
+2025-04-22T16:25:35.567797993Z     response = self.get_response(request)
+2025-04-22T16:25:35.567798925Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567800754Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
+2025-04-22T16:25:35.567801820Z     response = self._middleware_chain(request)
+2025-04-22T16:25:35.567802760Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567803718Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
+2025-04-22T16:25:35.567804725Z     response = response_for_exception(request, exc)
+2025-04-22T16:25:35.567805647Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567806595Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
+2025-04-22T16:25:35.567807630Z     response = handle_uncaught_exception(
+2025-04-22T16:25:35.567808575Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567809502Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
+2025-04-22T16:25:35.567810529Z     return callback(request)
+2025-04-22T16:25:35.567811530Z            ^^^^^^^^^^^^^^^^^
+2025-04-22T16:25:35.567813078Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
+2025-04-22T16:25:35.567814814Z     'user': request.user,
+2025-04-22T16:25:35.567815749Z             ^^^^^^^^^^^^
+2025-04-22T16:25:35.567816650Z AttributeError: 'WSGIRequest' object has no attribute 'user'
+2025-04-23T11:49:08.159842754Z WARNING 2025-04-23 08:49:08,159 base Session data corrupted
+2025-04-23T11:49:08.959086824Z WARNING 2025-04-23 08:49:08,958 log Not Found: /favicon.ico
+2025-04-23T11:49:16.452876512Z WARNING 2025-04-23 08:49:16,452 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
+2025-04-23T11:49:19.318546871Z WARNING 2025-04-23 08:49:19,318 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
+2025-04-23T11:49:21.718600926Z WARNING 2025-04-23 08:49:21,718 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
+2025-04-23T11:49:28.126960063Z WARNING 2025-04-23 08:49:28,126 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
+2025-04-23T11:49:30.808987001Z Inconsistencia detectada en registro: No se pueden registrar movimientos transitorios después de la salida.
+2025-04-23T11:49:30.819672533Z WARNING 2025-04-23 08:49:30,819 log Bad Request: /registrar/salida_transitoria/
+2025-04-23T11:49:46.853157453Z WARNING 2025-04-23 08:49:46,853 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
+2025-04-23T17:04:28.790225368Z WARNING 2025-04-23 14:04:28,790 log Not Found: /favicon.ico
+2025-04-23T17:05:52.346318262Z WARNING 2025-04-23 14:05:52,346 models Registros desbalancados para el operario MASSAFARA, BRAIAN - 41888232 en la fecha 2025-04-23.
+2025-04-23T17:36:40.915019794Z [2025-04-23 17:36:40 +0000] [1] [INFO] Handling signal: term
+2025-04-23T17:36:40.915576915Z [2025-04-23 14:36:40 -0300] [109] [INFO] Worker exiting (pid: 109)
+2025-04-23T17:36:40.915602509Z [2025-04-23 14:36:40 -0300] [104] [INFO] Worker exiting (pid: 104)
+2025-04-23T17:36:40.916546214Z [2025-04-23 14:36:40 -0300] [103] [INFO] Worker exiting (pid: 103)
+2025-04-23T17:36:41.115430350Z [2025-04-23 17:36:41 +0000] [1] [INFO] Shutting down: Master
+2025-04-23T17:36:42.032076137Z wait-for-it.sh: waiting 120 seconds for db:3306
+2025-04-23T17:36:46.037451093Z wait-for-it.sh: db:3306 is available after 4 seconds
+2025-04-23T17:36:46.660378906Z Operations to perform:
+2025-04-23T17:36:46.660401064Z   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
+2025-04-23T17:36:46.660403968Z Running migrations:
+2025-04-23T17:36:46.660406092Z   No migrations to apply.
+2025-04-23T17:36:47.307273468Z Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2025-04-23T17:36:47.307298574Z Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2025-04-23T17:36:47.307302044Z 
+2025-04-23T17:36:47.307304221Z 0 static files copied to '/app/staticfiles', 225 unmodified.
+2025-04-23T17:36:47.454130167Z [2025-04-23 17:36:47 +0000] [1] [INFO] Starting gunicorn 23.0.0
+2025-04-23T17:36:47.454234003Z [2025-04-23 17:36:47 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
+2025-04-23T17:36:47.454245541Z [2025-04-23 17:36:47 +0000] [1] [INFO] Using worker: sync
+2025-04-23T17:36:47.455274336Z [2025-04-23 17:36:47 +0000] [111] [INFO] Booting worker with pid: 111
+2025-04-23T17:36:47.551983645Z [2025-04-23 17:36:47 +0000] [112] [INFO] Booting worker with pid: 112
+2025-04-23T17:36:47.603645970Z [2025-04-23 17:36:47 +0000] [135] [INFO] Booting worker with pid: 135
+
+23T17:37:52.360613881Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
+2025-04-23T17:37:52.360637856Z   warnings.warn(
+
+23T17:37:55.324822485Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
+2025-04-23T17:37:55.324854263Z   warnings.warn(

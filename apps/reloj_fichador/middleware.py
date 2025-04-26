@@ -7,11 +7,40 @@ from django.template.loader import render_to_string
 from django.utils.deprecation import MiddlewareMixin
 
 logger = logging.getLogger('reloj_fichador')
+request_logger = logging.getLogger('django.request')
 
 class ErrorHandlerMiddleware(MiddlewareMixin):
     """
     Middleware para capturar y manejar errores de forma personalizada.
     """
+    
+    def process_request(self, request):
+        """
+        Registra información sobre todas las solicitudes entrantes.
+        """
+        # Obtener la dirección IP real del cliente
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            client_ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            client_ip = request.META.get('REMOTE_ADDR', 'N/A')
+            
+        # Obtener información de host y agente
+        host = request.META.get('HTTP_HOST', 'N/A')
+        user_agent = request.META.get('HTTP_USER_AGENT', 'N/A')
+        
+        # Registrar la solicitud entrante
+        request_logger.info(
+            f"Solicitud {request.method} a {request.path}",
+            extra={
+                'request': request,
+                'ip': client_ip,
+                'host': host,
+                'agent': user_agent
+            }
+        )
+        
+        return None
     
     def process_exception(self, request, exception):
         """
@@ -66,33 +95,30 @@ class ErrorHandlerMiddleware(MiddlewareMixin):
         Maneja las respuestas HTTP con códigos de error y renderiza una página personalizada.
         """
         if not settings.DEBUG:
+            # Crear un contexto base que verifique si request.user existe
+            context = {}
+            if hasattr(request, 'user'):
+                context['user'] = request.user
+            
             if response.status_code == 403:
                 if not hasattr(response, 'content') or not response.content:
-                    html = render_to_string('errors/403.html', {
-                        'user': request.user,
-                        'show_permissions_info': True
-                    }, request=request)
+                    context['show_permissions_info'] = True
+                    html = render_to_string('errors/403.html', context, request=request)
                     response = HttpResponseForbidden(html)
                     
             elif response.status_code == 404:
                 if not hasattr(response, 'content') or not response.content:
-                    html = render_to_string('errors/404.html', {
-                        'user': request.user
-                    }, request=request)
+                    html = render_to_string('errors/404.html', context, request=request)
                     response = HttpResponseNotFound(html)
                     
             elif response.status_code == 400:
                 if not hasattr(response, 'content') or not response.content:
-                    html = render_to_string('errors/400.html', {
-                        'user': request.user
-                    }, request=request)
+                    html = render_to_string('errors/400.html', context, request=request)
                     response = HttpResponseBadRequest(html)
                     
             elif response.status_code >= 500:
                 if not hasattr(response, 'content') or not response.content:
-                    html = render_to_string('errors/500.html', {
-                        'user': request.user
-                    }, request=request)
+                    html = render_to_string('errors/500.html', context, request=request)
                     response = HttpResponseServerError(html)
                     
         return response

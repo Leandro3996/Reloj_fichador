@@ -145,8 +145,12 @@ def error_400(request, exception=None):
     """
     context = {
         'error_details': str(exception) if exception else None,
-        'user': request.user,
     }
+    
+    # Verificar si request.user está disponible antes de usarlo
+    if hasattr(request, 'user'):
+        context['user'] = request.user
+        
     return render(request, 'errors/400.html', context, status=400)
 
 def error_403(request, exception=None):
@@ -155,9 +159,13 @@ def error_403(request, exception=None):
     """
     context = {
         'error_details': str(exception) if exception else None,
-        'user': request.user,
         'show_permissions_info': True,
     }
+    
+    # Verificar si request.user está disponible antes de usarlo
+    if hasattr(request, 'user'):
+        context['user'] = request.user
+        
     return render(request, 'errors/403.html', context, status=403)
 
 def error_404(request, exception=None):
@@ -166,23 +174,30 @@ def error_404(request, exception=None):
     """
     context = {
         'error_details': str(exception) if exception else None,
-        'user': request.user,
     }
+    
+    # Verificar si request.user está disponible antes de usarlo
+    if hasattr(request, 'user'):
+        context['user'] = request.user
+        
     return render(request, 'errors/404.html', context, status=404)
 
 def error_500(request):
     """
     Maneja errores 500 (Server Error).
     """
-    context = {
-        'user': request.user,
-    }
-    # Solo mostrar detalles técnicos a superusuarios
-    if request.user.is_superuser:
-        import sys
-        import traceback
-        context['error_details'] = traceback.format_exc()
+    context = {}
+    
+    # Verificar si request.user está disponible antes de usarlo
+    if hasattr(request, 'user'):
+        context['user'] = request.user
         
+        # Solo mostrar detalles técnicos a superusuarios
+        if request.user.is_superuser:
+            import sys
+            import traceback
+            context['error_details'] = traceback.format_exc()
+    
     return render(request, 'errors/500.html', context, status=500)
 
 @csrf_exempt
