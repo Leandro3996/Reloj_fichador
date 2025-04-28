@@ -25,21 +25,27 @@ class CalculoHorasTest(TestCase):
         cls.fecha_base = timezone.make_aware(datetime(2023, 1, 1))
 
     def test_redondeo_entrada(self):
-        """Prueba el redondeo de hora de entrada hacia arriba"""
+        """Prueba el redondeo de hora de entrada a la media hora más cercana"""
         # Caso 1: Sin minutos (no debe redondear)
         hora_exacta = timezone.make_aware(datetime(2023, 1, 1, 8, 0, 0))
         redondeada = redondear_entrada(hora_exacta)
         self.assertEqual(redondeada, hora_exacta)
         
-        # Caso 2: Con minutos (debe redondear hacia la próxima hora)
-        hora_con_minutos = timezone.make_aware(datetime(2023, 1, 1, 8, 15, 0))
+        # Caso 2: Con minutos < 15 (debe redondear hacia abajo)
+        hora_con_minutos = timezone.make_aware(datetime(2023, 1, 1, 8, 13, 0))
         redondeada = redondear_entrada(hora_con_minutos)
-        expected = timezone.make_aware(datetime(2023, 1, 1, 9, 0, 0))
+        expected = timezone.make_aware(datetime(2023, 1, 1, 8, 0, 0))
         self.assertEqual(redondeada, expected)
         
-        # Caso 3: Con segundos (debe redondear hacia la próxima hora)
-        hora_con_segundos = timezone.make_aware(datetime(2023, 1, 1, 8, 0, 30))
-        redondeada = redondear_entrada(hora_con_segundos)
+        # Caso 3: Con minutos entre 15 y 44 (debe redondear a media hora)
+        hora_con_minutos = timezone.make_aware(datetime(2023, 1, 1, 8, 16, 0))
+        redondeada = redondear_entrada(hora_con_minutos)
+        expected = timezone.make_aware(datetime(2023, 1, 1, 8, 30, 0))
+        self.assertEqual(redondeada, expected)
+        
+        # Caso 4: Con minutos >= 45 (debe redondear hacia arriba)
+        hora_con_minutos = timezone.make_aware(datetime(2023, 1, 1, 8, 46, 0))
+        redondeada = redondear_entrada(hora_con_minutos)
         expected = timezone.make_aware(datetime(2023, 1, 1, 9, 0, 0))
         self.assertEqual(redondeada, expected)
     

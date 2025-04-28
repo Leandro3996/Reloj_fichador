@@ -51,8 +51,9 @@
           |                v                   |                    |
           |    /===========+============\      |                    |
           |    |                        |      |                    |
-          |    | [↑] Redondear entrada  |      |                    |
-          |    | hacia arriba           |      |                    |
+          |    | [↕] Redondear entrada  |      |                    |
+          |    | a la media hora más    |      |                    |
+          |    | cercana                |      |                    |
           |    |                        |      |                    |
           |    \===========+============/      |                    |
           |                |                   |                    |
@@ -163,7 +164,7 @@ Este diagrama ASCII mejorado para el cálculo de horas incorpora:
    - [♦] para Horas Nocturnas
    - [F] para Horas Feriado
    - [E] para Horas Extra
-   - [↑] para el redondeo hacia arriba
+   - [↕] para el redondeo a la media hora más cercana
    - [✓] para la confirmación de guardado
 3. **Claridad en decisiones**: SI/NO claramente marcados en las bifurcaciones.
 4. **Flujo alternativo**: Conexión clara al punto de finalización cuando no hay registros completos.

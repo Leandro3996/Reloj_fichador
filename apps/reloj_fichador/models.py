@@ -21,13 +21,16 @@ logger = logging.getLogger('reloj_fichador')
 # Horas normales (condiciones generales, pero usaremos la nueva franja 06:00 a 20:00).
 # Horas nocturnas 20:00 - 06:00 del día siguiente.
 #
-# Redondeo entrada: sube a la siguiente hora.
+# Redondeo entrada: a la media hora más cercana:
+#   - Si minutos < 15: redondea hacia abajo a la hora en punto
+#   - Si minutos entre 15 y 44: redondea a la media hora
+#   - Si minutos >= 45: redondea hacia arriba a la siguiente hora
 # Redondeo salida: baja a la hora anterior, SOLO si >= 8h desde la hora de entrada redondeada.
 # ------------------------------------------------------------------------------------
 
 def redondear_entrada(dt):
     """
-    Redondea la hora de entrada hacia arriba a la próxima hora completa.
+    Redondea la hora de entrada a la media hora más cercana.
     Siempre opera en horario de Argentina.
     """
     import pytz
@@ -37,9 +40,21 @@ def redondear_entrada(dt):
         dt_local = dt.astimezone(argentina_tz)
     else:
         dt_local = argentina_tz.localize(dt)
-    fecha_base = dt_local.replace(minute=0, second=0, microsecond=0)
-    if dt_local.minute or dt_local.second or dt_local.microsecond:
-        fecha_base += timedelta(hours=1)
+    
+    # Obtener los minutos actuales
+    minutos = dt_local.minute
+    
+    # Redondear a la media hora más cercana
+    if minutos < 15:
+        # Redondear hacia abajo a la hora en punto
+        fecha_base = dt_local.replace(minute=0, second=0, microsecond=0)
+    elif minutos < 45:
+        # Redondear a la media hora
+        fecha_base = dt_local.replace(minute=30, second=0, microsecond=0)
+    else:
+        # Redondear hacia arriba a la siguiente hora
+        fecha_base = dt_local.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    
     return fecha_base
 
 def redondear_salida(dt):
