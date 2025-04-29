@@ -447,8 +447,12 @@ class RegistroDiario(models.Model):
             if ultimo_valido:
                 # Validación 1: No puede haber una entrada si no hubo salida el día anterior
                 if ultimo_valido.tipo_movimiento != 'salida':
+                    # Convertir a zona horaria de Argentina
+                    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                    hora_local = ultimo_valido.hora_fichada.astimezone(argentina_tz)
+                    fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
                     inconsistencias.append(
-                        "No puede registrar una entrada sin una salida previa."
+                        f"Inconsistencia: su último movimiento fue {ultimo_valido.tipo_movimiento} {fecha_ultimo}"
                     )
                 
                 # Validación 2: No puede haber una entrada si es menor a la última salida
@@ -540,8 +544,16 @@ class RegistroDiario(models.Model):
                 last_today = movimientos_jornada[-1]
                 movimientos_permitidos = transiciones_validas.get(last_today, [])
                 if self.tipo_movimiento not in movimientos_permitidos:
+                    # Obtener la fecha del último movimiento en hora local
+                    ultimo_registro = registros_jornada.last() if registros_jornada else None
+                    if ultimo_registro:
+                        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                        hora_local = ultimo_registro.hora_fichada.astimezone(argentina_tz)
+                        fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
+                    else:
+                        fecha_ultimo = ''
                     inconsistencias.append(
-                        f"Inconsistencia: su último movimiento fue {last_today}, por lo que solo puede ir {', '.join(movimientos_permitidos)}."
+                        f"Inconsistencia: Su último movimiento fue {last_today}  {fecha_ultimo}"
                     )
 
         if inconsistencias:
