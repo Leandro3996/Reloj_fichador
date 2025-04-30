@@ -452,7 +452,7 @@ class RegistroDiario(models.Model):
                     hora_local = ultimo_valido.hora_fichada.astimezone(argentina_tz)
                     fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
                     inconsistencias.append(
-                        f"Inconsistencia: su último movimiento fue {ultimo_valido.tipo_movimiento} {fecha_ultimo}"
+                        f"Inconsistencia: Su último movimiento fue <strong>{ultimo_valido.get_tipo_movimiento_display()}</strong> <strong>{fecha_ultimo}</strong>"
                     )
                 
                 # Validación 2: No puede haber una entrada si es menor a la última salida
@@ -544,16 +544,18 @@ class RegistroDiario(models.Model):
                 last_today = movimientos_jornada[-1]
                 movimientos_permitidos = transiciones_validas.get(last_today, [])
                 if self.tipo_movimiento not in movimientos_permitidos:
-                    # Obtener la fecha del último movimiento en hora local
+                    # Obtener el objeto RegistroDiario correspondiente al último movimiento para usar get_tipo_movimiento_display()
                     ultimo_registro = registros_jornada.last() if registros_jornada else None
                     if ultimo_registro:
                         argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
                         hora_local = ultimo_registro.hora_fichada.astimezone(argentina_tz)
                         fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
+                        tipo_movimiento_display = ultimo_registro.get_tipo_movimiento_display()
                     else:
                         fecha_ultimo = ''
+                        tipo_movimiento_display = last_today
                     inconsistencias.append(
-                        f"Inconsistencia: Su último movimiento fue {last_today}  {fecha_ultimo}"
+                        f"Inconsistencia: Su último movimiento fue <strong>{tipo_movimiento_display}</strong> <strong>{fecha_ultimo}</strong>"
                     )
 
         if inconsistencias:

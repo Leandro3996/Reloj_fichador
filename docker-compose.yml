@@ -21,10 +21,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=db"
-      - "com.docker.compose.container-number=1"
 
   web:
     build:
@@ -56,10 +52,6 @@ services:
       - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=web"
-      - "com.docker.compose.container-number=1"
 
   celery:
     build:
@@ -91,10 +83,6 @@ services:
       - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=celery"
-      - "com.docker.compose.container-number=1"
 
   celery-beat:
     build:
@@ -126,10 +114,6 @@ services:
       - DEBUG=${DEBUG}
     networks:
       - app_network_fichador
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=celery-beat"
-      - "com.docker.compose.container-number=1"
 
   redis:
     image: redis:alpine
@@ -145,10 +129,6 @@ services:
       retries: 5
     volumes:
       - redis_data:/data
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=redis"
-      - "com.docker.compose.container-number=1"
 
   nginx:
     image: nginx:latest
@@ -164,10 +144,6 @@ services:
         condition: service_started
     networks:
       - app_network_fichador
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=nginx"
-      - "com.docker.compose.container-number=1"
 
   backup:
     image: mysql:8.4.0
@@ -187,10 +163,6 @@ services:
         condition: service_healthy
     networks:
       - app_network_fichador
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.service=backup"
-      - "com.docker.compose.container-number=1"
 
 volumes:
   static_volume:
@@ -202,7 +174,3 @@ volumes:
 networks:
   app_network_fichador:
     driver: bridge
-    name: reloj_fichador_network
-    labels:
-      - "com.docker.compose.project=reloj_fichador"
-      - "com.docker.compose.network=app_network_fichador"
