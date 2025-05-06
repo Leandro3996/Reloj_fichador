@@ -42,8 +42,6 @@ logs/
 
 # Directorios específicos del proyecto
 media/
-static/
-staticfiles/
 backups/
 
 # Archivos grandes o generados

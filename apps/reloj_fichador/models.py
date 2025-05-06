@@ -472,7 +472,7 @@ class RegistroDiario(models.Model):
             
             if not entrada_del_dia:
                 inconsistencias.append(
-                    "No puede registrar una salida sin una entrada previa en el día actual."
+                    "<span style='color: orange; font-weight: bold;'>Atención: Usted no ha registrado una ENTRADA el día de hoy.</span>"
                 )
 
         elif self.tipo_movimiento in ['salida_transitoria', 'entrada_transitoria']:
@@ -484,22 +484,12 @@ class RegistroDiario(models.Model):
                 valido=True
             ).exists()
 
-            salida_del_dia = RegistroDiario.objects.filter(
-                operario=self.operario,
-                tipo_movimiento='salida',
-                hora_fichada__date=movimiento_fecha,
-                valido=True
-            ).exists()
 
             if not entrada_del_dia:
                 inconsistencias.append(
-                    "Los movimientos transitorios solo son válidos después de una entrada."
-                )
-            
-            if salida_del_dia:
-                inconsistencias.append(
-                    "No se pueden registrar movimientos transitorios después de la salida."
-                )
+                    "<span style='color: orange; font-weight: bold;'>Atención: Los movimientos transitorios solo son válidos después de una ENTRADA.</span>"
+                )            
+
 
         # Validación de secuencia de movimientos desde la última ENTRADA (jornada lógica)
         # 1. Buscar la última ENTRADA antes de la hora fichada actual
