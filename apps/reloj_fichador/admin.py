@@ -741,7 +741,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('get_dni', 'operario', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
+    list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
@@ -753,6 +753,15 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
         Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
         return super().get_queryset(request).select_related('operario')
+    
+    def get_mes(self, obj):
+        try:
+            anio, mes = obj.mes_actual.split('-')
+            return f"{mes}/{anio}"
+        except Exception as e:
+            return obj.mes_actual
+    get_mes.short_description = 'Mes'
+        
 
     def get_dni(self, obj):
         return obj.operario.dni
