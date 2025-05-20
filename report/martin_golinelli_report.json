@@ -1,0 +1,78 @@
+    0	
+id_registro	"1695"
+operario	128
+hora_fichada	"2025-05-19 05:00:14"
+tipo_movimiento	"entrada"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""1	
+id_registro	"1629"
+operario	128
+hora_fichada	"2025-05-17 05:24:54"
+tipo_movimiento	"salida"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""2	
+id_registro	"1594"
+operario	128
+hora_fichada	"2025-05-17 00:05:12"
+tipo_movimiento	"entrada_transitoria"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""3	
+id_registro	"1593"
+operario	128
+hora_fichada	"2025-05-16 23:29:01"
+tipo_movimiento	"salida_transitoria"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""4	
+id_registro	"1590"
+operario	128
+hora_fichada	"2025-05-16 21:00:40"
+tipo_movimiento	"entrada"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""5	
+id_registro	"1569"
+operario	128
+hora_fichada	"2025-05-16 17:09:40"
+tipo_movimiento	"salida"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""6	
+id_registro	"1551"
+operario	128
+hora_fichada	"2025-05-16 14:59:46"
+tipo_movimiento	"entrada"
+origen_fichada	"Auto"
+inconsistencia	"0"
+valido	"1"
+descripcion_inconsistencia	""
+dif_entrada_salida	""
+dif_entrada_salida2	""
+dif_entrada_salida_total	""

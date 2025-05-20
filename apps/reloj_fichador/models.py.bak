@@ -10,6 +10,8 @@ import os
 import logging
 import threading
 from .utils import suppress_signal
+from django.conf import settings
+import pytz
 
 logger = logging.getLogger('reloj_fichador')
 
@@ -19,18 +21,40 @@ logger = logging.getLogger('reloj_fichador')
 # Horas normales (condiciones generales, pero usaremos la nueva franja 06:00 a 20:00).
 # Horas nocturnas 20:00 - 06:00 del día siguiente.
 #
-# Redondeo entrada: sube a la siguiente hora.
+# Redondeo entrada: a la media hora más cercana:
+#   - Si minutos < 15: redondea hacia abajo a la hora en punto
+#   - Si minutos entre 15 y 44: redondea a la media hora
+#   - Si minutos >= 45: redondea hacia arriba a la siguiente hora
 # Redondeo salida: baja a la hora anterior, SOLO si >= 8h desde la hora de entrada redondeada.
 # ------------------------------------------------------------------------------------
 
 def redondear_entrada(dt):
     """
-    Redondea la hora de entrada hacia arriba a la próxima hora completa.
+    Redondea la hora de entrada a la media hora más cercana.
+    Siempre opera en horario de Argentina.
     """
-    fecha_base = dt.replace(minute=0, second=0, microsecond=0)
-    if dt.minute or dt.second or dt.microsecond:
-        # Si hay minutos o segundos, subimos 1 hora
-        fecha_base += timedelta(hours=1)
+    import pytz
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    # Si el datetime tiene tzinfo, convertir a horario local
+    if dt.tzinfo is not None:
+        dt_local = dt.astimezone(argentina_tz)
+    else:
+        dt_local = argentina_tz.localize(dt)
+    
+    # Obtener los minutos actuales
+    minutos = dt_local.minute
+    
+    # Redondear a la media hora más cercana
+    if minutos < 15:
+        # Redondear hacia abajo a la hora en punto
+        fecha_base = dt_local.replace(minute=0, second=0, microsecond=0)
+    elif minutos < 45:
+        # Redondear a la media hora
+        fecha_base = dt_local.replace(minute=30, second=0, microsecond=0)
+    else:
+        # Redondear hacia arriba a la siguiente hora
+        fecha_base = dt_local.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+    
     return fecha_base
 
 def redondear_salida(dt):
@@ -42,60 +66,33 @@ def redondear_salida(dt):
     # Tu función "pura" de redondeo a la baja es esta:
     return dt.replace(minute=0, second=0, microsecond=0)
 
-def calcular_horas_por_franjas(inicio, fin):
+def calcular_horas_por_franjas(inicio, fin, limites=None):
     """
-    Calcula las horas normales y nocturnas en el rango [inicio, fin)
-    basado en los requisitos de cada tipo.
+    Lógica simplificada:
+    - Si entrada y salida son el mismo día: todo normal.
+    - Si entrada y salida son días distintos y la entrada es >= 20:00: todo nocturno.
+    - Si entrada y salida son días distintos y la entrada es < 20:00: todo normal.
     """
-    if fin <= inicio:
-        return timedelta(0), timedelta(0)
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    if inicio.tzinfo is not None:
+        inicio = inicio.astimezone(argentina_tz)
+    else:
+        inicio = argentina_tz.localize(inicio)
+    if fin.tzinfo is not None:
+        fin = fin.astimezone(argentina_tz)
+    else:
+        fin = argentina_tz.localize(fin)
 
-    total_normales = timedelta(0)
-    total_nocturnas = timedelta(0)
-
-    # Definir los límites horarios
-    base_date = inicio.date()
-    dia_siguiente = base_date + timedelta(days=1)
-
-    limites = {
-        'normales_inicio': datetime(base_date.year, base_date.month, base_date.day, 4, 0, 0),
-        'normales_fin': datetime(base_date.year, base_date.month, base_date.day, 22, 0, 0),
-        'nocturnas_inicio': datetime(base_date.year, base_date.month, base_date.day, 20, 0, 0),
-        'nocturnas_fin': datetime(dia_siguiente.year, dia_siguiente.month, dia_siguiente.day, 6, 0, 0),
-    }
-
-    actual = inicio
-    while actual < fin:
-        siguiente = fin  # Por defecto, asumimos que el bloque termina en fin.
-
-        # Verificar si cumple los 4 requisitos de Horas Nocturnas
-        if (
-            (actual.time() >= time(20, 0) or actual.time() < time(5, 0)) and  # Entrada válida
-            (siguiente.time() >= time(21, 0) or siguiente.time() < time(6, 0))  # Salida válida
-        ):
-            siguiente = min(fin, limites['nocturnas_fin'])
-            total_nocturnas += siguiente - actual
-
-        # Verificar si cumple los 4 requisitos de Horas Normales
-        elif (
-            (actual.time() >= time(4, 0) and actual.time() < time(21, 0)) and  # Entrada válida
-            (siguiente.time() >= time(5, 0) and siguiente.time() < time(22, 0))  # Salida válida
-        ):
-            
-    # Asegurar que ambas fechas tengan la misma información de zona horaria
-    if fin.tzinfo is None and limites['normales_fin'].tzinfo is not None:
-        from django.utils import timezone
-        fin = timezone.make_aware(fin)
-    elif fin.tzinfo is not None and limites['normales_fin'].tzinfo is None:
-        from django.utils import timezone
-        limites['normales_fin'] = timezone.make_aware(limites['normales_fin'])
-    siguiente = min(fin, limites['normales_fin'])
-            total_normales += siguiente - actual
-
-        # Avanzar al siguiente tramo
-        actual = siguiente
-
-    return total_normales, total_nocturnas
+    if inicio.date() == fin.date():
+        # Todo normal
+        return fin - inicio, timedelta(0)
+    else:
+        if inicio.time() >= time(20, 0):
+            # Todo nocturno
+            return timedelta(0), fin - inicio
+        else:
+            # Todo normal (caso poco frecuente)
+            return fin - inicio, timedelta(0)
 
 
 
@@ -216,31 +213,49 @@ class RegistroDiario(models.Model):
         Obtiene el último registro válido para el operario (excluyendo el actual).
         """
         return RegistroDiario.objects.filter(
-            operario=self.operario,
+            operario=self.operario,            
             valido=True
         ).exclude(pk=self.pk).order_by('-hora_fichada').first()
 
     @staticmethod
-    def calcular_fecha_logica(hora_fichada):
+    def calcular_fecha_logica(hora_fichada, tipo_movimiento=None):
         """
         Calcula la fecha lógica de un registro en función de si pertenece a un turno nocturno.
-        Si la hora es < 06:00, se considera que pertenece al día anterior lógicamente,
-        pero permite personalizar cómo manejar las horas tempranas.
+        Si la hora es < 06:00 y es un registro de salida, se considera que pertenece al día anterior lógicamente.
+        Para las entradas tempranas (antes de las 6am), se mantiene la fecha real.
+        
+        Args:
+            hora_fichada: La hora del registro
+            tipo_movimiento: El tipo de movimiento ('entrada', 'salida', etc). Si no se proporciona,
+                             se aplica la regla general (entradas < 6am pertenecen al día actual)
+        
+        Siempre opera en horario de Argentina.
         """
         if not hora_fichada:
             return None
 
-        # Mantener la hora límite para turnos nocturnos
+        import pytz
+        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+
+        # Si el datetime tiene tzinfo, convertir a horario local
+        if hora_fichada.tzinfo is not None:
+            hora_local = hora_fichada.astimezone(argentina_tz)
+        else:
+            hora_local = argentina_tz.localize(hora_fichada)
+
         hora_limite = datetime.strptime("06:00", "%H:%M").time()
         
-        # Validar si el turno debe ajustarse al día anterior
-        if hora_fichada.time() < hora_limite:
-            # Añadir una condición específica si se necesita ajustar para horarios normales
-            logger.debug(f"Ajustando fecha lógica para hora temprana: {hora_fichada}")
-            return hora_fichada.date() - timedelta(days=1)
-
-        # En caso contrario, mantener la fecha actual
-        return hora_fichada.date()
+        # Si es una entrada temprana, no ajustamos la fecha lógica
+        if tipo_movimiento == 'entrada' and hora_local.time() < hora_limite:
+            logger.debug(f"Entrada temprana: Manteniendo fecha real para {hora_local}")
+            return hora_local.date()
+            
+        # Para salidas y otros casos, aplicamos la regla estándar
+        if hora_local.time() < hora_limite:
+            logger.debug(f"Ajustando fecha lógica para hora temprana: {hora_local}")
+            return hora_local.date() - timedelta(days=1)
+            
+        return hora_local.date()
 
 
     def calcular_diferencia_entrada_salida(self):
@@ -294,23 +309,115 @@ class RegistroDiario(models.Model):
     def clean(self):
         super().clean()
 
+        from django.conf import settings
+        import pytz
+
         if not self.hora_fichada:
             self.hora_fichada = timezone.now()
+            
+        # Normalizar la fecha según la configuración de USE_TZ
+        hora_fichada_normalizada = self.hora_fichada
+        if getattr(settings, 'USE_TZ', False):
+            # Si USE_TZ=True, asegurarse de que la fecha esté en la zona horaria de Argentina
+            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+            if hora_fichada_normalizada.tzinfo is None:
+                hora_fichada_normalizada = pytz.utc.localize(hora_fichada_normalizada)
+            hora_fichada_normalizada = hora_fichada_normalizada.astimezone(argentina_tz)
+        elif hasattr(hora_fichada_normalizada, 'tzinfo') and hora_fichada_normalizada.tzinfo is not None:
+            # Si USE_TZ=False pero tiene zona horaria, quitarla
+            hora_fichada_normalizada = hora_fichada_normalizada.replace(tzinfo=None)
+            # Actualizar el campo para que sea compatible con la base de datos
+            self.hora_fichada = hora_fichada_normalizada
 
-        movimiento_fecha = RegistroDiario.calcular_fecha_logica(self.hora_fichada)
+        movimiento_fecha = RegistroDiario.calcular_fecha_logica(hora_fichada_normalizada, self.tipo_movimiento)
 
-        registros_del_dia = RegistroDiario.objects.filter(
-            operario=self.operario,
-            hora_fichada__date=movimiento_fecha,
-            valido=True
-        ).exclude(pk=self.pk).order_by('hora_fichada')
-
-        movimientos_del_dia = list(registros_del_dia.values_list('tipo_movimiento', flat=True))
-        ultimo_valido = self.get_last_valid_record()
-        last_movement = ultimo_valido.tipo_movimiento if ultimo_valido else None
-        day_changed = ultimo_valido and ultimo_valido.hora_fichada.date() != movimiento_fecha
-
+        # Si el registro está marcado como inconsistencia, no validamos la secuencia
+        if self.inconsistencia:
+            return
+        
         inconsistencias = []
+        
+        # Obtener el último registro válido
+        ultimo_valido = self.get_last_valid_record()
+        
+        if self.tipo_movimiento == 'entrada':
+            if ultimo_valido:
+                # Validación 1: No puede haber una entrada si no hubo salida el día anterior
+                if ultimo_valido.tipo_movimiento != 'salida':
+                    # Convertir a zona horaria de Argentina
+                    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                    hora_local = ultimo_valido.hora_fichada.astimezone(argentina_tz)
+                    fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
+                    inconsistencias.append(
+                        f"Inconsistencia: Su último movimiento fue <strong>{ultimo_valido.get_tipo_movimiento_display()}</strong> <strong>{fecha_ultimo}</strong>"
+                    )
+                
+                # Validación 2: No puede haber una entrada si es menor a la última salida
+                if self.hora_fichada <= ultimo_valido.hora_fichada:
+                    inconsistencias.append(
+                        "La hora de entrada no puede ser menor o igual a la última salida."
+                    )
+        
+        elif self.tipo_movimiento == 'salida':
+            # Validación 3: No puede haber una salida sin una entrada previa en el mismo día
+            entrada_del_dia = RegistroDiario.objects.filter(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada__date=movimiento_fecha,
+                valido=True
+            ).exists()
+            
+            if not entrada_del_dia:
+                inconsistencias.append(
+                    "<span style='color: orange; font-weight: bold;'>Atención: Usted no ha registrado una ENTRADA el día de hoy.</span>"
+                )
+
+        elif self.tipo_movimiento in ['salida_transitoria', 'entrada_transitoria']:
+            # Validación para movimientos transitorios
+            entrada_del_dia = RegistroDiario.objects.filter(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada__date=movimiento_fecha,
+                valido=True
+            ).exists()
+
+
+            if not entrada_del_dia:
+                inconsistencias.append(
+                    "<span style='color: orange; font-weight: bold;'>Atención: Los movimientos transitorios solo son válidos después de una ENTRADA.</span>"
+                )            
+
+
+        # Validación de secuencia de movimientos desde la última ENTRADA (jornada lógica)
+        # 1. Buscar la última ENTRADA antes de la hora fichada actual
+        ultima_entrada = RegistroDiario.objects.filter(
+            operario=self.operario,
+            tipo_movimiento='entrada',
+            hora_fichada__lt=self.hora_fichada,
+            valido=True
+        ).order_by('-hora_fichada').first()
+
+        if ultima_entrada:
+            # 2. Tomar todos los movimientos válidos desde esa ENTRADA hasta el actual (excluyendo el actual)
+            registros_jornada = RegistroDiario.objects.filter(
+                operario=self.operario,
+                hora_fichada__gt=ultima_entrada.hora_fichada,
+                hora_fichada__lt=self.hora_fichada,
+                valido=True
+            ).order_by('hora_fichada')
+            movimientos_jornada = ['entrada'] + list(registros_jornada.values_list('tipo_movimiento', flat=True))
+        else:
+            # Si no hay ENTRADA previa, usar los movimientos del día como fallback
+            registros_jornada = RegistroDiario.objects.filter(
+                operario=self.operario,
+                hora_fichada__date=movimiento_fecha,
+                hora_fichada__lt=self.hora_fichada,
+                valido=True
+            ).order_by('hora_fichada')
+            movimientos_jornada = list(registros_jornada.values_list('tipo_movimiento', flat=True))
+
+        last_movement = movimientos_jornada[-1] if movimientos_jornada else None
+        day_changed = ultimo_valido and ultimo_valido.hora_fichada.date() != movimiento_fecha
 
         # Validación básica de secuencia de movimientos
         if not (day_changed or (last_movement == 'salida' and self.tipo_movimiento == 'entrada')):
@@ -320,12 +427,22 @@ class RegistroDiario(models.Model):
                 'entrada_transitoria': ['salida'],
                 'salida': ['entrada']
             }
-            if movimientos_del_dia:
-                last_today = movimientos_del_dia[-1]
+            if movimientos_jornada:
+                last_today = movimientos_jornada[-1]
                 movimientos_permitidos = transiciones_validas.get(last_today, [])
                 if self.tipo_movimiento not in movimientos_permitidos:
+                    # Obtener el objeto RegistroDiario correspondiente al último movimiento para usar get_tipo_movimiento_display()
+                    ultimo_registro = registros_jornada.last() if registros_jornada else None
+                    if ultimo_registro:
+                        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                        hora_local = ultimo_registro.hora_fichada.astimezone(argentina_tz)
+                        fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
+                        tipo_movimiento_display = ultimo_registro.get_tipo_movimiento_display()
+                    else:
+                        fecha_ultimo = ''
+                        tipo_movimiento_display = last_today
                     inconsistencias.append(
-                        f"Después de {last_today} solo puede ir {', '.join(movimientos_permitidos)}."
+                        f"Inconsistencia: Su último movimiento fue <strong>{tipo_movimiento_display}</strong> <strong>{fecha_ultimo}</strong>"
                     )
 
         if inconsistencias:
@@ -345,57 +462,62 @@ class Horas_trabajadas(models.Model):
 
     @classmethod
     def calcular_horas_trabajadas(cls, operario, fecha):
-        """
-        Calcula las horas normales, nocturnas y extras para un operario en una fecha lógica específica.
-        """
         registros = RegistroDiario.objects.filter(
             operario=operario,
             valido=True
         ).order_by('hora_fichada')
 
+        # Filtrar solo entradas/salidas (ignorar transitorias)
         day_records = [
-            r for r in registros 
-            if RegistroDiario.calcular_fecha_logica(r.hora_fichada) == fecha
-            or (r.hora_fichada.time() < time(6, 0) and r.hora_fichada.date() == fecha)
+            r for r in registros
+            if (
+                r.tipo_movimiento in ('entrada', 'salida') and
+                RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == fecha
+            )
         ]
 
-        total_horas_normales = timedelta()
-        total_horas_nocturnas = timedelta()
-        total_horas_extras = timedelta()
-
-        if len(day_records) % 2 != 0:
-            logger.warning(f"Registros desbalancados para el operario {operario} en la fecha {fecha}.")
-            day_records = day_records[:-1]
-
+        # Agrupar pares entrada-salida
+        bloques = []
         for entrada, salida in zip(day_records[::2], day_records[1::2]):
-            if entrada.tipo_movimiento == 'entrada' and salida.tipo_movimiento == 'salida':
-                entrada_redondeada = redondear_entrada(entrada.hora_fichada)
-                salida_real = salida.hora_fichada
+            entrada_redondeada = redondear_entrada(entrada.hora_fichada)
+            salida_real = salida.hora_fichada
+            h_norm, h_noct = calcular_horas_por_franjas(entrada_redondeada, salida_real)
+            bloques.append({
+                'entrada': entrada_redondeada,
+                'salida': salida_real,
+                'h_norm': h_norm,
+                'h_noct': h_noct,
+                'duracion': salida_real - entrada_redondeada
+            })
 
-                # Calcular horas normales y nocturnas
-                h_norm, h_noct = calcular_horas_por_franjas(entrada_redondeada, salida_real)
-                total_horas_normales += h_norm
-                total_horas_nocturnas += h_noct
+        # Sumar todos los bloques
+        total_horas_normales = sum([b['h_norm'] for b in bloques], timedelta())
+        total_horas_nocturnas = sum([b['h_noct'] for b in bloques], timedelta())
+        total_trabajado = total_horas_normales + total_horas_nocturnas
 
-                # Calcular horas extras (si aplica)
-                diferencia_total = salida_real - entrada_redondeada
-                if diferencia_total > timedelta(hours=8, minutes=30):  # Límite para calcular horas extras
-                    exceso = diferencia_total - timedelta(hours=8, minutes=30)
-                    # Añadir 30 minutos iniciales.
-                    exceso += timedelta(minutes=30)
-                    # Convertir el exceso a bloques de 15 minutos
-                    bloques_15_min = (exceso.total_seconds() // 900)  # 900 segundos = 15 minutos
-                    total_horas_extras += timedelta(minutes=15 * bloques_15_min)
+        # Ajuste: Si hay horas nocturnas, las normales pasan a extras
+        horas_normales = total_horas_normales
+        horas_nocturnas = total_horas_nocturnas
+        horas_extras = timedelta()
 
-        # Guardar en el modelo
+        if total_horas_nocturnas > timedelta():
+            # Todo lo normal pasa a extra
+            horas_extras = total_horas_normales
+            horas_normales = timedelta()
+            # Además, si el total supera 8h, el resto también es extra
+            if total_trabajado > timedelta(hours=8):
+                horas_extras += (total_trabajado - timedelta(hours=8))
+        else:
+            # Si no hay nocturnas, solo hay normales y extras si corresponde
+            if total_trabajado > timedelta(hours=8):
+                horas_extras = total_trabajado - timedelta(hours=8)
+
         obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
-        obj.horas_normales = total_horas_normales
-        obj.horas_nocturnas = total_horas_nocturnas
-        obj.horas_extras = total_horas_extras
+        obj.horas_normales = horas_normales
+        obj.horas_nocturnas = horas_nocturnas
+        obj.horas_extras = horas_extras
         obj.save()
-
-
-        return total_horas_normales, total_horas_nocturnas, total_horas_extras
+        return horas_normales, horas_nocturnas, horas_extras
 
     def __str__(self):
         return (f"{self.operario} - {self.fecha}: "

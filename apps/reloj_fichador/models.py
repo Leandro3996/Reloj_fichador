@@ -67,11 +67,13 @@ def redondear_salida(dt):
     return dt.replace(minute=0, second=0, microsecond=0)
 
 def calcular_horas_por_franjas(inicio, fin, limites=None):
-    import pytz
-    logger.debug(f"[calcular_horas_por_franjas] INICIO: {inicio}, FIN: {fin}, LIMITES: {limites}")
-    # --- Timezone enforcement: always operate in Argentina timezone ---
+    """
+    Lógica simplificada:
+    - Si entrada y salida son el mismo día: todo normal.
+    - Si entrada y salida son días distintos y la entrada es >= 20:00: todo nocturno.
+    - Si entrada y salida son el mismo día y la entrada es >= 20:00: todo nocturno.
+    """
     argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    # Convert both inicio and fin to local timezone if not already
     if inicio.tzinfo is not None:
         inicio = inicio.astimezone(argentina_tz)
     else:
@@ -80,123 +82,22 @@ def calcular_horas_por_franjas(inicio, fin, limites=None):
         fin = fin.astimezone(argentina_tz)
     else:
         fin = argentina_tz.localize(fin)
-    # This ensures all calculations below are done in local time and avoids UTC/local confusion.
 
-    """
-    Calcula las horas normales y nocturnas entre dos momentos dados.
-    
-    Horas normales: Condiciones
-    - Entrada válida: Ingreso posterior a las 4 am e inferior a las 21hs
-    - Salida válida: Posterior a las 5 am e inferior a las 22hs (siempre posterior a la entrada)
-    
-    Horas nocturnas: Condiciones
-    - Entrada válida: Ingreso posterior a las 20hs o inferior a las 5 am del día siguiente
-    - Salida válida: Posterior a las 21hs o inferior a las 6 am del día siguiente (siempre posterior a la entrada)
-    
-    Args:
-        inicio: Timestamp de inicio (datetime)
-        fin: Timestamp de fin (datetime)
-        limites: Diccionario opcional con los límites de franjas horarias
-    
-    Returns:
-        Tupla (horas_normales, horas_nocturnas) como objetos timedelta
-    """
-    from django.utils import timezone
-    from django.conf import settings
-    
-    # Solo normalizamos fechas si USE_TZ está habilitado
-    if getattr(settings, 'USE_TZ', False):
-        # Normalizar fechas de entrada solo si USE_TZ es True
-        if hasattr(inicio, 'tzinfo') and inicio.tzinfo is None:
-            inicio = timezone.make_aware(inicio)
-        if hasattr(fin, 'tzinfo') and fin.tzinfo is None:
-            fin = timezone.make_aware(fin)
-        
-    if limites is None:
-        # Valores por defecto para los límites de las franjas
-        fecha_base = inicio.replace(hour=0, minute=0, second=0, microsecond=0)
-        
-        # Límites para horas nocturnas (20:00 a 06:00)
-        nocturnas_inicio = fecha_base.replace(hour=20)
-        nocturnas_fin = (fecha_base + timedelta(days=1)).replace(hour=6)
-        
-        # Límites para horas normales (04:00 a 22:00)
-        normales_inicio = fecha_base.replace(hour=4)
-        normales_fin = fecha_base.replace(hour=22)
-        
-        limites = {
-            'nocturnas_inicio': nocturnas_inicio,
-            'nocturnas_fin': nocturnas_fin,
-            'normales_inicio': normales_inicio,
-            'normales_fin': normales_fin
-        }
-    
-    # Inicialización de variables
-    actual = inicio  # Punto de inicio actual
-    total_normales = timedelta(0)  # Acumulador de horas normales
-    total_nocturnas = timedelta(0)  # Acumulador de horas nocturnas
-
-    # Solución robusta: si la entrada es entre 20:00 y 23:59:59 y la salida es antes de las 6:00 del día siguiente, todo el bloque es nocturno
-    if (
-        inicio.time() >= time(20, 0) and inicio.time() <= time(23, 59, 59)
-        and fin.date() > inicio.date() and fin.time() < time(6, 0)
-    ):
-        logger.debug(f"[calcular_horas_por_franjas] CASO ESPECIAL NOCTURNO: Todo el bloque es nocturno. INICIO: {inicio}, FIN: {fin}, DURACIÓN: {fin - inicio}")
-        return timedelta(0), fin - inicio
-
-    # Mientras no hayamos llegado al final
-    while actual < fin:
-        logger.debug(f"[calcular_horas_por_franjas] Iteración: ACTUAL={actual}, FIN={fin}, TOTAL_NORMALES={total_normales}, TOTAL_NOCTURNAS={total_nocturnas}")
-        # Primero, determinamos el siguiente punto de corte
-        # El próximo límite dependerá de en qué franja nos encontramos actualmente
-        
-        # Inicializamos siguiente como el fin por defecto
-        siguiente = fin
-        
-        # Determinamos los posibles puntos de corte basados en los límites
-        posibles_cortes = [fin]
-        
-        # Añadimos los límites relevantes como posibles puntos de corte
-        # Solo consideramos los límites futuros (superiores a actual)
-        for key, value in limites.items():
-            if value > actual:
-                posibles_cortes.append(value)
-        
-        # El siguiente punto es el mínimo de todos los puntos de corte posibles
-        siguiente = min(posibles_cortes)
-        
-        # Si el siguiente punto calculado es igual a actual, avanzamos 1 hora para evitar bucle infinito
-        if siguiente <= actual:
-            siguiente = actual + timedelta(hours=1)
-            if siguiente > fin:
-                siguiente = fin
-        
-        # Ahora clasificamos el segmento de tiempo según los criterios específicos
-        
-        # Verificar si cumple los requisitos de Horas Normales
-        # Entrada válida: 4am a 20hs + Salida válida: 5am a 21hs
-        if (
-            actual.date() == siguiente.date() and
-            (actual.time() >= time(4, 0) and actual.time() < time(20, 0)) and
-            (siguiente.time() >= time(5, 0) and siguiente.time() < time(21, 0))
-        ):
-            total_normales += siguiente - actual
-            logger.debug(f"[calcular_horas_por_franjas] Segmento NORMAL: {actual} a {siguiente} -> {siguiente - actual}")
-        
-        # Verificar si cumple los requisitos de Horas Nocturnas
-        # El bucle ya no debe intentar clasificar segmentos internos de un bloque nocturno completo
-        # (esto ya se maneja antes del bucle con la condición especial)
-        # Caso general original para bloques nocturnos
-        if ((actual.time() >= time(20, 0) and actual.time() <= time(23, 59, 59)) and
-            (siguiente.time() >= time(21, 0) or siguiente.time() < time(6, 0))):
-            total_nocturnas += siguiente - actual
-            logger.debug(f"[calcular_horas_por_franjas] Segmento NOCTURNO: {actual} a {siguiente} -> {siguiente - actual}")
-        
-        # Avanzar al siguiente punto de corte
-        actual = siguiente
-    
-    return total_normales, total_nocturnas
-
+    # Si entrada y salida son el mismo día
+    if inicio.date() == fin.date():
+        if inicio.time() >= time(20, 0):
+            # Todo nocturno
+            return timedelta(0), fin - inicio
+        else:
+            # Todo normal
+            return fin - inicio, timedelta(0)
+    else:
+        # Días distintos: si la entrada es >= 20:00, todo nocturno
+        if inicio.time() >= time(20, 0):
+            return timedelta(0), fin - inicio
+        else:
+            # Todo normal (caso poco frecuente)
+            return fin - inicio, timedelta(0)
 
 
 class Horario(models.Model):
@@ -565,16 +466,11 @@ class Horas_trabajadas(models.Model):
 
     @classmethod
     def calcular_horas_trabajadas(cls, operario, fecha):
-        """
-        Calcula las horas normales, nocturnas y extras para un operario en una fecha lógica específica.
-        """
         registros = RegistroDiario.objects.filter(
             operario=operario,
             valido=True
         ).order_by('hora_fichada')
 
-        # Solo considerar ENTRADA y SALIDA para el cálculo de horas trabajadas
-        # Ignoramos explícitamente los movimientos transitorios
         day_records = [
             r for r in registros
             if (
@@ -583,48 +479,44 @@ class Horas_trabajadas(models.Model):
             )
         ]
 
-        total_horas_normales = timedelta()
-        total_horas_nocturnas = timedelta()
-        total_horas_extras = timedelta()
-
         if len(day_records) % 2 != 0:
             logger.warning(f"Registros desbalancados para el operario {operario} en la fecha {fecha}.")
             day_records = day_records[:-1]
 
+        total_normales = timedelta()
+        total_nocturnas = timedelta()
         for entrada, salida in zip(day_records[::2], day_records[1::2]):
-            if entrada.tipo_movimiento == 'entrada' and salida.tipo_movimiento == 'salida':
-                entrada_redondeada = redondear_entrada(entrada.hora_fichada)
-                salida_real = salida.hora_fichada
+            entrada_redondeada = redondear_entrada(entrada.hora_fichada)
+            salida_real = salida.hora_fichada
+            # Usar la lógica simplificada para clasificar el bloque
+            normales, nocturnas = calcular_horas_por_franjas(entrada_redondeada, salida_real)
+            total_normales += normales
+            total_nocturnas += nocturnas
 
-                logger.debug(
-                    f"[calcular_horas_trabajadas] Operario: {operario}, Fecha: {fecha}, "
-                    f"Entrada original: {entrada.hora_fichada}, Entrada redondeada: {entrada_redondeada}, "
-                    f"Salida real: {salida_real}"
-                )
+        # Determinar el tipo de jornada principal
+        if total_nocturnas >= total_normales:
+            horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
+            horas_normales = timedelta()
+            horas_nocturnas = horas_jornada
+        else:
+            horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
+            horas_normales = horas_jornada
+            horas_nocturnas = timedelta()
 
-                # Calcular horas normales y nocturnas
-                h_norm, h_noct = calcular_horas_por_franjas(entrada_redondeada, salida_real)
-                total_horas_normales += h_norm
-                total_horas_nocturnas += h_noct
+        total_trabajado = total_nocturnas + total_normales
+        excedente = total_trabajado - timedelta(hours=8)
+        horas_extras = timedelta()
+        if excedente > timedelta():
+            bloques_15_min = int(excedente.total_seconds() // 900)
+            horas_extras = timedelta(minutes=15 * bloques_15_min)
 
-                # Calcular horas extras (si aplica)
-                diferencia_total = salida_real - entrada_redondeada
-                if diferencia_total > timedelta(hours=8, minutes=30):  # Límite para calcular horas extras
-                    exceso = diferencia_total - timedelta(hours=8, minutes=30)
-                    # Añadir 30 minutos iniciales.
-                    exceso += timedelta(minutes=30)
-                    # Convertir el exceso a bloques de 15 minutos
-                    bloques_15_min = (exceso.total_seconds() // 900)  # 900 segundos = 15 minutos
-                    total_horas_extras += timedelta(minutes=15 * bloques_15_min)
-
-        # Guardar en el modelo fuera del bucle para acumular todos los pares
         obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
-        obj.horas_normales = total_horas_normales
-        obj.horas_nocturnas = total_horas_nocturnas
-        obj.horas_extras = total_horas_extras
+        obj.horas_normales = horas_normales
+        obj.horas_nocturnas = horas_nocturnas
+        obj.horas_extras = horas_extras
         obj.save()
 
-        return total_horas_normales, total_horas_nocturnas, total_horas_extras
+        return horas_normales, horas_nocturnas, horas_extras
 
     def __str__(self):
         return (f"{self.operario} - {self.fecha}: "
