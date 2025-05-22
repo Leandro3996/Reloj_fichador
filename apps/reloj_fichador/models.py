@@ -377,19 +377,18 @@ class RegistroDiario(models.Model):
                 )
 
         elif self.tipo_movimiento in ['salida_transitoria', 'entrada_transitoria']:
-            # Validación para movimientos transitorios
-            entrada_del_dia = RegistroDiario.objects.filter(
+            # Validación para movimientos transitorios: permitir si hay una ENTRADA válida previa (aunque sea de la jornada lógica anterior)
+            ultima_entrada = RegistroDiario.objects.filter(
                 operario=self.operario,
                 tipo_movimiento='entrada',
-                hora_fichada__date=movimiento_fecha,
-                valido=True
-            ).exists()
+                valido=True,
+                hora_fichada__lt=self.hora_fichada
+            ).order_by('-hora_fichada').first()
 
-
-            if not entrada_del_dia:
+            if not ultima_entrada:
                 inconsistencias.append(
                     "<span style='color: orange; font-weight: bold;'>Atención: Los movimientos transitorios solo son válidos después de una ENTRADA.</span>"
-                )            
+                )
 
 
         # Validación de secuencia de movimientos desde la última ENTRADA (jornada lógica)
@@ -532,7 +531,6 @@ def calcular_diferencia_entrada_salida(entrada, salida):
     if entrada and salida and salida > entrada:
         return salida - entrada
     return timedelta(0)
-
 
 class Horas_feriado(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
