@@ -434,28 +434,30 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def recalcular_todas_horas(self, request):
-        from .models import Operario, RegistroDiario
+        from .models import Operario, RegistroDiario, Horas_extras
         import datetime
-        
-        # Obtener todos los operarios activos
+
         operarios = Operario.objects.filter(activo=True)
         contador = 0
-        
+
         for operario in operarios:
-            # Buscar registros de este operario
             registros = RegistroDiario.objects.filter(
                 operario=operario,
                 valido=True
             ).order_by('hora_fichada')
-            
-            if registros.exists():
-                # Tomar el registro más reciente
-                registro = registros.last()
-                # Recalcular horas para este operario
+
+            fechas = set()
+            for registro in registros:
+                # Recalcula horas trabajadas (incluye extras en Horas_trabajadas)
                 actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
+                fechas.add(registro.hora_fichada.date())
                 contador += 1
-        
-        self.message_user(request, f"Se han recalculado las horas para {contador} operarios.")
+
+            # Ahora recalcula Horas_extras para cada fecha de ese operario
+            for fecha in fechas:
+                Horas_extras.calcular_horas_extras(operario, fecha)
+
+        self.message_user(request, f"Se han recalculado las horas para {contador} registros y horas extras asociadas.")
         return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_changelist'))
 
     def recalcular_horas_trabajadas(self, request, queryset):

@@ -543,10 +543,19 @@ class Horas_trabajadas(models.Model):
 
         total_trabajado = total_nocturnas + total_normales
         excedente = total_trabajado - timedelta(hours=8)
+
         horas_extras = timedelta()
-        if excedente > timedelta():
-            bloques_15_min = int(excedente.total_seconds() // 900)
-            horas_extras = timedelta(minutes=15 * bloques_15_min)
+        if excedente >= timedelta(minutes=30):
+            # Siempre sumar 30 minutos al superar 8h30m
+            excedente_restante = excedente - timedelta(minutes=30)
+            # Sumar bloques de 15 minutos, redondeando al bloque más cercano
+            if excedente_restante > timedelta():
+                bloques_15_min = int(round(excedente_restante.total_seconds() / 900))  # 900s = 15min
+                horas_extras = timedelta(minutes=30 + 15 * bloques_15_min)
+            else:
+                horas_extras = timedelta(minutes=30)
+        else:
+            horas_extras = timedelta()
 
         obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
         obj.horas_normales = horas_normales
