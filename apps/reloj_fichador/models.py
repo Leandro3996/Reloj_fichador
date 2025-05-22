@@ -28,43 +28,82 @@ logger = logging.getLogger('reloj_fichador')
 # Redondeo salida: baja a la hora anterior, SOLO si >= 8h desde la hora de entrada redondeada.
 # ------------------------------------------------------------------------------------
 
+class ConfiguracionRedondeo(models.Model):
+    minutos_redondeo_baja = models.PositiveSmallIntegerField(
+        default=15,
+        help_text="Minutos máximos para redondear hacia la hora en punto. Ejemplo: con 15, 09:14 se redondea a 09:00."
+    )
+    minutos_redondeo_media = models.PositiveSmallIntegerField(
+        default=45,
+        help_text="Minutos máximos para redondear a la media hora. Ejemplo: con 45, 09:30 a 09:44 se redondea a 09:30."
+    )
+
+    class Meta:
+        verbose_name = "Configuración de Redondeo"
+        verbose_name_plural = "Configuración de Redondeo"
+
+    def __str__(self):
+        return "Configuración de Redondeo de Entrada"
+    
+class ConfiguracionRedondeoSalida(models.Model):
+    minutos_redondeo_salida = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="Minutos a los que se redondea la salida hacia abajo. Ejemplo: con 0, 17:23 se redondea a 17:00."
+    )
+
+    class Meta:
+        verbose_name = "Configuración de Redondeo de Salida"
+        verbose_name_plural = "Configuración de Redondeo de Salida"
+
+    def __str__(self):
+        return "Configuración de Redondeo de Salida"
+
 def redondear_entrada(dt):
     """
-    Redondea la hora de entrada a la media hora más cercana.
-    Siempre opera en horario de Argentina.
+    Redondea la hora de entrada según los límites configurados en ConfiguracionRedondeo.
     """
     import pytz
     argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    # Si el datetime tiene tzinfo, convertir a horario local
     if dt.tzinfo is not None:
         dt_local = dt.astimezone(argentina_tz)
     else:
         dt_local = argentina_tz.localize(dt)
-    
-    # Obtener los minutos actuales
+
     minutos = dt_local.minute
-    
-    # Redondear a la media hora más cercana
-    if minutos < 15:
-        # Redondear hacia abajo a la hora en punto
+
+    # Obtener configuración (toma la primera, o usa valores por defecto)
+    config = ConfiguracionRedondeo.objects.first()
+    min_baja = config.minutos_redondeo_baja if config else 15
+    min_media = config.minutos_redondeo_media if config else 45
+
+    if minutos < min_baja:
         fecha_base = dt_local.replace(minute=0, second=0, microsecond=0)
-    elif minutos < 45:
-        # Redondear a la media hora
+    elif minutos < min_media:
         fecha_base = dt_local.replace(minute=30, second=0, microsecond=0)
     else:
-        # Redondear hacia arriba a la siguiente hora
         fecha_base = dt_local.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
-    
+
     return fecha_base
 
 def redondear_salida(dt):
     """
-    Redondea la hora de salida hacia abajo a la hora completa anterior,
-    SOLO si se cumplieron >= 8h desde la hora de entrada redondeada.
-    (NOTA: la comprobación real de las 8h la hacemos en el cálculo final).
+    Redondea la hora de salida hacia abajo según la configuración.
     """
-    # Tu función "pura" de redondeo a la baja es esta:
-    return dt.replace(minute=0, second=0, microsecond=0)
+    import pytz
+    argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+    if dt.tzinfo is not None:
+        dt_local = dt.astimezone(argentina_tz)
+    else:
+        dt_local = argentina_tz.localize(dt)
+
+    config = ConfiguracionRedondeoSalida.objects.first()
+    min_salida = config.minutos_redondeo_salida if config else 0
+
+    # Redondear hacia abajo a la hora anterior más los minutos configurados
+    fecha_base = dt_local.replace(minute=min_salida, second=0, microsecond=0)
+    if dt_local.minute < min_salida:
+        fecha_base -= timedelta(hours=1)
+    return fecha_base
 
 def calcular_horas_por_franjas(inicio, fin, limites=None):
     """

@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
-    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario
+    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida
 )
 from django.urls import path, reverse
 from datetime import timedelta
@@ -1226,6 +1226,9 @@ class RestrictedUserAdmin(UserAdmin):
             ('Información personal', {'fields': ('first_name', 'last_name', 'email')}),
         ]
 
+
 # Desregistrar el UserAdmin predeterminado y registrar nuestro RestrictedUserAdmin
 admin.site.unregister(User)
 admin.site.register(User, RestrictedUserAdmin)
+admin.site.register(ConfiguracionRedondeo)
+admin.site.register(ConfiguracionRedondeoSalida)
