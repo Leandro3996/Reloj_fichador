@@ -34,7 +34,7 @@ class ConfiguracionRedondeo(models.Model):
         help_text="Minutos máximos para redondear hacia la hora en punto. Ejemplo: con 15, 09:14 se redondea a 09:00."
     )
     minutos_redondeo_media = models.PositiveSmallIntegerField(
-        default=45,
+        default=35,
         help_text="Minutos máximos para redondear a la media hora. Ejemplo: con 45, 09:30 a 09:44 se redondea a 09:30."
     )
 
