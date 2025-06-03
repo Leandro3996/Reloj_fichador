@@ -531,15 +531,15 @@ class Horas_trabajadas(models.Model):
             total_normales += normales
             total_nocturnas += nocturnas
 
-        # Determinar el tipo de jornada principal
-        if total_nocturnas >= total_normales:
-            horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
-            horas_normales = timedelta()
-            horas_nocturnas = horas_jornada
-        else:
-            horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
-            horas_normales = horas_jornada
-            horas_nocturnas = timedelta()
+        # --- Redondeo a bloque de 15 minutos si total < 8h ---
+        def redondear_a_15min(td):
+            total_min = int(td.total_seconds() // 60)
+            resto = total_min % 15
+            if resto < 8:
+                total_min -= resto
+            else:
+                total_min += (15 - resto)
+            return timedelta(minutes=total_min)
 
         total_trabajado = total_nocturnas + total_normales
         excedente = total_trabajado - timedelta(hours=8)
@@ -556,6 +556,27 @@ class Horas_trabajadas(models.Model):
                 horas_extras = timedelta(minutes=30)
         else:
             horas_extras = timedelta()
+
+        # Si no llega a 8h, redondear total al bloque de 15 minutos más cercano
+        if total_trabajado < timedelta(hours=8):
+            total_redondeado = redondear_a_15min(total_trabajado)
+            # Asignar todo al tipo de jornada principal
+            if total_nocturnas >= total_normales:
+                horas_normales = timedelta()
+                horas_nocturnas = total_redondeado
+            else:
+                horas_normales = total_redondeado
+                horas_nocturnas = timedelta()
+        else:
+            # Determinar el tipo de jornada principal
+            if total_nocturnas >= total_normales:
+                horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
+                horas_normales = timedelta()
+                horas_nocturnas = horas_jornada
+            else:
+                horas_jornada = min(total_nocturnas + total_normales, timedelta(hours=8))
+                horas_normales = horas_jornada
+                horas_nocturnas = timedelta()
 
         obj, _ = cls.objects.get_or_create(operario=operario, fecha=fecha)
         obj.horas_normales = horas_normales
