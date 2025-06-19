@@ -28,6 +28,7 @@ handler500 = 'apps.reloj_fichador.views.error_500'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('rrhh/', include('apps.reloj_fichador.urls_rrhh', namespace='rrhh')),
     path('', include('apps.reloj_fichador.urls', namespace='reloj_fichador')), 
 ]
 

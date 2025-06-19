@@ -186,8 +186,28 @@ class Operario(models.Model):
         if self.seg_nombre:
             full_name += f" {self.seg_nombre}"
         return f"{full_name} - {self.dni}"
-
-
+    
+    def nombre_completo(self):
+        """Retorna el nombre completo del operario"""
+        full_name = f"{self.nombre}"
+        if self.seg_nombre:
+            full_name += f" {self.seg_nombre}"
+        full_name += f" {self.apellido}"
+        if self.seg_apellido:
+            full_name += f" {self.seg_apellido}"
+        return full_name
+    
+    def get_horarios(self):
+        """Retorna todos los horarios asociados a través de las áreas"""
+        horarios = []
+        for area in self.areas.all():
+            horarios.extend(area.horarios.all())
+        return horarios
+    
+    def get_primer_horario(self):
+        """Retorna el primer horario encontrado, útil para cálculos de puntualidad"""
+        horarios = self.get_horarios()
+        return horarios[0] if horarios else None
 def validate_file_extension(value):
     ext = os.path.splitext(value.name)[1]  # Obtener la extensión
     valid_extensions = ['.pdf', '.jpg', '.jpeg', '.png']

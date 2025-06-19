@@ -1,0 +1,476 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - RRHH Control{% endblock %}
+
+{% block page_title %}Dashboard Principal{% endblock %}
+{% block page_subtitle %}Resumen general del sistema de control de asistencia{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filtrosModal">
+        <i class="bi bi-funnel me-2"></i>Filtros
+    </button>
+    <button type="button" class="btn btn-primary" onclick="actualizarDashboard()">
+        <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- KPIs Principales -->
+<div class="row mb-4 fade-in-up">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card stat-primary">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="stat-number">{{ total_operarios }}</div>
+                    <div class="stat-label">Total Operarios</div>
+                    <small class="opacity-75">
+                        <i class="bi bi-arrow-up me-1"></i>Activos: {{ operarios_activos }}
+                    </small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card stat-success">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="stat-number">{{ presentes_hoy }}</div>
+                    <div class="stat-label">Presentes Hoy</div>
+                    <small class="opacity-75">
+                        <i class="bi bi-clock me-1"></i>{{ porcentaje_asistencia }}% asistencia
+                    </small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card stat-warning">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="stat-number">{{ horas_mes }}</div>
+                    <div class="stat-label">Horas del Mes</div>
+                    <small class="opacity-75">
+                        <i class="bi bi-plus-circle me-1"></i>Extras: {{ horas_extras_mes }}h
+                    </small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-stopwatch"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card stat-danger">
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <div class="stat-number">{{ inconsistencias_pendientes }}</div>
+                    <div class="stat-label">Inconsistencias</div>
+                    <small class="opacity-75">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Requieren atención
+                    </small>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos y Análisis -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Asistencias de los Últimos 7 Días
+                </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <input type="radio" class="btn-check" name="periodoAsistencia" id="7dias" checked>
+                    <label class="btn btn-outline-primary" for="7dias">7 días</label>
+                    <input type="radio" class="btn-check" name="periodoAsistencia" id="30dias">
+                    <label class="btn btn-outline-primary" for="30dias">30 días</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="chartAsistencias" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Distribución por Áreas
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartAreas" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tablas de Resumen -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Últimos Registros
+                </h5>
+                <a href="{% url 'rrhh:registros_list' %}" class="btn btn-sm btn-outline-primary">
+                    Ver todos <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Operario</th>
+                                <th>Movimiento</th>
+                                <th>Hora</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registro in ultimos_registros %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <span class="text-white fw-bold">{{ registro.operario.nombre|first }}{{ registro.operario.apellido|first }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ registro.operario.nombre }} {{ registro.operario.apellido }}</div>
+                                            <small class="text-muted">
+                                                {% for area in registro.operario.areas.all %}
+                                                    {{ area.nombre }}{% if not forloop.last %}, {% endif %}
+                                                {% empty %}
+                                                    Sin área
+                                                {% endfor %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge {% if registro.tipo_movimiento == 'entrada' %}bg-success{% elif registro.tipo_movimiento == 'salida' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ registro.get_tipo_movimiento_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div>{{ registro.hora_fichada|date:"H:i" }}</div>
+                                    <small class="text-muted">{{ registro.hora_fichada|date:"d/m/Y" }}</small>
+                                </td>
+                                <td>
+                                    {% if registro.inconsistencia %}
+                                        <i class="bi bi-exclamation-triangle text-warning" title="Inconsistencia"></i>
+                                    {% else %}
+                                        <i class="bi bi-check-circle text-success" title="Válido"></i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                    No hay registros recientes
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-people me-2"></i>Estado de Operarios Hoy
+                </h5>
+                <a href="{% url 'rrhh:asistencia_hoy' %}" class="btn btn-sm btn-outline-primary">
+                    Ver detalle <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Operario</th>
+                                <th>Estado</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estado in estados_operarios %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-{{ estado.color }} rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <span class="text-white fw-bold">{{ estado.operario.nombre|first }}{{ estado.operario.apellido|first }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ estado.operario.nombre }} {{ estado.operario.apellido }}</div>
+                                            <small class="text-muted">
+                                                {% for area in estado.operario.areas.all %}
+                                                    {{ area.nombre }}{% if not forloop.last %}, {% endif %}
+                                                {% empty %}
+                                                    Sin área
+                                                {% endfor %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ estado.color }}">
+                                        {{ estado.estado }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if estado.entrada %}
+                                        <span class="fw-semibold">{{ estado.entrada|time:"H:i" }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if estado.salida %}
+                                        <span class="fw-semibold">{{ estado.salida|time:"H:i" }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-person-x display-6 d-block mb-2"></i>
+                                    No hay operarios activos
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas y Notificaciones -->
+{% if alertas %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h5 class="mb-0 text-warning">
+                    <i class="bi bi-bell me-2"></i>Alertas del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for alerta in alertas %}
+                <div class="alert alert-{{ alerta.tipo }} d-flex align-items-center">
+                    <i class="bi bi-{{ alerta.icono }} me-2"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ alerta.titulo }}</strong>
+                        <p class="mb-0">{{ alerta.mensaje }}</p>
+                    </div>
+                    <small class="text-muted">{{ alerta.fecha|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filtrosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-funnel me-2"></i>Filtros del Dashboard
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filtrosDashboard">
+                    <div class="mb-3">
+                        <label class="form-label">Período</label>
+                        <select class="form-select" name="periodo">
+                            <option value="hoy">Hoy</option>
+                            <option value="semana">Esta semana</option>
+                            <option value="mes" selected>Este mes</option>
+                            <option value="trimestre">Este trimestre</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Área</label>
+                        <select class="form-select" name="area">
+                            <option value="">Todas las áreas</option>
+                            {% for area in areas %}
+                            <option value="{{ area.id }}">{{ area.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado de Operarios</label>
+                        <select class="form-select" name="estado">
+                            <option value="">Todos</option>
+                            <option value="activo">Solo activos</option>
+                            <option value="inactivo">Solo inactivos</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">Aplicar Filtros</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Datos para los gráficos (desde el backend)
+const datosAsistencias = {{ datos_asistencias|safe }};
+const datosAreas = {{ datos_areas|safe }};
+
+// Configuración de gráficos
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarGraficos();
+    configurarActualizacionAutomatica();
+});
+
+function inicializarGraficos() {
+    // Gráfico de asistencias
+    const ctxAsistencias = document.getElementById('chartAsistencias').getContext('2d');
+    new Chart(ctxAsistencias, {
+        type: 'line',
+        data: {
+            labels: datosAsistencias.labels,
+            datasets: [{
+                label: 'Asistencias',
+                data: datosAsistencias.data,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#e2e8f0'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#e2e8f0'
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de áreas
+    const ctxAreas = document.getElementById('chartAreas').getContext('2d');
+    new Chart(ctxAreas, {
+        type: 'doughnut',
+        data: {
+            labels: datosAreas.labels,
+            datasets: [{
+                data: datosAreas.data,
+                backgroundColor: [
+                    '#2563eb',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6',
+                    '#06b6d4'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function actualizarDashboard() {
+    // Mostrar spinner en el botón
+    const btn = event.target;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner me-2"></span>Actualizando...';
+    btn.disabled = true;
+
+    // Simular actualización (aquí iría la llamada AJAX real)
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function aplicarFiltros() {
+    const formData = new FormData(document.getElementById('filtrosDashboard'));
+    const params = new URLSearchParams(formData);
+    
+    // Redirigir con los filtros aplicados
+    window.location.href = '{% url "rrhh:dashboard" %}?' + params.toString();
+}
+
+function configurarActualizacionAutomatica() {
+    // Actualizar cada 5 minutos
+    setInterval(() => {
+        console.log('Actualizando datos automáticamente...');
+        // Aquí iría la lógica de actualización automática via AJAX
+    }, 300000); // 5 minutos
+}
+
+// Configurar los botones de período
+document.querySelectorAll('input[name="periodoAsistencia"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Aquí iría la lógica para cambiar el período del gráfico
+        console.log('Cambiando período a:', this.id);
+    });
+});
+</script>
+{% endblock %}

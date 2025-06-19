@@ -1,0 +1,311 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}{{ operario.nombre_completo|default:"Nuevo Operario" }} - Editar{% endblock %}
+
+{% block page_title %}
+{% if operario.pk %}Editar Operario{% else %}Nuevo Operario{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+{% if operario.pk %}{{ operario.nombre_completo }}{% else %}Crear nuevo operario en el sistema{% endif %}
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'rrhh:operarios_list' %}">Operarios</a></li>
+{% if operario.pk %}
+<li class="breadcrumb-item"><a href="{% url 'rrhh:operario_detail' operario.pk %}">{{ operario.nombre_completo }}</a></li>
+<li class="breadcrumb-item active">Editar</li>
+{% else %}
+<li class="breadcrumb-item active">Nuevo</li>
+{% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    {% if operario.pk %}
+    <a href="{% url 'rrhh:operario_detail' operario.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+    </a>
+    {% else %}
+    <a href="{% url 'rrhh:operarios_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Cancelar
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-{% if operario.pk %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+                    {% if operario.pk %}Editar Información{% else %}Información del Operario{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h6>Por favor, corrija los siguientes errores:</h6>
+                    <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" id="operarioForm">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Información Personal -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Información Personal</h6>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.dni.id_for_label }}" class="form-label">DNI *</label>
+                                {{ form.dni }}
+                                {% if form.dni.help_text %}
+                                    <div class="form-text">{{ form.dni.help_text }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre *</label>
+                                        {{ form.nombre }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.seg_nombre.id_for_label }}" class="form-label">Segundo Nombre</label>
+                                        {{ form.seg_nombre }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.apellido.id_for_label }}" class="form-label">Apellido *</label>
+                                        {{ form.apellido }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.seg_apellido.id_for_label }}" class="form-label">Segundo Apellido</label>
+                                        {{ form.seg_apellido }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">Fecha de Nacimiento</label>
+                                        {{ form.fecha_nacimiento }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.fecha_ingreso_empresa.id_for_label }}" class="form-label">Fecha de Ingreso</label>
+                                        {{ form.fecha_ingreso_empresa }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Laboral -->
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Información Laboral</h6>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.areas.id_for_label }}" class="form-label">Áreas de Trabajo</label>
+                                {{ form.areas }}
+                                <div class="form-text">Mantén presionado Ctrl para seleccionar múltiples áreas</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.titulo_tecnico }}
+                                    <label class="form-check-label" for="{{ form.titulo_tecnico.id_for_label }}">
+                                        Tiene Título Técnico
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.activo }}
+                                    <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                        Operario Activo
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.foto.id_for_label }}" class="form-label">Foto del Operario</label>
+                                {{ form.foto }}
+                                {% if operario.foto %}
+                                <div class="mt-2">
+                                    <img src="{{ operario.foto.url }}" alt="Foto actual" class="img-thumbnail" style="max-width: 150px;">
+                                    <small class="d-block text-muted">Foto actual</small>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                                {{ form.descripcion }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            {% if operario.pk %}
+                            <button type="button" class="btn btn-danger" onclick="confirmarEliminacion()">
+                                <i class="bi bi-trash me-2"></i>Eliminar Operario
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% if operario.pk %}{% url 'rrhh:operario_detail' operario.pk %}{% else %}{% url 'rrhh:operarios_list' %}{% endif %}" 
+                               class="btn btn-secondary me-2">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-{% if operario.pk %}check2{% else %}plus-circle{% endif %} me-2"></i>
+                                {% if operario.pk %}Guardar Cambios{% else %}Crear Operario{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+{% if operario.pk %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar al operario <strong>{{ operario.nombre_completo }}</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Esta acción no se puede deshacer y eliminará todos los registros asociados.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'rrhh:operario_delete' operario.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar Definitivamente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar clases de Bootstrap a los campos del formulario
+    const inputs = document.querySelectorAll('#operarioForm input, #operarioForm select, #operarioForm textarea');
+    inputs.forEach(input => {
+        if (input.type !== 'checkbox' && input.type !== 'file') {
+            input.classList.add('form-control');
+        }
+        if (input.type === 'file') {
+            input.classList.add('form-control');
+        }
+    });
+
+    // Configurar campos de fecha
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        // Formato de fecha compatible
+        if (input.value && !input.value.match(/\d{4}-\d{2}-\d{2}/)) {
+            // Si el valor no está en formato YYYY-MM-DD, convertirlo
+            const date = new Date(input.value);
+            if (!isNaN(date.getTime())) {
+                input.value = date.toISOString().split('T')[0];
+            }
+        }
+    });
+
+    // Validación del formulario
+    const form = document.getElementById('operarioForm');
+    form.addEventListener('submit', function(e) {
+        const dni = document.querySelector('input[name="dni"]').value;
+        const nombre = document.querySelector('input[name="nombre"]').value;
+        const apellido = document.querySelector('input[name="apellido"]').value;
+
+        if (!dni || !nombre || !apellido) {
+            e.preventDefault();
+            alert('Por favor, complete los campos obligatorios: DNI, Nombre y Apellido');
+            return false;
+        }
+
+        // Validar formato de DNI
+        if (!/^\d{7,8}$/.test(dni)) {
+            e.preventDefault();
+            alert('El DNI debe contener entre 7 y 8 dígitos');
+            return false;
+        }
+    });
+});
+
+function confirmarEliminacion() {
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+
+<style>
+/* Estilos adicionales para el formulario */
+.form-label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.img-thumbnail {
+    border: 2px solid #e5e7eb;
+}
+
+h6.text-muted {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

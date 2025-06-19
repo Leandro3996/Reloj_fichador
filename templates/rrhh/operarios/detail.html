@@ -1,0 +1,413 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}{{ operario.nombre_completo }} - Detalle Operario{% endblock %}
+
+{% block page_title %}{{ operario.nombre_completo }}{% endblock %}
+{% block page_subtitle %}{% if operario.area %}{{ operario.area.nombre }}{% endif %} • DNI: {{ operario.dni }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'rrhh:operarios_list' %}">Operarios</a></li>
+<li class="breadcrumb-item active">{{ operario.nombre_completo }}</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'rrhh:operario_edit' operario.pk %}" class="btn btn-primary">
+        <i class="bi bi-pencil me-2"></i>Editar
+    </a>
+    <button type="button" class="btn btn-outline-secondary" onclick="imprimirPerfil()">
+        <i class="bi bi-printer me-2"></i>Imprimir
+    </button>
+    <button type="button" class="btn btn-success" onclick="exportarDatos()">
+        <i class="bi bi-file-earmark-excel me-2"></i>Exportar
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Información Personal -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-circle me-2"></i>Información Personal
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Avatar -->
+                <div class="text-center mb-4">
+                    <div class="avatar-lg mx-auto mb-3">
+                        {% if operario.foto %}
+                            <img src="{{ operario.foto.url }}" alt="{{ operario.nombre_completo }}" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 120px; height: 120px;">
+                                <i class="bi bi-person-fill text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <span class="badge bg-{{ operario.activo|yesno:'success,danger' }} fs-6">
+                        {{ operario.activo|yesno:'Activo,Inactivo' }}
+                    </span>
+                </div>
+
+                <!-- Datos Personales -->
+                <div class="table-responsive">
+                    <table class="table table-borderless table-sm">
+                        <tr>
+                            <td class="text-muted"><strong>DNI:</strong></td>
+                            <td>{{ operario.dni }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><strong>Email:</strong></td>
+                            <td>
+                                {% if operario.email %}
+                                    <a href="mailto:{{ operario.email }}">{{ operario.email }}</a>
+                                {% else %}
+                                    <span class="text-muted">Sin email</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><strong>Teléfono:</strong></td>
+                            <td>
+                                {% if operario.telefono %}
+                                    <a href="tel:{{ operario.telefono }}">{{ operario.telefono }}</a>
+                                {% else %}
+                                    <span class="text-muted">Sin teléfono</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><strong>Fecha Ingreso:</strong></td>
+                            <td>
+                                {% if operario.fecha_ingreso %}
+                                    {{ operario.fecha_ingreso|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-muted">No definida</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><strong>Área:</strong></td>
+                            <td>
+                                {% for area in operario.areas.all %}
+                                    <span class="badge bg-secondary me-1">{{ area.nombre }}</span>
+                                {% empty %}
+                                    <span class="text-muted">Sin área</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><strong>Horarios:</strong></td>
+                            <td>
+                                {% for area in operario.areas.all %}
+                                    {% for horario in area.horarios.all %}
+                                        <span class="badge bg-info me-1">{{ horario.nombre }}</span>
+                                        <small class="d-block text-muted">
+                                            {{ horario.hora_inicio|time:"H:i" }} - {{ horario.hora_fin|time:"H:i" }}
+                                        </small>
+                                    {% endfor %}
+                                {% empty %}
+                                    <span class="text-muted">Sin horarios</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métricas y Estadísticas -->
+    <div class="col-md-8">
+        <!-- KPIs del Operario -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center bg-primary text-white">
+                    <div class="card-body">
+                        <h4 class="mb-0">{{ stats.dias_trabajados }}</h4>
+                        <small>Días Trabajados</small>
+                        <small class="d-block">(Este mes)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-success text-white">
+                    <div class="card-body">
+                        <h4 class="mb-0">{{ stats.puntualidad }}%</h4>
+                        <small>Puntualidad</small>
+                        <small class="d-block">(Este mes)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-info text-white">
+                    <div class="card-body">
+                        <h4 class="mb-0">{{ stats.horas_trabajadas }}</h4>
+                        <small>Horas Trabajadas</small>
+                        <small class="d-block">(Este mes)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center bg-warning text-white">
+                    <div class="card-body">
+                        <h4 class="mb-0">{{ stats.horas_extras }}</h4>
+                        <small>Horas Extras</small>
+                        <small class="d-block">(Este mes)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Asistencia -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Asistencia Últimos 30 Días
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="asistenciaChart" height="120"></canvas>
+            </div>
+        </div>
+
+        <!-- Timeline de Actividad Reciente -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Actividad Reciente
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for registro in ultimos_registros %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-{{ registro.tipo_movimiento|yesno:'success,danger' }}">
+                            <i class="bi bi-{{ registro.tipo_movimiento|yesno:'box-arrow-in-right,box-arrow-right' }}"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h6 class="timeline-title">
+                                {{ registro.tipo_movimiento|yesno:'Entrada,Salida' }}
+                                <span class="badge bg-light text-dark ms-2">{{ registro.fecha|date:"d/m/Y" }}</span>
+                            </h6>
+                            <p class="timeline-time">{{ registro.hora|time:"H:i" }}</p>
+                            {% if registro.inconsistencia %}
+                                <small class="text-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>Con inconsistencia
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-4">
+                        <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                        No hay registros recientes
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edición Rápida -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edición Rápida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="mb-3">
+                        <label class="form-label">Estado del Operario</label>
+                        <select class="form-select" name="activo">
+                            <option value="true" {% if operario.activo %}selected{% endif %}>Activo</option>
+                            <option value="false" {% if not operario.activo %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" value="{{ operario.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" name="telefono" value="{{ operario.telefono }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambios()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar gráfico de asistencia
+    const ctx = document.getElementById('asistenciaChart').getContext('2d');
+    
+    // Datos para los últimos 30 días (se cargarán vía AJAX)
+    fetch(`/rrhh/api/operario/{{ operario.pk }}/asistencia-chart/`)
+        .then(response => response.json())
+        .then(data => {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Asistencia',
+                        data: data.values,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return value === 1 ? 'Presente' : 'Ausente';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error cargando datos de asistencia:', error);
+        });
+});
+
+function imprimirPerfil() {
+    window.print();
+}
+
+function exportarDatos() {
+    window.location.href = `/rrhh/api/operario/{{ operario.pk }}/export/`;
+}
+
+function guardarCambios() {
+    const form = document.getElementById('editForm');
+    const formData = new FormData(form);
+    
+    fetch(`/rrhh/api/operario/{{ operario.pk }}/update/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al guardar cambios');
+        }
+    });
+}
+</script>
+
+<style>
+/* Timeline personalizado */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timeline-time {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Avatar mejorado */
+.avatar-lg img,
+.avatar-lg div {
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+/* Print styles */
+@media print {
+    .btn-group,
+    .timeline-marker,
+    .card-header {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+</style>
+{% endblock %}

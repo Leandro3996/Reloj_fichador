@@ -1,0 +1,521 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Operarios - RRHH Control{% endblock %}
+
+{% block page_title %}Gestión de Operarios{% endblock %}
+{% block page_subtitle %}Sistema completo de gestión de personal{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Operarios</li>
+{% endblock %}
+
+{% block extra_css %}
+<!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<style>
+    /* Estilos específicos para la tabla de operarios - Profesional */
+    .status-badge {
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    .table-foto {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #f1f5f9;
+    }
+    .areas-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .area-tag {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        font-weight: 500;
+    }
+    .stats-card {
+        border-left: 3px solid;
+        transition: all 0.2s ease;
+    }
+    .stats-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    /* Colores más profesionales y menos saturados */
+    .stats-card.activos { 
+        border-left-color: #10b981; 
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    }
+    .stats-card.inactivos { 
+        border-left-color: #ef4444; 
+        background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    }
+    .stats-card.total { 
+        border-left-color: #3b82f6; 
+        background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+    }
+    
+    /* Tabla más limpia */
+    .table thead th {
+        background-color: #f8fafc;
+        border-bottom: 2px solid #e2e8f0;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoOperarioModal">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Operario
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filtrosModal">
+        <i class="bi bi-funnel me-2"></i>Filtros Avanzados
+    </button>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-download me-2"></i>Exportar
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel me-2"></i>Excel
+            </a></li>
+            <li><a class="dropdown-item" href="#" onclick="exportarPDF()">
+                <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+            </a></li>
+            <li><a class="dropdown-item" href="#" onclick="exportarCSV()">
+                <i class="bi bi-file-earmark-text me-2"></i>CSV
+            </a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Tarjetas de estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stats-card total">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-muted mb-1">Total Operarios</h5>
+                        <h2 class="mb-0">{{ total_operarios }}</h2>
+                    </div>
+                    <div class="text-primary">
+                        <i class="bi bi-people" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card activos">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-muted mb-1">Activos</h5>
+                        <h2 class="mb-0 text-success">{{ operarios_activos }}</h2>
+                    </div>
+                    <div class="text-success">
+                        <i class="bi bi-person-check" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card inactivos">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-muted mb-1">Inactivos</h5>
+                        <h2 class="mb-0 text-danger">{{ operarios_inactivos }}</h2>
+                    </div>
+                    <div class="text-danger">
+                        <i class="bi bi-person-x" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla principal -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>Lista de Operarios
+                    </h5>
+                    <div class="d-flex gap-2">
+                        {% if current_filters.area or current_filters.estado or current_filters.search %}
+                        <a href="{% url 'rrhh:operarios_list' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                        </a>
+                        {% endif %}
+                        <small class="text-muted align-self-center">
+                            Mostrando {{ operarios|length }} de {{ total_operarios }} operarios
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="operariosTable" class="table table-hover table-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th width="60">Foto</th>
+                                <th>DNI</th>
+                                <th>Nombre Completo</th>
+                                <th>Áreas</th>
+                                <th>Estado</th>
+                                <th>Fecha Ingreso</th>
+                                <th>Registros Mes</th>
+                                <th>Título Técnico</th>
+                                <th width="120">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for operario in operarios %}
+                            <tr>
+                                <!-- Foto -->
+                                <td class="text-center">
+                                    {% if operario.foto %}
+                                        <img src="{{ operario.foto.url }}" alt="{{ operario.nombre }}" class="table-foto">
+                                    {% else %}
+                                        <div class="table-foto bg-light d-flex align-items-center justify-content-center border">
+                                            <i class="bi bi-person text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- DNI -->
+                                <td>
+                                    <strong>{{ operario.dni|default:"Sin DNI" }}</strong>
+                                </td>
+                                
+                                <!-- Nombre completo -->
+                                <td>
+                                    <div>
+                                        <strong>{{ operario.apellido }}, {{ operario.nombre }}</strong>
+                                        {% if operario.seg_nombre or operario.seg_apellido %}
+                                        <br><small class="text-muted">
+                                            {% if operario.seg_apellido %}{{ operario.seg_apellido }}{% endif %}
+                                            {% if operario.seg_nombre %} {{ operario.seg_nombre }}{% endif %}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                
+                                <!-- Áreas -->
+                                <td>
+                                    <div class="areas-tags">
+                                        {% for area in operario.areas.all %}
+                                            <span class="badge bg-light text-dark area-tag border">{{ area.nombre }}</span>
+                                        {% empty %}
+                                            <span class="badge bg-light text-muted area-tag border">Sin área</span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                
+                                <!-- Estado -->
+                                <td>
+                                    {% if operario.activo %}
+                                        <span class="badge bg-success status-badge">
+                                            <i class="bi bi-check-circle me-1"></i>Activo
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger status-badge">
+                                            <i class="bi bi-x-circle me-1"></i>Inactivo
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- Fecha de ingreso -->
+                                <td>
+                                    {% if operario.fecha_ingreso_empresa %}
+                                        {{ operario.fecha_ingreso_empresa|date:"d/m/Y" }}
+                                        <br><small class="text-muted">
+                                            {{ operario.fecha_ingreso_empresa|timesince }} en la empresa
+                                        </small>
+                                    {% else %}
+                                        <span class="text-muted">No especificada</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- Registros del mes -->
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">{{ operario.total_registros_mes }}</span>
+                                </td>
+                                
+                                <!-- Título técnico -->
+                                <td class="text-center">
+                                    {% if operario.titulo_tecnico %}
+                                        <i class="bi bi-mortarboard text-success" title="Título técnico"></i>
+                                    {% else %}
+                                        <i class="bi bi-dash text-muted"></i>
+                                    {% endif %}
+                                </td>
+                                
+                                <!-- Acciones -->
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary" onclick="verDetalles({{ operario.id }})" title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" onclick="editarOperario({{ operario.id }})" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info" onclick="verAsistencia({{ operario.id }})" title="Ver asistencia">
+                                            <i class="bi bi-calendar-check"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                        <h5 class="mt-3">No se encontraron operarios</h5>
+                                        <p>No hay operarios que coincidan con los filtros aplicados.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Filtros Avanzados -->
+<div class="modal fade" id="filtrosModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-funnel me-2"></i>Filtros Avanzados
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filtrosForm" method="get">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-building me-1"></i>Área
+                                </label>
+                                <select class="form-select" name="area">
+                                    <option value="">Todas las áreas</option>
+                                    {% for area in areas %}
+                                    <option value="{{ area.id }}" {% if current_filters.area == area.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ area.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-toggles me-1"></i>Estado
+                                </label>
+                                <select class="form-select" name="estado">
+                                    <option value="">Todos los estados</option>
+                                    <option value="activo" {% if current_filters.estado == "activo" %}selected{% endif %}>
+                                        Solo activos
+                                    </option>
+                                    <option value="inactivo" {% if current_filters.estado == "inactivo" %}selected{% endif %}>
+                                        Solo inactivos
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-search me-1"></i>Búsqueda General
+                        </label>
+                        <input type="text" class="form-control" name="search" 
+                               value="{{ current_filters.search|default:'' }}" 
+                               placeholder="Buscar por nombre, apellido, DNI...">
+                        <div class="form-text">
+                            Busca en nombre, apellido, segundo nombre, segundo apellido y DNI
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-outline-warning" onclick="limpiarFiltros()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Limpiar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltros()">
+                    <i class="bi bi-check-circle me-1"></i>Aplicar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Nuevo Operario (placeholder) -->
+<div class="modal fade" id="nuevoOperarioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle me-2"></i>Nuevo Operario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-5">
+                    <i class="bi bi-tools text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Funcionalidad en desarrollo</h5>
+                    <p class="text-muted">
+                        El formulario de creación de operarios estará disponible en la próxima versión.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Verificar si DataTable ya está inicializada
+    if ($.fn.DataTable.isDataTable('#operariosTable')) {
+        $('#operariosTable').DataTable().destroy();
+    }
+    
+    // Inicializar DataTable
+    const table = $('#operariosTable').DataTable({
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+        },
+        responsive: true,
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+        order: [[2, 'asc']], // Ordenar por nombre por defecto
+        columnDefs: [
+            {
+                targets: [0, 8], // Foto y Acciones no ordenables
+                orderable: false
+            },
+            {
+                targets: [8], // Columna de acciones no exportable
+                className: 'no-export'
+            }
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+             '<"row"<"col-sm-12"tr>>' +
+             '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        buttons: [
+            {
+                extend: 'excel',
+                text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                className: 'btn btn-success btn-sm',
+                exportOptions: {
+                    columns: ':not(.no-export)'
+                },
+                title: 'Lista de Operarios - ' + new Date().toLocaleDateString()
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                className: 'btn btn-danger btn-sm',
+                exportOptions: {
+                    columns: ':not(.no-export)'
+                },
+                title: 'Lista de Operarios',
+                orientation: 'landscape',
+                pageSize: 'A4'
+            },
+            {
+                extend: 'csv',
+                text: '<i class="bi bi-file-earmark-text"></i> CSV',
+                className: 'btn btn-info btn-sm',
+                exportOptions: {
+                    columns: ':not(.no-export)'
+                }
+            }
+        ]
+    });
+});
+
+// Funciones de filtros
+function aplicarFiltros() {
+    document.getElementById('filtrosForm').submit();
+}
+
+function limpiarFiltros() {
+    window.location.href = "{% url 'rrhh:operarios_list' %}";
+}
+
+// Funciones de exportación
+function exportarExcel() {
+    $('#operariosTable').DataTable().button('.buttons-excel').trigger();
+}
+
+function exportarPDF() {
+    $('#operariosTable').DataTable().button('.buttons-pdf').trigger();
+}
+
+function exportarCSV() {
+    $('#operariosTable').DataTable().button('.buttons-csv').trigger();
+}
+
+// Funciones de operarios
+function verDetalles(operarioId) {
+    // Redirigir a la vista de detalles del operario
+    window.location.href = `/rrhh/operarios/${operarioId}/`;
+}
+
+function editarOperario(operarioId) {
+    // Redirigir a la vista de edición del operario
+    window.location.href = `/rrhh/operarios/${operarioId}/edit/`;
+}
+
+function verAsistencia(operarioId) {
+    // Redirigir a la vista de asistencia filtrada por operario
+    window.location.href = `/rrhh/registros/?operario=${operarioId}`;
+}
+
+// Tooltips
+$(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+</script>
+{% endblock %}

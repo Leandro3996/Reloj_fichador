@@ -1,0 +1,220 @@
+<div class="sidebar-nav">
+    <!-- Dashboard -->
+    <div class="nav-section">
+        <a href="{% url 'rrhh:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
+
+    <!-- Gestión de Personal -->
+    <div class="nav-section">
+        <h6 class="nav-header">
+            <i class="bi bi-people me-2"></i>Gestión de Personal
+        </h6>
+        <a href="{% url 'rrhh:operarios_list' %}" class="nav-item {% if 'operarios' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-person-badge"></i>
+            <span>Operarios</span>
+            <span class="badge bg-primary ms-auto">{{ total_operarios|default:0 }}</span>
+        </a>
+        <a href="{% url 'rrhh:areas_list' %}" class="nav-item {% if 'areas' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-building"></i>
+            <span>Áreas</span>
+        </a>
+        <a href="{% url 'rrhh:horarios_list' %}" class="nav-item {% if 'horarios' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-clock"></i>
+            <span>Horarios</span>
+        </a>
+    </div>
+
+    <!-- Control de Asistencia -->
+    <div class="nav-section">
+        <h6 class="nav-header">
+            <i class="bi bi-calendar-check me-2"></i>Control de Asistencia
+        </h6>
+        <a href="{% url 'rrhh:asistencia_hoy' %}" class="nav-item {% if 'asistencia_hoy' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-day"></i>
+            <span>Asistencia Hoy</span>
+            <span class="badge bg-success ms-auto">{{ presentes_hoy|default:0 }}</span>
+        </a>
+        <a href="{% url 'rrhh:asistencia_calendario' %}" class="nav-item {% if 'asistencia_calendario' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar3"></i>
+            <span>Calendario Mensual</span>
+        </a>
+        <a href="{% url 'rrhh:registros_list' %}" class="nav-item {% if 'registros' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-list-check"></i>
+            <span>Registros Diarios</span>
+        </a>
+        <a href="{% url 'rrhh:inconsistencias' %}" class="nav-item {% if 'inconsistencias' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Inconsistencias</span>
+            {% if inconsistencias_pendientes %}
+            <span class="badge bg-warning ms-auto">{{ inconsistencias_pendientes }}</span>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- Horas y Reportes -->
+    <div class="nav-section">
+        <h6 class="nav-header">
+            <i class="bi bi-graph-up me-2"></i>Horas y Reportes
+        </h6>
+        <a href="{% url 'rrhh:horas_trabajadas' %}" class="nav-item {% if 'horas_trabajadas' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-stopwatch"></i>
+            <span>Horas Trabajadas</span>
+        </a>
+        <a href="{% url 'rrhh:horas_extras' %}" class="nav-item {% if 'horas_extras' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-plus-circle"></i>
+            <span>Horas Extras</span>
+        </a>
+        <a href="{% url 'rrhh:reportes' %}" class="nav-item {% if 'reportes' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            <span>Reportes</span>
+        </a>
+    </div>
+
+    <!-- Licencias -->
+    <div class="nav-section">
+        <h6 class="nav-header">
+            <i class="bi bi-calendar-x me-2"></i>Licencias
+        </h6>
+        <a href="{% url 'rrhh:licencias_list' %}" class="nav-item {% if 'licencias' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar-minus"></i>
+            <span>Gestión de Licencias</span>
+        </a>
+        <a href="{% url 'rrhh:licencias_calendario' %}" class="nav-item {% if 'calendario' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-calendar3"></i>
+            <span>Calendario</span>
+        </a>
+    </div>
+
+    <!-- Configuración -->
+    <div class="nav-section">
+        <h6 class="nav-header">
+            <i class="bi bi-gear me-2"></i>Configuración
+        </h6>
+        <a href="{% url 'rrhh:configuracion' %}" class="nav-item {% if 'configuracion' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-sliders"></i>
+            <span>Configuración</span>
+        </a>
+        <a href="/admin/" class="nav-item" target="_blank">
+            <i class="bi bi-tools"></i>
+            <span>Panel Admin</span>
+            <i class="bi bi-box-arrow-up-right ms-auto"></i>
+        </a>
+    </div>
+
+    <!-- Información del Sistema -->
+    <div class="nav-section mt-auto">
+        <div class="nav-info">
+            <div class="system-status">
+                <small class="text-muted d-flex align-items-center">
+                    <i class="bi bi-circle-fill text-success me-2" style="font-size: 0.5rem;"></i>
+                    Sistema Activo
+                </small>
+                <small class="text-muted">
+                    Última actualización: {{ last_update|default:"Hoy" }}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos del Sidebar */
+.sidebar-nav {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0;
+}
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-header {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #6c757d;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #495057;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+}
+
+.nav-item.active {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+    border-left-color: #0d6efd;
+    font-weight: 500;
+}
+
+.nav-item i {
+    width: 1.25rem;
+    text-align: center;
+    margin-right: 0.75rem;
+}
+
+.nav-item .badge {
+    font-size: 0.65rem;
+}
+
+.nav-info {
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: auto;
+}
+
+.system-status {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e9ecef;
+}
+
+/* Responsive */
+@media (min-width: 992px) {
+    .offcanvas {
+        position: fixed !important;
+        width: 280px !important;
+        transform: none !important;
+        visibility: visible !important;
+        height: calc(100vh - 76px) !important;
+        top: 76px !important;
+        border: none !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+    }
+    
+    .offcanvas-backdrop {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 280px;
+        padding-top: 100px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .main-content {
+        padding-top: 100px;
+    }
+}
+</style>

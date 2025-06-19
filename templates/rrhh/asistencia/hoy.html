@@ -1,0 +1,397 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}Asistencia Hoy - RRHH Control{% endblock %}
+
+{% block page_title %}Asistencia de Hoy{% endblock %}
+{% block page_subtitle %}Control de asistencia para el {{ fecha|date:"d/m/Y" }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">Asistencia</li>
+<li class="breadcrumb-item active">Hoy</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-primary" onclick="actualizarAsistencia()">
+        <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+    </button>
+    <button type="button" class="btn btn-success" onclick="exportarAsistencia()">
+        <i class="bi bi-file-earmark-excel me-2"></i>Exportar
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Estadísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0">{{ total_presentes }}</h4>
+                        <small>Presentes</small>
+                    </div>
+                    <i class="bi bi-check-circle display-6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0">{{ total_operarios|add:"-"|add:total_presentes }}</h4>
+                        <small>Ausentes</small>
+                    </div>
+                    <i class="bi bi-x-circle display-6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0">{{ total_operarios }}</h4>
+                        <small>Total Operarios</small>
+                    </div>
+                    <i class="bi bi-people display-6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0">{% widthratio total_presentes total_operarios 100 %}%</h4>
+                        <small>Asistencia</small>
+                    </div>
+                    <i class="bi bi-graph-up display-6"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros Avanzados -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-funnel me-2"></i>Filtros Avanzados
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="get" id="filtrosForm">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Área</label>
+                            <select class="form-select" name="area" onchange="aplicarFiltros()">
+                                <option value="">Todas las áreas</option>
+                                {% for area in areas %}
+                                <option value="{{ area.id }}" {% if current_filters.area == area.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ area.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="estado" onchange="aplicarFiltros()">
+                                <option value="">Todos los estados</option>
+                                <option value="presente" {% if current_filters.estado == 'presente' %}selected{% endif %}>Presentes</option>
+                                <option value="ausente" {% if current_filters.estado == 'ausente' %}selected{% endif %}>Ausentes</option>
+                                <option value="salio" {% if current_filters.estado == 'salio' %}selected{% endif %}>Ya Salieron</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Horario</label>
+                            <select class="form-select" name="horario" onchange="aplicarFiltros()">
+                                <option value="">Todos los horarios</option>
+                                {% for horario in horarios %}
+                                <option value="{{ horario.id }}" {% if current_filters.horario == horario.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ horario.nombre }} ({{ horario.hora_entrada|time:"H:i" }}-{{ horario.hora_salida|time:"H:i" }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Búsqueda</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Nombre, apellido o DNI" 
+                                       value="{{ current_filters.search }}"
+                                       onkeyup="buscarEnTiempoReal(this.value)">
+                                <button type="button" class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12 text-end">
+                            <span class="text-muted me-3">
+                                Mostrando {{ asistencia_data|length }} de {{ total_operarios }} operarios
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportarFiltrado()">
+                                <i class="bi bi-download me-1"></i>Exportar Filtrado
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Asistencia -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-check me-2"></i>Estado de Asistencia - {{ fecha|date:"d/m/Y" }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="asistenciaTable" class="table table-hover custom-datatable">
+                        <thead>
+                            <tr>
+                                <th>Operario</th>
+                                <th>Área</th>
+                                <th>Horario</th>
+                                <th>Estado</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Tiempo Trabajado</th>
+                                <th class="no-export">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in asistencia_data %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-{% if data.entrada %}success{% else %}secondary{% endif %} rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <span class="text-white fw-bold">{{ data.operario.nombre|first }}{{ data.operario.apellido|first }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ data.operario.nombre }} {{ data.operario.apellido }}</div>
+                                            <small class="text-muted">DNI: {{ data.operario.dni }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        {% for area in data.operario.areas.all %}
+                                            {{ area.nombre }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            Sin área
+                                        {% endfor %}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% for area in data.operario.areas.all %}
+                                        {% for horario in area.horarios.all %}
+                                            <span class="badge bg-info">{{ horario.nombre }}</span>
+                                            <small class="d-block text-muted">
+                                                {{ horario.hora_inicio|time:"H:i" }} - {{ horario.hora_fin|time:"H:i" }}
+                                            </small>
+                                        {% empty %}
+                                            <span class="text-muted">Sin horario</span>
+                                        {% endfor %}
+                                    {% empty %}
+                                        <span class="text-muted">Sin área/horario</span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if data.estado == "Presente" %}
+                                        <span class="badge bg-success">{{ data.estado }}</span>
+                                    {% elif data.estado == "Salió" %}
+                                        <span class="badge bg-warning">{{ data.estado }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ data.estado }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if data.entrada %}
+                                        <span class="fw-semibold">{{ data.entrada.hora_fichada|time:"H:i" }}</span>
+                                        {% if data.entrada.inconsistencia %}
+                                            <i class="bi bi-exclamation-triangle text-warning ms-1" title="Inconsistencia"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if data.salida %}
+                                        <span class="fw-semibold">{{ data.salida.hora_fichada|time:"H:i" }}</span>
+                                        {% if data.salida.inconsistencia %}
+                                            <i class="bi bi-exclamation-triangle text-warning ms-1" title="Inconsistencia"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if data.entrada and data.salida %}
+                                        <span class="fw-semibold text-success">8:30h</span>
+                                    {% elif data.entrada %}
+                                        <span class="text-warning">En progreso</span>
+                                    {% else %}
+                                        <span class="text-muted">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'rrhh:operario_detail' data.operario.pk %}" class="btn btn-outline-primary" title="Ver detalle">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-info" title="Ver registros" onclick="verRegistros({{ data.operario.pk }})">
+                                            <i class="bi bi-list-ul"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
+                                    <h5>No hay datos de asistencia</h5>
+                                    <p class="mb-0">No se encontraron registros para el día de hoy.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let timeoutBusqueda;
+let asistenciaTable;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar DataTable si existe
+    if (document.getElementById('asistenciaTable')) {
+        asistenciaTable = $('#asistenciaTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            order: [[0, 'asc']],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                    className: 'btn btn-sm btn-success'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                    className: 'btn btn-sm btn-danger'
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            }
+        });
+    }
+});
+
+function actualizarAsistencia() {
+    showLoading();
+    location.reload();
+}
+
+function exportarAsistencia() {
+    if (asistenciaTable) {
+        asistenciaTable.button('.buttons-excel').trigger();
+    }
+}
+
+function verRegistros(operarioId) {
+    window.open(`/rrhh/registros/?operario=${operarioId}`, '_blank');
+}
+
+function aplicarFiltros() {
+    const form = document.getElementById('filtrosForm');
+    form.submit();
+}
+
+function limpiarFiltros() {
+    // Limpiar todos los selects y inputs
+    document.querySelector('select[name="area"]').value = '';
+    document.querySelector('select[name="estado"]').value = '';
+    document.querySelector('select[name="horario"]').value = '';
+    document.querySelector('input[name="search"]').value = '';
+    
+    // Enviar formulario
+    aplicarFiltros();
+}
+
+function buscarEnTiempoReal(valor) {
+    // Cancelar búsqueda anterior
+    clearTimeout(timeoutBusqueda);
+    
+    // Esperar 500ms antes de buscar
+    timeoutBusqueda = setTimeout(function() {
+        if (valor.length >= 3 || valor.length === 0) {
+            aplicarFiltros();
+        }
+    }, 500);
+}
+
+function exportarFiltrado() {
+    // Obtener parámetros actuales
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', 'excel');
+    
+    // Abrir descarga
+    window.open(`${window.location.pathname}?${params.toString()}`);
+}
+
+function showLoading() {
+    // Mostrar indicador de carga
+    const buttons = document.querySelectorAll('button, .btn');
+    buttons.forEach(btn => {
+        if (btn.onclick && btn.onclick.toString().includes('actualizarAsistencia')) {
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Actualizando...';
+            btn.disabled = true;
+        }
+    });
+}
+
+// CSS para animación de carga
+const style = document.createElement('style');
+style.textContent = `
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

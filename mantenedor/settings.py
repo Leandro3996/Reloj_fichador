@@ -24,7 +24,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '192.168.10.12', '192.168.10.43',
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', 'testserver', '192.168.10.12', '192.168.10.43',
                  '192.168.10.18', '192.168.10.11', '192.168.10.17',
                  '192.168.10.8', '192.168.10.4', '192.168.10.13', '190.96.116.202'])
 
@@ -254,6 +254,10 @@ LOGGING = {
         },
     },
 }
+
+# Configuración de autenticación
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/'
 
 # Configuración especial para las pruebas
 if 'test' in sys.argv:

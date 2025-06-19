@@ -1,626 +1,1135 @@
-2025-04-22T15:26:59.833140187Z wait-for-it.sh: waiting 120 seconds for db:3306
-2025-04-22T15:26:59.834465073Z wait-for-it.sh: db:3306 is available after 0 seconds
-2025-04-22T15:27:00.477811780Z Operations to perform:
-2025-04-22T15:27:00.477841506Z   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-2025-04-22T15:27:00.477844454Z Running migrations:
-2025-04-22T15:27:00.477846284Z   No migrations to apply.
-2025-04-22T15:27:01.120361164Z Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-2025-04-22T15:27:01.120379709Z Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-2025-04-22T15:27:01.120382054Z 
-2025-04-22T15:27:01.120383534Z 0 static files copied to '/app/staticfiles', 225 unmodified.
-2025-04-22T15:27:01.259065344Z [2025-04-22 15:27:01 +0000] [1] [INFO] Starting gunicorn 23.0.0
-2025-04-22T15:27:01.259140199Z [2025-04-22 15:27:01 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
-2025-04-22T15:27:01.259153142Z [2025-04-22 15:27:01 +0000] [1] [INFO] Using worker: sync
-2025-04-22T15:27:01.260043663Z [2025-04-22 15:27:01 +0000] [103] [INFO] Booting worker with pid: 103
-2025-04-22T15:27:01.302870968Z [2025-04-22 15:27:01 +0000] [104] [INFO] Booting worker with pid: 104
-2025-04-22T15:27:01.394103632Z [2025-04-22 15:27:01 +0000] [109] [INFO] Booting worker with pid: 109
-2025-04-22T15:51:09.933571327Z WARNING 2025-04-22 12:51:09,933 base Session data corrupted
-
-22T15:51:11.870022560Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
-2025-04-22T15:51:11.870141410Z   warnings.warn(
-
-22T15:51:26.521190755Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
-2025-04-22T15:51:26.521207258Z   warnings.warn(
-2025-04-22T15:51:28.652004301Z WARNING 2025-04-22 12:51:28,651 log Not Found: /favicon.ico
-
-22T15:51:59.709899887Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
-2025-04-22T15:51:59.709923930Z   warnings.warn(
-2025-04-22T15:52:08.796279890Z WARNING 2025-04-22 12:52:08,796 log Not Found: /favicon.ico
-2025-04-22T15:52:49.293681644Z WARNING 2025-04-22 12:52:49,293 log Not Found: /favicon.ico
-2025-04-22T15:53:09.408101746Z WARNING 2025-04-22 12:53:09,407 log Not Found: /favicon.ico
-2025-04-22T15:53:33.831489462Z WARNING 2025-04-22 12:53:33,831 log Not Found: /favicon.ico
-2025-04-22T15:54:59.865274939Z WARNING 2025-04-22 12:54:59,865 log Not Found: /favicon.ico
-2025-04-22T16:10:32.327419068Z ERROR 2025-04-22 13:10:32,326 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.327438080Z Traceback (most recent call last):
-2025-04-22T16:10:32.327441063Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.327443469Z     response = get_response(request)
-2025-04-22T16:10:32.327445451Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.327447501Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:10:32.327449583Z     response = self.process_request(request)
-2025-04-22T16:10:32.327451552Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.327453512Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:10:32.327456879Z     host = request.get_host()
-2025-04-22T16:10:32.327458921Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.327460888Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:10:32.327463041Z     raise DisallowedHost(msg)
-2025-04-22T16:10:32.327464982Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.328407289Z [2025-04-22 13:10:32 -0300] [103] [ERROR] Error handling request /
-2025-04-22T16:10:32.328421358Z Traceback (most recent call last):
-2025-04-22T16:10:32.328423980Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.328426231Z     response = get_response(request)
-2025-04-22T16:10:32.328428086Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328429936Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:10:32.328431833Z     response = self.process_request(request)
-2025-04-22T16:10:32.328433879Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328435728Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:10:32.328437674Z     host = request.get_host()
-2025-04-22T16:10:32.328439385Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328441119Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:10:32.328443041Z     raise DisallowedHost(msg)
-2025-04-22T16:10:32.328444837Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.328453773Z 
-2025-04-22T16:10:32.328455991Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.328457885Z 
-2025-04-22T16:10:32.328459599Z Traceback (most recent call last):
-2025-04-22T16:10:32.328461329Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
-2025-04-22T16:10:32.328463211Z     response = callback(request, exception=exception)
-2025-04-22T16:10:32.328464982Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328466723Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
-2025-04-22T16:10:32.328468550Z     'user': request.user,
-2025-04-22T16:10:32.328470294Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.328471993Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.328473722Z 
-2025-04-22T16:10:32.328475369Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.328477084Z 
-2025-04-22T16:10:32.328478705Z Traceback (most recent call last):
-2025-04-22T16:10:32.328480404Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.328482237Z     response = get_response(request)
-2025-04-22T16:10:32.328484003Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328485760Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.328487582Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.328489284Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328490996Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.328493530Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.328495353Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328497149Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
-2025-04-22T16:10:32.328499020Z     response = get_exception_response(
-2025-04-22T16:10:32.328500728Z                ^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328502428Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
-2025-04-22T16:10:32.328504292Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
-2025-04-22T16:10:32.328506083Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328507882Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.328509739Z     return callback(request)
-2025-04-22T16:10:32.328513936Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328515916Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.328517798Z     'user': request.user,
-2025-04-22T16:10:32.328519505Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.328521215Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.328523164Z 
-2025-04-22T16:10:32.328524841Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.328526548Z 
-2025-04-22T16:10:32.328528168Z Traceback (most recent call last):
-2025-04-22T16:10:32.328529918Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.328531752Z     response = get_response(request)
-2025-04-22T16:10:32.328533428Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328535102Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.328536865Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.328538514Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328540175Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.328541925Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.328543601Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328545339Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.328547144Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.328548862Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328550566Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.328552438Z     return callback(request)
-2025-04-22T16:10:32.328554374Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328556158Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.328558356Z     'user': request.user,
-2025-04-22T16:10:32.328560274Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.328561981Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.328564045Z 
-2025-04-22T16:10:32.328565785Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.328568665Z 
-2025-04-22T16:10:32.328570946Z Traceback (most recent call last):
-2025-04-22T16:10:32.328572758Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.328574628Z     response = get_response(request)
-2025-04-22T16:10:32.328578767Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328580771Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.328582748Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.328584508Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328586269Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.328588084Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.328589811Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328591575Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.328593393Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.328595096Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328596817Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.328598639Z     return callback(request)
-2025-04-22T16:10:32.328600342Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328602035Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.328604012Z     'user': request.user,
-2025-04-22T16:10:32.328605900Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.328607798Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.328609708Z 
-2025-04-22T16:10:32.328611528Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.328613425Z 
-2025-04-22T16:10:32.328615247Z Traceback (most recent call last):
-2025-04-22T16:10:32.328617131Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
-2025-04-22T16:10:32.328619133Z     self.handle_request(listener, req, client, addr)
-2025-04-22T16:10:32.328621056Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
-2025-04-22T16:10:32.328623083Z     respiter = self.wsgi(environ, resp.start_response)
-2025-04-22T16:10:32.328624988Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328626895Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
-2025-04-22T16:10:32.328628888Z     response = self.get_response(request)
-2025-04-22T16:10:32.328630768Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328633042Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
-2025-04-22T16:10:32.328635239Z     response = self._middleware_chain(request)
-2025-04-22T16:10:32.328639006Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328641049Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.328643038Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.328644965Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328646856Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.328648866Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.328650733Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328652626Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.328654673Z     return callback(request)
-2025-04-22T16:10:32.328656540Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.328658403Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.328660369Z     'user': request.user,
-2025-04-22T16:10:32.328662202Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.328664061Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.361046564Z ERROR 2025-04-22 13:10:32,360 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.361057275Z Traceback (most recent call last):
-2025-04-22T16:10:32.361059915Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.361062199Z     response = get_response(request)
-2025-04-22T16:10:32.361064053Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361065809Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:10:32.361067721Z     response = self.process_request(request)
-2025-04-22T16:10:32.361069455Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361071205Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:10:32.361073289Z     host = request.get_host()
-2025-04-22T16:10:32.361075218Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361077106Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:10:32.361079118Z     raise DisallowedHost(msg)
-2025-04-22T16:10:32.361080993Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.361755847Z [2025-04-22 13:10:32 -0300] [103] [ERROR] Error handling request /favicon.ico
-2025-04-22T16:10:32.361765984Z Traceback (most recent call last):
-2025-04-22T16:10:32.361768898Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.361779112Z     response = get_response(request)
-2025-04-22T16:10:32.361781495Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361783513Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:10:32.361785613Z     response = self.process_request(request)
-2025-04-22T16:10:32.361787505Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361789501Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:10:32.361791526Z     host = request.get_host()
-2025-04-22T16:10:32.361793428Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361795330Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:10:32.361797516Z     raise DisallowedHost(msg)
-2025-04-22T16:10:32.361799492Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:10:32.361801712Z 
-2025-04-22T16:10:32.361803579Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.361805530Z 
-2025-04-22T16:10:32.361807386Z Traceback (most recent call last):
-2025-04-22T16:10:32.361809286Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
-2025-04-22T16:10:32.361811340Z     response = callback(request, exception=exception)
-2025-04-22T16:10:32.361813278Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361815180Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
-2025-04-22T16:10:32.361817183Z     'user': request.user,
-2025-04-22T16:10:32.361819039Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.361820913Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.361822815Z 
-2025-04-22T16:10:32.361824675Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.361826631Z 
-2025-04-22T16:10:32.361828440Z Traceback (most recent call last):
-2025-04-22T16:10:32.361830329Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.361832324Z     response = get_response(request)
-2025-04-22T16:10:32.361834185Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361836092Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.361838098Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.361840039Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361841950Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.361847719Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.361849945Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361853117Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
-2025-04-22T16:10:32.361855263Z     response = get_exception_response(
-2025-04-22T16:10:32.361857177Z                ^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361859071Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
-2025-04-22T16:10:32.361861140Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
-2025-04-22T16:10:32.361863143Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361865097Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.361867144Z     return callback(request)
-2025-04-22T16:10:32.361869036Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361870885Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.361872849Z     'user': request.user,
-2025-04-22T16:10:32.361874687Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.361876555Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.361878464Z 
-2025-04-22T16:10:32.361880269Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.361882190Z 
-2025-04-22T16:10:32.361884009Z Traceback (most recent call last):
-2025-04-22T16:10:32.361885865Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.361887857Z     response = get_response(request)
-2025-04-22T16:10:32.361889737Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361891652Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.361893639Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.361895525Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361897435Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.361899415Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.361901306Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361903213Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.361905207Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.361907090Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361911430Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.361913633Z     return callback(request)
-2025-04-22T16:10:32.361915516Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361917670Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.361919721Z     'user': request.user,
-2025-04-22T16:10:32.361921622Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.361923526Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.361925542Z 
-2025-04-22T16:10:32.361927371Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.361929336Z 
-2025-04-22T16:10:32.361931143Z Traceback (most recent call last):
-2025-04-22T16:10:32.361933060Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:10:32.361935032Z     response = get_response(request)
-2025-04-22T16:10:32.361936922Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361938781Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:10:32.361941059Z     response = response or self.get_response(request)
-2025-04-22T16:10:32.361943113Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361945069Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.361947123Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.361949023Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361950914Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.361952929Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.361954874Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361956778Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.361958875Z     return callback(request)
-2025-04-22T16:10:32.361960750Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.361962611Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.361964657Z     'user': request.user,
-2025-04-22T16:10:32.361966546Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.361968517Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:10:32.361970455Z 
-2025-04-22T16:10:32.361972331Z During handling of the above exception, another exception occurred:
-2025-04-22T16:10:32.361974235Z 
-2025-04-22T16:10:32.361975995Z Traceback (most recent call last):
-2025-04-22T16:10:32.362035151Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
-2025-04-22T16:10:32.362037643Z     self.handle_request(listener, req, client, addr)
-2025-04-22T16:10:32.362039628Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
-2025-04-22T16:10:32.362041687Z     respiter = self.wsgi(environ, resp.start_response)
-2025-04-22T16:10:32.362044108Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362046074Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
-2025-04-22T16:10:32.362048085Z     response = self.get_response(request)
-2025-04-22T16:10:32.362050002Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362052277Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
-2025-04-22T16:10:32.362054373Z     response = self._middleware_chain(request)
-2025-04-22T16:10:32.362056238Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362058165Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:10:32.362060160Z     response = response_for_exception(request, exc)
-2025-04-22T16:10:32.362062132Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362064034Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:10:32.362066058Z     response = handle_uncaught_exception(
-2025-04-22T16:10:32.362067910Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362069808Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:10:32.362071820Z     return callback(request)
-2025-04-22T16:10:32.362073667Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:10:32.362075518Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:10:32.362077499Z     'user': request.user,
-2025-04-22T16:10:32.362079374Z             ^^^^^^^^^^^^
-2025-04-22T16:10:32.362081241Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.270268712Z ERROR 2025-04-22 13:25:35,269 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.270282595Z Traceback (most recent call last):
-2025-04-22T16:25:35.270283911Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.270285029Z     response = get_response(request)
-2025-04-22T16:25:35.270286036Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.270286934Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:25:35.270295461Z     response = self.process_request(request)
-2025-04-22T16:25:35.270296381Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.270297255Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:25:35.270298213Z     host = request.get_host()
-2025-04-22T16:25:35.270300171Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.270301076Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:25:35.270302109Z     raise DisallowedHost(msg)
-2025-04-22T16:25:35.270303054Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.271105143Z [2025-04-22 13:25:35 -0300] [103] [ERROR] Error handling request /
-2025-04-22T16:25:35.271114144Z Traceback (most recent call last):
-2025-04-22T16:25:35.271116980Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.271119273Z     response = get_response(request)
-2025-04-22T16:25:35.271121079Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271122891Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:25:35.271124839Z     response = self.process_request(request)
-2025-04-22T16:25:35.271126648Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271128402Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:25:35.271130302Z     host = request.get_host()
-2025-04-22T16:25:35.271132006Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271133702Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:25:35.271135548Z     raise DisallowedHost(msg)
-2025-04-22T16:25:35.271137468Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.271139568Z 
-2025-04-22T16:25:35.271152876Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.271154627Z 
-2025-04-22T16:25:35.271156290Z Traceback (most recent call last):
-2025-04-22T16:25:35.271158048Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
-2025-04-22T16:25:35.271159941Z     response = callback(request, exception=exception)
-2025-04-22T16:25:35.271161625Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271163372Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
-2025-04-22T16:25:35.271165137Z     'user': request.user,
-2025-04-22T16:25:35.271171619Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.271173777Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.271175567Z 
-2025-04-22T16:25:35.271177210Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.271178998Z 
-2025-04-22T16:25:35.271180597Z Traceback (most recent call last):
-2025-04-22T16:25:35.271182318Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.271184213Z     response = get_response(request)
-2025-04-22T16:25:35.271185932Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271187629Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.271189447Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.271191127Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271192825Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.271194995Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.271196884Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271198615Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
-2025-04-22T16:25:35.271200469Z     response = get_exception_response(
-2025-04-22T16:25:35.271202144Z                ^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271203853Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
-2025-04-22T16:25:35.271205702Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
-2025-04-22T16:25:35.271207523Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271209307Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.271211215Z     return callback(request)
-2025-04-22T16:25:35.271212898Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271214593Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.271216378Z     'user': request.user,
-2025-04-22T16:25:35.271218088Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.271219780Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.271221519Z 
-2025-04-22T16:25:35.271223178Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.271225005Z 
-2025-04-22T16:25:35.271226664Z Traceback (most recent call last):
-2025-04-22T16:25:35.271228376Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.271232714Z     response = get_response(request)
-2025-04-22T16:25:35.271234676Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271236429Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.271238247Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.271239973Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271241783Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.271243587Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.271245317Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271247056Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.271248902Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.271250604Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271252354Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.271254200Z     return callback(request)
-2025-04-22T16:25:35.271255986Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271257737Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.271259776Z     'user': request.user,
-2025-04-22T16:25:35.271261596Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.271263386Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.271265225Z 
-2025-04-22T16:25:35.271266988Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.271268829Z 
-2025-04-22T16:25:35.271270467Z Traceback (most recent call last):
-2025-04-22T16:25:35.271272177Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.271274024Z     response = get_response(request)
-2025-04-22T16:25:35.271275729Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271277482Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.271279305Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.271281046Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271282768Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.271284619Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.271286353Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271288110Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.271291945Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.271293811Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271295552Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.271297487Z     return callback(request)
-2025-04-22T16:25:35.271299810Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271301746Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.271303607Z     'user': request.user,
-2025-04-22T16:25:35.271305372Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.271307108Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.271308882Z 
-2025-04-22T16:25:35.271310557Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.271312289Z 
-2025-04-22T16:25:35.271313876Z Traceback (most recent call last):
-2025-04-22T16:25:35.271315586Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
-2025-04-22T16:25:35.271317404Z     self.handle_request(listener, req, client, addr)
-2025-04-22T16:25:35.271319258Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
-2025-04-22T16:25:35.271321107Z     respiter = self.wsgi(environ, resp.start_response)
-2025-04-22T16:25:35.271322852Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271324599Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
-2025-04-22T16:25:35.271326485Z     response = self.get_response(request)
-2025-04-22T16:25:35.271328177Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271330239Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
-2025-04-22T16:25:35.271332220Z     response = self._middleware_chain(request)
-2025-04-22T16:25:35.271333971Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271335716Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.271337571Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.271339453Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271341269Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.271343162Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.271344967Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271346713Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.271350522Z     return callback(request)
-2025-04-22T16:25:35.271352535Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.271354462Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.271356431Z     'user': request.user,
-2025-04-22T16:25:35.271358350Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.271360200Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.566540338Z ERROR 2025-04-22 13:25:35,566 exception Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.566552157Z Traceback (most recent call last):
-2025-04-22T16:25:35.566553451Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.566554669Z     response = get_response(request)
-2025-04-22T16:25:35.566555710Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.566556949Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:25:35.566558000Z     response = self.process_request(request)
-2025-04-22T16:25:35.566559205Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.566560166Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:25:35.566561186Z     host = request.get_host()
-2025-04-22T16:25:35.566562117Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.566563092Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:25:35.566564123Z     raise DisallowedHost(msg)
-2025-04-22T16:25:35.566565053Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.567679469Z [2025-04-22 13:25:35 -0300] [104] [ERROR] Error handling request /favicon.ico
-2025-04-22T16:25:35.567681367Z Traceback (most recent call last):
-2025-04-22T16:25:35.567682294Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.567683329Z     response = get_response(request)
-2025-04-22T16:25:35.567684293Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567685257Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 128, in __call__
-2025-04-22T16:25:35.567686288Z     response = self.process_request(request)
-2025-04-22T16:25:35.567687303Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567688296Z   File "/usr/local/lib/python3.11/site-packages/django/middleware/common.py", line 48, in process_request
-2025-04-22T16:25:35.567689328Z     host = request.get_host()
-2025-04-22T16:25:35.567690247Z            ^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567691173Z   File "/usr/local/lib/python3.11/site-packages/django/http/request.py", line 151, in get_host
-2025-04-22T16:25:35.567697329Z     raise DisallowedHost(msg)
-2025-04-22T16:25:35.567698305Z django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'relojfichador.com:5080'. You may need to add 'relojfichador.com' to ALLOWED_HOSTS.
-2025-04-22T16:25:35.567699349Z 
-2025-04-22T16:25:35.567700251Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.567701307Z 
-2025-04-22T16:25:35.567702174Z Traceback (most recent call last):
-2025-04-22T16:25:35.567703100Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 164, in get_exception_response
-2025-04-22T16:25:35.567704169Z     response = callback(request, exception=exception)
-2025-04-22T16:25:35.567705283Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567706239Z   File "/app/apps/reloj_fichador/views.py", line 148, in error_400
-2025-04-22T16:25:35.567707283Z     'user': request.user,
-2025-04-22T16:25:35.567708333Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.567709343Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.567710375Z 
-2025-04-22T16:25:35.567711243Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.567712270Z 
-2025-04-22T16:25:35.567713158Z Traceback (most recent call last):
-2025-04-22T16:25:35.567714114Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.567715145Z     response = get_response(request)
-2025-04-22T16:25:35.567716081Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567716997Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.567718004Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.567718959Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567719900Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.567721069Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.567722021Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567722968Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 134, in response_for_exception
-2025-04-22T16:25:35.567724016Z     response = get_exception_response(
-2025-04-22T16:25:35.567724965Z                ^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567725922Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 167, in get_exception_response
-2025-04-22T16:25:35.567726956Z     response = handle_uncaught_exception(request, resolver, sys.exc_info())
-2025-04-22T16:25:35.567729033Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567730033Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.567731056Z     return callback(request)
-2025-04-22T16:25:35.567731972Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567732875Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.567738244Z     'user': request.user,
-2025-04-22T16:25:35.567739137Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.567740435Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.567742073Z 
-2025-04-22T16:25:35.567744468Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.567745477Z 
-2025-04-22T16:25:35.567746347Z Traceback (most recent call last):
-2025-04-22T16:25:35.567747258Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.567748275Z     response = get_response(request)
-2025-04-22T16:25:35.567749198Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567750130Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.567751158Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.567752094Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567753117Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.567754163Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.567755103Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567756042Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.567757072Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.567758007Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567758964Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.567759991Z     return callback(request)
-2025-04-22T16:25:35.567760911Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567761938Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.567762933Z     'user': request.user,
-2025-04-22T16:25:35.567763867Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.567764772Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.567765713Z 
-2025-04-22T16:25:35.567766591Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.567768623Z 
-2025-04-22T16:25:35.567769483Z Traceback (most recent call last):
-2025-04-22T16:25:35.567770405Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-2025-04-22T16:25:35.567771431Z     response = get_response(request)
-2025-04-22T16:25:35.567772356Z                ^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567773286Z   File "/usr/local/lib/python3.11/site-packages/django/utils/deprecation.py", line 129, in __call__
-2025-04-22T16:25:35.567774274Z     response = response or self.get_response(request)
-2025-04-22T16:25:35.567775190Z                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567776147Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.567777140Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.567778074Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567779018Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.567780064Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.567780963Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567781880Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.567782920Z     return callback(request)
-2025-04-22T16:25:35.567783820Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567784738Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.567785718Z     'user': request.user,
-2025-04-22T16:25:35.567786603Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.567787535Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-22T16:25:35.567788469Z 
-2025-04-22T16:25:35.567789343Z During handling of the above exception, another exception occurred:
-2025-04-22T16:25:35.567790353Z 
-2025-04-22T16:25:35.567791225Z Traceback (most recent call last):
-2025-04-22T16:25:35.567792160Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
-2025-04-22T16:25:35.567793170Z     self.handle_request(listener, req, client, addr)
-2025-04-22T16:25:35.567794123Z   File "/usr/local/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
-2025-04-22T16:25:35.567795156Z     respiter = self.wsgi(environ, resp.start_response)
-2025-04-22T16:25:35.567796073Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567796993Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/wsgi.py", line 124, in __call__
-2025-04-22T16:25:35.567797993Z     response = self.get_response(request)
-2025-04-22T16:25:35.567798925Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567800754Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/base.py", line 140, in get_response
-2025-04-22T16:25:35.567801820Z     response = self._middleware_chain(request)
-2025-04-22T16:25:35.567802760Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567803718Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 57, in inner
-2025-04-22T16:25:35.567804725Z     response = response_for_exception(request, exc)
-2025-04-22T16:25:35.567805647Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567806595Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 140, in response_for_exception
-2025-04-22T16:25:35.567807630Z     response = handle_uncaught_exception(
-2025-04-22T16:25:35.567808575Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567809502Z   File "/usr/local/lib/python3.11/site-packages/django/core/handlers/exception.py", line 185, in handle_uncaught_exception
-2025-04-22T16:25:35.567810529Z     return callback(request)
-2025-04-22T16:25:35.567811530Z            ^^^^^^^^^^^^^^^^^
-2025-04-22T16:25:35.567813078Z   File "/app/apps/reloj_fichador/views.py", line 178, in error_500
-2025-04-22T16:25:35.567814814Z     'user': request.user,
-2025-04-22T16:25:35.567815749Z             ^^^^^^^^^^^^
-2025-04-22T16:25:35.567816650Z AttributeError: 'WSGIRequest' object has no attribute 'user'
-2025-04-23T11:49:08.159842754Z WARNING 2025-04-23 08:49:08,159 base Session data corrupted
-2025-04-23T11:49:08.959086824Z WARNING 2025-04-23 08:49:08,958 log Not Found: /favicon.ico
-2025-04-23T11:49:16.452876512Z WARNING 2025-04-23 08:49:16,452 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
-2025-04-23T11:49:19.318546871Z WARNING 2025-04-23 08:49:19,318 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
-2025-04-23T11:49:21.718600926Z WARNING 2025-04-23 08:49:21,718 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
-2025-04-23T11:49:28.126960063Z WARNING 2025-04-23 08:49:28,126 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
-2025-04-23T11:49:30.808987001Z Inconsistencia detectada en registro: No se pueden registrar movimientos transitorios después de la salida.
-2025-04-23T11:49:30.819672533Z WARNING 2025-04-23 08:49:30,819 log Bad Request: /registrar/salida_transitoria/
-2025-04-23T11:49:46.853157453Z WARNING 2025-04-23 08:49:46,853 models Registros desbalancados para el operario PIZARRO, LEANDRO E. - 39610329 en la fecha 2025-04-23.
-2025-04-23T17:04:28.790225368Z WARNING 2025-04-23 14:04:28,790 log Not Found: /favicon.ico
-2025-04-23T17:05:52.346318262Z WARNING 2025-04-23 14:05:52,346 models Registros desbalancados para el operario MASSAFARA, BRAIAN - 41888232 en la fecha 2025-04-23.
-2025-04-23T17:36:40.915019794Z [2025-04-23 17:36:40 +0000] [1] [INFO] Handling signal: term
-2025-04-23T17:36:40.915576915Z [2025-04-23 14:36:40 -0300] [109] [INFO] Worker exiting (pid: 109)
-2025-04-23T17:36:40.915602509Z [2025-04-23 14:36:40 -0300] [104] [INFO] Worker exiting (pid: 104)
-2025-04-23T17:36:40.916546214Z [2025-04-23 14:36:40 -0300] [103] [INFO] Worker exiting (pid: 103)
-2025-04-23T17:36:41.115430350Z [2025-04-23 17:36:41 +0000] [1] [INFO] Shutting down: Master
-2025-04-23T17:36:42.032076137Z wait-for-it.sh: waiting 120 seconds for db:3306
-2025-04-23T17:36:46.037451093Z wait-for-it.sh: db:3306 is available after 4 seconds
-2025-04-23T17:36:46.660378906Z Operations to perform:
-2025-04-23T17:36:46.660401064Z   Apply all migrations: admin, admin_interface, auth, contenttypes, django_celery_beat, django_celery_results, reloj_fichador, sessions
-2025-04-23T17:36:46.660403968Z Running migrations:
-2025-04-23T17:36:46.660406092Z   No migrations to apply.
-2025-04-23T17:36:47.307273468Z Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-2025-04-23T17:36:47.307298574Z Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
-2025-04-23T17:36:47.307302044Z 
-2025-04-23T17:36:47.307304221Z 0 static files copied to '/app/staticfiles', 225 unmodified.
-2025-04-23T17:36:47.454130167Z [2025-04-23 17:36:47 +0000] [1] [INFO] Starting gunicorn 23.0.0
-2025-04-23T17:36:47.454234003Z [2025-04-23 17:36:47 +0000] [1] [INFO] Listening at: http://0.0.0.0:58000 (1)
-2025-04-23T17:36:47.454245541Z [2025-04-23 17:36:47 +0000] [1] [INFO] Using worker: sync
-2025-04-23T17:36:47.455274336Z [2025-04-23 17:36:47 +0000] [111] [INFO] Booting worker with pid: 111
-2025-04-23T17:36:47.551983645Z [2025-04-23 17:36:47 +0000] [112] [INFO] Booting worker with pid: 112
-2025-04-23T17:36:47.603645970Z [2025-04-23 17:36:47 +0000] [135] [INFO] Booting worker with pid: 135
-
-23T17:37:52.360613881Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
-2025-04-23T17:37:52.360637856Z   warnings.warn(
-
-23T17:37:55.324822485Z /usr/local/lib/python3.11/site-packages/admin_interface/templatetags/admin_interface_tags.py:38: UserWarning: Language chooser requires Django's `set_language` view: `urlpatterns += [url(r'^i18n/', include('django.conf.urls.i18n'))]`.
-2025-04-23T17:37:55.324854263Z   warnings.warn(
+db          | 2025-06-19 10:13:34.997 | 2025-06-19 13:13:34+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+redis       | 2025-06-19 10:13:35.035 | Starting Redis Server
+redis       | 2025-06-19 10:13:35.047 | 1:C 19 Jun 2025 13:13:35.047 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+redis       | 2025-06-19 10:13:35.047 | 1:C 19 Jun 2025 13:13:35.047 * Redis version=8.0.2, bits=64, commit=00000000, modified=1, pid=1, just started
+redis       | 2025-06-19 10:13:35.047 | 1:C 19 Jun 2025 13:13:35.047 * Configuration loaded
+redis       | 2025-06-19 10:13:35.047 | 1:M 19 Jun 2025 13:13:35.047 * monotonic clock: POSIX clock_gettime
+redis       | 2025-06-19 10:13:35.047 | 1:M 19 Jun 2025 13:13:35.047 * Running mode=standalone, port=6379.
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> RedisBloom version 8.0.1 (Git=unknown)
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> Registering configuration options: [
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ bf-error-rate       :      0.01 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ bf-initial-size     :       100 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ bf-expansion-factor :         2 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ cf-bucket-size      :         2 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ cf-initial-size     :      1024 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ cf-max-iterations   :        20 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ cf-expansion-factor :         1 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> 	{ cf-max-expansions   :        32 }
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * <bf> ]
+redis       | 2025-06-19 10:13:35.048 | 1:M 19 Jun 2025 13:13:35.048 * Module 'bf' loaded from /usr/local/lib/redis/modules//redisbloom.so
+redis       | 2025-06-19 10:13:35.051 | 1:M 19 Jun 2025 13:13:35.050 * <search> Redis version found by RedisSearch : 8.0.2 - oss
+redis       | 2025-06-19 10:13:35.051 | 1:M 19 Jun 2025 13:13:35.050 * <search> RediSearch version 8.0.1 (Git=5688fcc)
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Low level api version 1 initialized successfully
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> gc: ON, prefix min length: 2, min word length to stem: 4, prefix max expansions: 200, query timeout (ms): 500, timeout policy: return, cursor read size: 1000, cursor max idle (ms): 300000, max doctable size: 1000000, max number of search results:  1000000, 
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Initialized thread pools!
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Disabled workers threadpool of size 0
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Subscribe to config changes
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Enabled role change notification
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.050 * <search> Cluster configuration: AUTO partitions, type: 0, coordinator timeout: 0ms
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <search> Register write commands
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * Module 'search' loaded from /usr/local/lib/redis/modules//redisearch.so
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> RedisTimeSeries version 80001, git_sha=577bfa8b5909e7ee572f0b651399be8303dc6641
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> Redis version found by RedisTimeSeries : 8.0.2 - oss
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> Registering configuration options: [
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-compaction-policy   :              }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-num-threads         :            3 }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-retention-policy    :            0 }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-duplicate-policy    :        block }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-chunk-size-bytes    :         4096 }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-encoding            :   compressed }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-ignore-max-time-diff:            0 }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> 	{ ts-ignore-max-val-diff :     0.000000 }
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> ]
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * <timeseries> Detected redis oss
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.051 * Module 'timeseries' loaded from /usr/local/lib/redis/modules//redistimeseries.so
+redis       | 2025-06-19 10:13:35.052 | 1:M 19 Jun 2025 13:13:35.052 * <ReJSON> Created new data type 'ReJSON-RL'
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> version: 80001 git sha: unknown branch: unknown
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Exported RedisJSON_V1 API
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Exported RedisJSON_V2 API
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Exported RedisJSON_V3 API
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Exported RedisJSON_V4 API
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Exported RedisJSON_V5 API
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Enabled diskless replication
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <ReJSON> Initialized shared string cache, thread safe: false.
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * Module 'ReJSON' loaded from /usr/local/lib/redis/modules//rejson.so
+redis       | 2025-06-19 10:13:35.053 | 1:M 19 Jun 2025 13:13:35.053 * <search> Acquired RedisJSON_V5 API
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * Server initialized
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * <search> Loading event starts
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * <search> Enabled workers threadpool of size 4
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * Loading RDB produced by version 8.0.2
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * RDB age 11 seconds
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * RDB memory usage when created 1.37 Mb
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * Done loading RDB, keys loaded: 2, keys expired: 0.
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * <search> Disabled workers threadpool of size 4
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * <search> Loading event ends
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * DB loaded from disk: 0.000 seconds
+redis       | 2025-06-19 10:13:35.059 | 1:M 19 Jun 2025 13:13:35.057 * Ready to accept connections tcp
+db          | 2025-06-19 10:13:35.188 | 2025-06-19 13:13:35+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+db          | 2025-06-19 10:13:35.193 | 2025-06-19 13:13:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+db          | 2025-06-19 10:13:35.376 | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+db          | 2025-06-19 10:13:35.564 | 2025-06-19T13:13:35.387205Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+db          | 2025-06-19 10:13:35.564 | 2025-06-19T13:13:35.562314Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 1
+db          | 2025-06-19 10:13:35.567 | 2025-06-19T13:13:35.567554Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+db          | 2025-06-19 10:13:35.722 | 2025-06-19T13:13:35.722018Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+db          | 2025-06-19 10:13:35.893 | 2025-06-19T13:13:35.893554Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+db          | 2025-06-19 10:13:35.893 | 2025-06-19T13:13:35.893575Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+db          | 2025-06-19 10:13:35.898 | 2025-06-19T13:13:35.898788Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+db          | 2025-06-19 10:13:35.912 | 2025-06-19T13:13:35.912616Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+db          | 2025-06-19 10:13:36.166 | 2025-06-19T13:13:36.166567Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+celery-beat | 2025-06-19 10:13:40.182 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:40.186 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:40.199 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:40.205 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:40.522 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:40.522 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:40.525 |     main()
+celery-beat | 2025-06-19 10:13:40.525 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:40.525 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:40.525 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:40.526 |     utility.execute()
+celery-beat | 2025-06-19 10:13:40.526 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:40.526 |     django.setup()
+celery-beat | 2025-06-19 10:13:40.526 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:40.526 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:40.526 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:40.528 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:40.528 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:40.528 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:40.528 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:40.528 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:40.528 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:40.528 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:40.528 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:40.528 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:40.528 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:40.528 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:40.614 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:40.614 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:40.614 |     sys.exit(main())
+celery      | 2025-06-19 10:13:40.614 |              ^^^^^^
+celery      | 2025-06-19 10:13:40.614 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:40.616 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:40.616 |              ^^^^^^^
+celery      | 2025-06-19 10:13:40.616 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:40.617 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:40.617 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.617 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:40.619 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:40.619 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.619 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:40.619 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:40.619 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.619 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:40.620 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:40.620 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.620 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:40.620 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:40.620 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.620 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:40.620 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:40.620 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.620 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:40.621 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:40.621 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.621 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:40.621 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:40.621 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.621 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:40.622 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:40.622 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.622 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:40.624 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:40.624 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:40.624 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:40.624 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:40.624 |     raise response
+celery      | 2025-06-19 10:13:40.625 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:40.626 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:40.626 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.626 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:40.627 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:40.627 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:40.627 |     self.django_setup()
+celery      | 2025-06-19 10:13:40.627 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:40.627 |     django.setup()
+celery      | 2025-06-19 10:13:40.633 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:40.633 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:40.633 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:40.633 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:40.633 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.633 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:40.633 |     import_module(entry)
+celery      | 2025-06-19 10:13:40.633 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:40.633 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:40.633 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:40.633 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:40.633 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:40.633 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:40.633 | ModuleNotFoundError: No module named 'admin_interface'
+backup      | 2025-06-19 10:13:40.662 | wait-for-it.sh: waiting 120 seconds for db:3306
+backup      | 2025-06-19 10:13:40.665 | wait-for-it.sh: db:3306 is available after 0 seconds
+backup      | 2025-06-19 10:13:40.669 | mysqldump: [Warning] Using a password on the command line interface can be insecure.
+web         | 2025-06-19 10:13:40.689 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:40.693 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:40.924 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:40.929 | wait-for-it.sh: db:3306 is available after 0 seconds
+nginx       | 2025-06-19 10:13:40.972 | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+nginx       | 2025-06-19 10:13:40.972 | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+nginx       | 2025-06-19 10:13:40.974 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+nginx       | 2025-06-19 10:13:41.001 | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+nginx       | 2025-06-19 10:13:41.011 | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+nginx       | 2025-06-19 10:13:41.013 | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+nginx       | 2025-06-19 10:13:41.013 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+nginx       | 2025-06-19 10:13:41.021 | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+nginx       | 2025-06-19 10:13:41.023 | /docker-entrypoint.sh: Configuration complete; ready for start up
+celery      | 2025-06-19 10:13:41.103 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:41.111 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:13:41.267 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:41.267 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:41.268 |     main()
+web         | 2025-06-19 10:13:41.268 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:41.268 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:41.268 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:41.268 |     utility.execute()
+web         | 2025-06-19 10:13:41.269 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:41.269 |     django.setup()
+web         | 2025-06-19 10:13:41.269 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:41.269 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:41.269 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:41.269 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:41.269 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:41.269 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:41.269 |     import_module(entry)
+web         | 2025-06-19 10:13:41.270 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:41.270 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:41.270 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:41.270 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:41.270 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:41.270 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:41.270 | ModuleNotFoundError: No module named 'admin_interface'
+backup      | 2025-06-19 10:13:41.392 | Limpiando backups antiguos...
+backup      | 2025-06-19 10:13:41.438 | Limpieza completada. Se mantienen los 480 backups más recientes.
+celery-beat | 2025-06-19 10:13:41.440 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:41.440 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:41.440 |     main()
+celery-beat | 2025-06-19 10:13:41.440 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:41.440 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:41.440 |     utility.execute()
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:41.440 |     django.setup()
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:41.440 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:41.440 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:41.440 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:41.440 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:41.440 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:41.440 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:41.440 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:41.440 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:41.440 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:41.441 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:41.441 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:41.581 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:41.581 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:41.582 |     sys.exit(main())
+celery      | 2025-06-19 10:13:41.582 |              ^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:41.582 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:41.582 |              ^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:41.582 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:41.582 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:41.582 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:41.582 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:41.582 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:41.582 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:41.582 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:41.582 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:41.582 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:41.582 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:41.582 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:41.582 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.582 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:41.582 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:41.583 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:41.583 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:41.583 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:41.583 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:41.583 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:41.583 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:41.583 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:41.583 |     raise response
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:41.583 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:41.583 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:41.583 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:41.583 |     self.django_setup()
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:41.583 |     django.setup()
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:41.583 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:41.583 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:41.583 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:41.583 |     import_module(entry)
+celery      | 2025-06-19 10:13:41.583 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:41.583 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:41.583 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:41.583 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:41.584 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:41.584 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:41.584 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:41.671 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:41.676 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:41.884 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:41.888 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:13:41.958 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:41.958 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:41.958 |     main()
+web         | 2025-06-19 10:13:41.958 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:41.958 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:41.958 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:41.959 |     utility.execute()
+web         | 2025-06-19 10:13:41.959 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:41.959 |     django.setup()
+web         | 2025-06-19 10:13:41.959 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:41.959 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:41.959 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:41.959 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:41.959 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:41.959 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:41.959 |     import_module(entry)
+web         | 2025-06-19 10:13:41.959 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:41.959 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:41.959 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:41.959 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:41.959 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:41.959 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:41.959 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:42.088 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:42.094 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:42.202 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:42.202 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:42.202 |     main()
+celery-beat | 2025-06-19 10:13:42.202 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:42.202 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:42.203 |     utility.execute()
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:42.203 |     django.setup()
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:42.203 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:42.203 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:42.203 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:42.203 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:42.203 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:42.203 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:42.203 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:42.203 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:42.203 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:42.203 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:42.203 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:42.439 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:42.443 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:42.499 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:42.499 |     sys.exit(main())
+celery      | 2025-06-19 10:13:42.499 |              ^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:42.499 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:42.499 |              ^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:42.499 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:42.499 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:42.499 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:42.499 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:42.499 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:42.499 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:42.499 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:42.499 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:42.499 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:42.499 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:42.499 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:42.499 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:42.499 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:42.499 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:42.499 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:42.499 |     raise response
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:42.499 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:42.499 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:42.499 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:42.499 |     self.django_setup()
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:42.499 |     django.setup()
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:42.499 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:42.499 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:42.499 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.499 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:42.500 |     import_module(entry)
+celery      | 2025-06-19 10:13:42.500 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:42.500 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:42.500 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:42.500 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:42.500 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:42.500 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:42.500 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:42.733 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:42.733 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:42.734 |     main()
+web         | 2025-06-19 10:13:42.734 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:42.734 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:42.734 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:42.734 |     utility.execute()
+web         | 2025-06-19 10:13:42.734 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:42.735 |     django.setup()
+web         | 2025-06-19 10:13:42.735 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:42.735 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:42.735 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:42.735 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:42.735 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:42.735 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:42.735 |     import_module(entry)
+web         | 2025-06-19 10:13:42.735 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:42.735 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:42.735 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:42.735 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:42.735 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:42.735 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:42.735 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:13:42.825 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:42.828 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:43.094 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:43.094 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:43.094 |     main()
+celery-beat | 2025-06-19 10:13:43.094 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:43.094 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:43.094 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:43.094 |     utility.execute()
+celery-beat | 2025-06-19 10:13:43.094 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:43.094 |     django.setup()
+celery-beat | 2025-06-19 10:13:43.094 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:43.094 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:43.094 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:43.094 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:43.094 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:43.095 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:43.095 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:43.095 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:43.095 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:43.095 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:43.095 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:43.095 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:43.095 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:43.095 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:43.165 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:43.167 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:13:43.401 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:43.406 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:43.481 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:43.481 |     sys.exit(main())
+celery      | 2025-06-19 10:13:43.481 |              ^^^^^^
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:43.481 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:43.481 |              ^^^^^^^
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:43.481 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:43.481 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:43.481 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:43.481 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:43.481 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:43.481 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.481 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:43.482 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:43.482 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:43.482 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:43.482 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:43.482 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:43.482 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:43.482 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:43.482 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:43.482 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:43.482 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:43.482 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:43.482 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:43.482 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:43.482 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:43.482 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:43.482 |     raise response
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:43.483 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:43.483 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:43.483 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:43.483 |     self.django_setup()
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:43.483 |     django.setup()
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:43.483 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:43.483 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:43.483 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:43.483 |     import_module(entry)
+celery      | 2025-06-19 10:13:43.483 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:43.483 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:43.483 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:43.483 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:43.483 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:43.483 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:43.483 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:43.637 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:43.637 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:43.637 |     main()
+web         | 2025-06-19 10:13:43.638 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:43.638 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:43.638 |     utility.execute()
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:43.638 |     django.setup()
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:43.638 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:43.638 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:43.638 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:43.638 |     import_module(entry)
+web         | 2025-06-19 10:13:43.638 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:43.638 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:43.638 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:43.638 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:43.638 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:43.638 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:43.638 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:13:44.070 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:44.072 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:44.270 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:44.270 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:44.270 |     main()
+celery-beat | 2025-06-19 10:13:44.270 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:44.270 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:44.270 |     utility.execute()
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:44.270 |     django.setup()
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:44.270 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:44.270 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:44.270 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:44.270 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:44.270 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:44.270 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:44.270 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:44.270 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:44.270 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:44.270 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:44.270 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:44.502 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:44.504 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:13:44.652 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:44.655 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:44.821 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:44.821 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:44.821 |     sys.exit(main())
+celery      | 2025-06-19 10:13:44.821 |              ^^^^^^
+celery      | 2025-06-19 10:13:44.821 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:44.821 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:44.822 |              ^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:44.822 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:44.822 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:44.822 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:44.822 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:44.822 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:44.822 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:44.822 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:44.822 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:44.822 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:44.822 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:44.822 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:44.822 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:44.822 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:44.822 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:44.822 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:44.822 |     raise response
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:44.822 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:44.822 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.822 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:44.823 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:44.823 |     self.django_setup()
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:44.823 |     django.setup()
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:44.823 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:44.823 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:44.823 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:44.823 |     import_module(entry)
+celery      | 2025-06-19 10:13:44.823 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:44.823 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:44.823 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:44.823 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:44.823 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:44.823 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:44.823 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:44.902 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:44.902 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:44.902 |     main()
+web         | 2025-06-19 10:13:44.902 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:44.902 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:44.902 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:44.902 |     utility.execute()
+web         | 2025-06-19 10:13:44.902 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:44.903 |     django.setup()
+web         | 2025-06-19 10:13:44.903 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:44.903 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:44.903 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:44.903 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:44.903 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:44.903 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:44.903 |     import_module(entry)
+web         | 2025-06-19 10:13:44.903 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:44.903 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:44.903 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:44.903 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:44.903 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:44.903 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:44.903 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:13:46.030 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:46.032 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:46.240 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:46.240 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:46.241 |     main()
+celery-beat | 2025-06-19 10:13:46.241 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:46.241 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:46.241 |     utility.execute()
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:46.241 |     django.setup()
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:46.241 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:46.241 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:46.241 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:46.241 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:46.241 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:46.241 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:46.241 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:46.241 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:46.241 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:46.241 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:46.241 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:46.642 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:46.644 | wait-for-it.sh: db:3306 is available after 0 seconds
+nginx       | 2025-06-19 10:13:46.672 | 172.19.0.1 - - [19/Jun/2025:13:13:46 +0000] "GET /admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte= HTTP/1.1" 502 559 "http://localhost:5080/admin/reloj_fichador/registrodiario/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+nginx       | 2025-06-19 10:13:46.672 | 2025/06/19 13:13:46 [error] 28#28: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.19.0.1, server: localhost, request: "GET /admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte= HTTP/1.1", upstream: "http://172.19.0.7:58000/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte=", host: "localhost:5080", referrer: "http://localhost:5080/admin/reloj_fichador/registrodiario/"
+web         | 2025-06-19 10:13:46.720 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:46.722 | wait-for-it.sh: db:3306 is available after 0 seconds
+nginx       | 2025-06-19 10:13:46.799 | 2025/06/19 13:13:46 [error] 28#28: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", upstream: "http://172.19.0.7:58000/favicon.ico", host: "localhost:5080", referrer: "http://localhost:5080/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte="
+nginx       | 2025-06-19 10:13:46.801 | 172.19.0.1 - - [19/Jun/2025:13:13:46 +0000] "GET /favicon.ico HTTP/1.1" 502 559 "http://localhost:5080/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte=" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+web         | 2025-06-19 10:13:47.031 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:47.031 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:47.031 |     main()
+web         | 2025-06-19 10:13:47.031 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:47.031 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:47.031 |     utility.execute()
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:47.031 |     django.setup()
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:47.031 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:47.031 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:47.031 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:47.031 |     import_module(entry)
+web         | 2025-06-19 10:13:47.031 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:47.031 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:47.031 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:47.031 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:47.031 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:47.031 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:47.031 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:47.037 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:47.037 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:47.037 |     sys.exit(main())
+celery      | 2025-06-19 10:13:47.037 |              ^^^^^^
+celery      | 2025-06-19 10:13:47.037 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:47.037 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:47.037 |              ^^^^^^^
+celery      | 2025-06-19 10:13:47.037 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:47.037 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:47.037 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.037 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:47.037 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:47.037 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.037 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:47.037 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:47.038 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:47.038 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:47.038 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:47.038 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:47.038 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:47.038 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:47.038 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:47.038 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:47.038 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:47.038 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:47.038 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:47.038 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:47.038 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:47.038 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:47.038 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:47.038 |     raise response
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:47.038 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:47.038 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:47.038 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:47.038 |     self.django_setup()
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:47.038 |     django.setup()
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:47.038 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:47.038 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:47.038 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.038 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:47.039 |     import_module(entry)
+celery      | 2025-06-19 10:13:47.039 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:47.039 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:47.039 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:47.039 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:47.039 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:47.039 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:47.039 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:13:49.639 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:49.642 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:49.872 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:49.872 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:49.873 |     main()
+celery-beat | 2025-06-19 10:13:49.873 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:49.873 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:49.873 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:49.873 |     utility.execute()
+celery-beat | 2025-06-19 10:13:49.873 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:49.873 |     django.setup()
+celery-beat | 2025-06-19 10:13:49.873 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:49.873 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:49.873 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:49.874 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:49.874 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:49.874 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:49.874 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:49.874 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:49.874 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:49.874 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:49.874 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:49.874 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:49.874 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:49.874 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:50.439 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:50.442 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:50.498 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:50.502 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:13:50.732 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:50.732 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:50.732 |     main()
+web         | 2025-06-19 10:13:50.732 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:50.732 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:50.732 |     utility.execute()
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:50.732 |     django.setup()
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:50.732 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:50.732 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:50.732 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:50.732 |     import_module(entry)
+web         | 2025-06-19 10:13:50.732 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:50.732 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:50.733 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:50.733 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:50.733 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:50.733 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:50.733 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:50.816 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:50.816 |     sys.exit(main())
+celery      | 2025-06-19 10:13:50.816 |              ^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:50.816 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:50.816 |              ^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:50.816 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:50.816 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:50.816 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:50.816 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:50.816 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:50.816 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:50.816 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:50.816 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:50.816 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:50.816 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:50.816 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:50.816 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:50.816 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:50.816 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:50.816 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:50.816 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:50.817 |     raise response
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:50.817 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:50.817 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:50.817 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:50.817 |     self.django_setup()
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:50.817 |     django.setup()
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:50.817 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:50.817 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:50.817 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:50.817 |     import_module(entry)
+celery      | 2025-06-19 10:13:50.817 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:50.817 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:50.817 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:50.817 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:50.817 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:50.817 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:50.817 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:13:56.441 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:13:56.443 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:13:56.664 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:13:56.664 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:13:56.664 |     main()
+celery-beat | 2025-06-19 10:13:56.664 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:13:56.664 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:13:56.664 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:13:56.665 |     utility.execute()
+celery-beat | 2025-06-19 10:13:56.665 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:13:56.665 |     django.setup()
+celery-beat | 2025-06-19 10:13:56.665 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:13:56.665 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:13:56.665 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:13:56.665 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:13:56.665 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:56.665 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:13:56.665 |     import_module(entry)
+celery-beat | 2025-06-19 10:13:56.665 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:13:56.665 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:13:56.665 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:13:56.665 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:13:56.665 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:13:56.665 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:13:56.665 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:13:57.311 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:13:57.313 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:13:57.432 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:13:57.435 | wait-for-it.sh: db:3306 is available after 0 seconds
+nginx       | 2025-06-19 10:13:57.501 | 172.19.0.1 - - [19/Jun/2025:13:13:57 +0000] "GET /admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte= HTTP/1.1" 502 559 "http://localhost:5080/admin/reloj_fichador/registrodiario/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+nginx       | 2025-06-19 10:13:57.501 | 2025/06/19 13:13:57 [error] 28#28: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.19.0.1, server: localhost, request: "GET /admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte= HTTP/1.1", upstream: "http://172.19.0.7:58000/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte=", host: "localhost:5080", referrer: "http://localhost:5080/admin/reloj_fichador/registrodiario/"
+nginx       | 2025-06-19 10:13:57.576 | 172.19.0.1 - - [19/Jun/2025:13:13:57 +0000] "GET /favicon.ico HTTP/1.1" 502 559 "http://localhost:5080/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte=" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+nginx       | 2025-06-19 10:13:57.576 | 2025/06/19 13:13:57 [error] 28#28: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.19.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", upstream: "http://172.19.0.7:58000/favicon.ico", host: "localhost:5080", referrer: "http://localhost:5080/admin/reloj_fichador/registrodiario/?hora_fichada__range__gte=39610329&hora_fichada__range__lte="
+web         | 2025-06-19 10:13:57.623 | Traceback (most recent call last):
+web         | 2025-06-19 10:13:57.623 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:13:57.624 |     main()
+web         | 2025-06-19 10:13:57.624 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:13:57.624 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:13:57.624 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:13:57.624 |     utility.execute()
+web         | 2025-06-19 10:13:57.624 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:13:57.624 |     django.setup()
+web         | 2025-06-19 10:13:57.624 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:13:57.624 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:13:57.624 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:13:57.624 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:13:57.624 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:57.624 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:13:57.625 |     import_module(entry)
+web         | 2025-06-19 10:13:57.625 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:13:57.625 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:13:57.625 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:13:57.625 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:13:57.625 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:13:57.625 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:13:57.625 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:13:57.775 | Traceback (most recent call last):
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:13:57.775 |     sys.exit(main())
+celery      | 2025-06-19 10:13:57.775 |              ^^^^^^
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:13:57.775 |     sys.exit(_main())
+celery      | 2025-06-19 10:13:57.775 |              ^^^^^^^
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:13:57.775 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:13:57.775 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:13:57.775 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:13:57.775 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:13:57.775 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:13:57.775 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.775 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:13:57.776 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:13:57.776 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:13:57.776 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:13:57.776 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:13:57.776 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:13:57.776 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:13:57.776 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:13:57.776 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:13:57.776 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:13:57.776 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:13:57.776 |     worker = app.Worker(
+celery      | 2025-06-19 10:13:57.776 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:13:57.776 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:13:57.776 |     self.import_default_modules()
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:13:57.776 |     raise response
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:13:57.776 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:13:57.776 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:13:57.776 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:13:57.776 |     self.django_setup()
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:13:57.776 |     django.setup()
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:13:57.776 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:13:57.776 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:13:57.776 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:13:57.776 |     import_module(entry)
+celery      | 2025-06-19 10:13:57.776 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:13:57.776 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:13:57.776 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:13:57.776 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:13:57.776 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:13:57.776 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:13:57.776 | ModuleNotFoundError: No module named 'admin_interface'
+celery-beat | 2025-06-19 10:14:09.631 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery-beat | 2025-06-19 10:14:09.633 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery-beat | 2025-06-19 10:14:09.846 | Traceback (most recent call last):
+celery-beat | 2025-06-19 10:14:09.846 |   File "/app/manage.py", line 18, in <module>
+celery-beat | 2025-06-19 10:14:09.846 |     main()
+celery-beat | 2025-06-19 10:14:09.846 |   File "/app/manage.py", line 15, in main
+celery-beat | 2025-06-19 10:14:09.846 |     execute_from_command_line(sys.argv)
+celery-beat | 2025-06-19 10:14:09.846 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+celery-beat | 2025-06-19 10:14:09.847 |     utility.execute()
+celery-beat | 2025-06-19 10:14:09.847 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+celery-beat | 2025-06-19 10:14:09.847 |     django.setup()
+celery-beat | 2025-06-19 10:14:09.847 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery-beat | 2025-06-19 10:14:09.847 |     apps.populate(settings.INSTALLED_APPS)
+celery-beat | 2025-06-19 10:14:09.847 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery-beat | 2025-06-19 10:14:09.847 |     app_config = AppConfig.create(entry)
+celery-beat | 2025-06-19 10:14:09.847 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:14:09.847 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery-beat | 2025-06-19 10:14:09.847 |     import_module(entry)
+celery-beat | 2025-06-19 10:14:09.847 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery-beat | 2025-06-19 10:14:09.847 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery-beat | 2025-06-19 10:14:09.847 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-beat | 2025-06-19 10:14:09.847 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery-beat | 2025-06-19 10:14:09.847 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery-beat | 2025-06-19 10:14:09.847 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery-beat | 2025-06-19 10:14:09.847 | ModuleNotFoundError: No module named 'admin_interface'
+web         | 2025-06-19 10:14:10.644 | wait-for-it.sh: waiting 120 seconds for db:3306
+web         | 2025-06-19 10:14:10.645 | wait-for-it.sh: db:3306 is available after 0 seconds
+celery      | 2025-06-19 10:14:10.780 | wait-for-it.sh: waiting 120 seconds for db:3306
+celery      | 2025-06-19 10:14:10.783 | wait-for-it.sh: db:3306 is available after 0 seconds
+web         | 2025-06-19 10:14:10.884 | Traceback (most recent call last):
+web         | 2025-06-19 10:14:10.885 |   File "/app/manage.py", line 18, in <module>
+web         | 2025-06-19 10:14:10.885 |     main()
+web         | 2025-06-19 10:14:10.885 |   File "/app/manage.py", line 15, in main
+web         | 2025-06-19 10:14:10.885 |     execute_from_command_line(sys.argv)
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+web         | 2025-06-19 10:14:10.885 |     utility.execute()
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 416, in execute
+web         | 2025-06-19 10:14:10.885 |     django.setup()
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+web         | 2025-06-19 10:14:10.885 |     apps.populate(settings.INSTALLED_APPS)
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+web         | 2025-06-19 10:14:10.885 |     app_config = AppConfig.create(entry)
+web         | 2025-06-19 10:14:10.885 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+web         | 2025-06-19 10:14:10.885 |     import_module(entry)
+web         | 2025-06-19 10:14:10.885 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+web         | 2025-06-19 10:14:10.885 |     return _bootstrap._gcd_import(name[level:], package, level)
+web         | 2025-06-19 10:14:10.885 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web         | 2025-06-19 10:14:10.885 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+web         | 2025-06-19 10:14:10.885 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+web         | 2025-06-19 10:14:10.885 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+web         | 2025-06-19 10:14:10.885 | ModuleNotFoundError: No module named 'admin_interface'
+celery      | 2025-06-19 10:14:11.081 | Traceback (most recent call last):
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/bin/celery", line 8, in <module>
+celery      | 2025-06-19 10:14:11.081 |     sys.exit(main())
+celery      | 2025-06-19 10:14:11.081 |              ^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/celery/__main__.py", line 15, in main
+celery      | 2025-06-19 10:14:11.081 |     sys.exit(_main())
+celery      | 2025-06-19 10:14:11.081 |              ^^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/celery.py", line 236, in main
+celery      | 2025-06-19 10:14:11.081 |     return celery(auto_envvar_prefix="CELERY")
+celery      | 2025-06-19 10:14:11.081 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1157, in __call__
+celery      | 2025-06-19 10:14:11.081 |     return self.main(*args, **kwargs)
+celery      | 2025-06-19 10:14:11.081 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1078, in main
+celery      | 2025-06-19 10:14:11.081 |     rv = self.invoke(ctx)
+celery      | 2025-06-19 10:14:11.081 |          ^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1688, in invoke
+celery      | 2025-06-19 10:14:11.081 |     return _process_result(sub_ctx.command.invoke(sub_ctx))
+celery      | 2025-06-19 10:14:11.081 |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.081 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 1434, in invoke
+celery      | 2025-06-19 10:14:11.082 |     return ctx.invoke(self.callback, **ctx.params)
+celery      | 2025-06-19 10:14:11.082 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/click/core.py", line 783, in invoke
+celery      | 2025-06-19 10:14:11.082 |     return __callback(*args, **kwargs)
+celery      | 2025-06-19 10:14:11.082 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/click/decorators.py", line 33, in new_func
+celery      | 2025-06-19 10:14:11.082 |     return f(get_current_context(), *args, **kwargs)
+celery      | 2025-06-19 10:14:11.082 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/base.py", line 135, in caller
+celery      | 2025-06-19 10:14:11.082 |     return f(ctx, *args, **kwargs)
+celery      | 2025-06-19 10:14:11.082 |            ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/bin/worker.py", line 348, in worker
+celery      | 2025-06-19 10:14:11.082 |     worker = app.Worker(
+celery      | 2025-06-19 10:14:11.082 |              ^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/worker/worker.py", line 93, in __init__
+celery      | 2025-06-19 10:14:11.082 |     self.app.loader.init_worker()
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 110, in init_worker
+celery      | 2025-06-19 10:14:11.082 |     self.import_default_modules()
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/loaders/base.py", line 104, in import_default_modules
+celery      | 2025-06-19 10:14:11.082 |     raise response
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/utils/dispatch/signal.py", line 276, in send
+celery      | 2025-06-19 10:14:11.082 |     response = receiver(signal=self, sender=sender, **named)
+celery      | 2025-06-19 10:14:11.082 |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 100, in on_import_modules
+celery      | 2025-06-19 10:14:11.082 |     self.worker_fixup.validate_models()
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 138, in validate_models
+celery      | 2025-06-19 10:14:11.082 |     self.django_setup()
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/celery/fixups/django.py", line 134, in django_setup
+celery      | 2025-06-19 10:14:11.082 |     django.setup()
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/django/__init__.py", line 24, in setup
+celery      | 2025-06-19 10:14:11.082 |     apps.populate(settings.INSTALLED_APPS)
+celery      | 2025-06-19 10:14:11.082 |   File "/usr/local/lib/python3.11/site-packages/django/apps/registry.py", line 91, in populate
+celery      | 2025-06-19 10:14:11.082 |     app_config = AppConfig.create(entry)
+celery      | 2025-06-19 10:14:11.083 |                  ^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.083 |   File "/usr/local/lib/python3.11/site-packages/django/apps/config.py", line 193, in create
+celery      | 2025-06-19 10:14:11.083 |     import_module(entry)
+celery      | 2025-06-19 10:14:11.083 |   File "/usr/local/lib/python3.11/importlib/__init__.py", line 126, in import_module
+celery      | 2025-06-19 10:14:11.083 |     return _bootstrap._gcd_import(name[level:], package, level)
+celery      | 2025-06-19 10:14:11.083 |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery      | 2025-06-19 10:14:11.083 |   File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+celery      | 2025-06-19 10:14:11.083 |   File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+celery      | 2025-06-19 10:14:11.083 |   File "<frozen importlib._bootstrap>", line 1140, in _find_and_load_unlocked
+celery      | 2025-06-19 10:14:11.083 | ModuleNotFoundError: No module named 'admin_interface'

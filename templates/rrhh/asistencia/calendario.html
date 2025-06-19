@@ -1,0 +1,458 @@
+{% extends 'rrhh/base/base.html' %}
+{% load static %}
+
+{% block title %}Calendario de Asistencia - RRHH Control{% endblock %}
+
+{% block page_title %}Calendario de Asistencia{% endblock %}
+{% block page_subtitle %}Vista mensual de asistencia para {{ mes_actual|date:"F Y" }}{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item">Asistencia</li>
+<li class="breadcrumb-item active">Calendario</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <div class="btn-group">
+        <input type="month" class="form-control" id="mesSelector" value="{{ mes_actual|date:'Y-m' }}" 
+               onchange="cambiarMes(this.value)">
+    </div>
+    <button type="button" class="btn btn-outline-primary" onclick="irHoy()">
+        <i class="bi bi-calendar-day me-2"></i>Hoy
+    </button>
+    <button type="button" class="btn btn-success" onclick="exportarCalendario()">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Exportar PDF
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filtros Rápidos -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Filtros de Visualización</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Área</label>
+                        <select class="form-select" id="filtroArea" onchange="aplicarFiltros()">
+                            <option value="">Todas las áreas</option>
+                            {% for area in areas %}
+                            <option value="{{ area.id }}">{{ area.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            <option value="activo">Solo Activos</option>
+                            <option value="inactivo">Solo Inactivos</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Resumen del Mes</h6>
+                <div class="row text-center">
+                    <div class="col-3">
+                        <div class="metric">
+                            <h5 class="text-success">{{ stats.dias_laborables }}</h5>
+                            <small class="text-muted">Días Laborables</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="metric">
+                            <h5 class="text-primary">{{ stats.promedio_asistencia }}%</h5>
+                            <small class="text-muted">Asistencia Promedio</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="metric">
+                            <h5 class="text-warning">{{ stats.tardanzas }}</h5>
+                            <small class="text-muted">Tardanzas</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="metric">
+                            <h5 class="text-danger">{{ stats.ausencias }}</h5>
+                            <small class="text-muted">Ausencias</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leyenda -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="card-title mb-3">Leyenda</h6>
+        <div class="row">
+            <div class="col-md-2">
+                <span class="badge bg-success me-2">●</span>Presente
+            </div>
+            <div class="col-md-2">
+                <span class="badge bg-warning me-2">●</span>Tardanza
+            </div>
+            <div class="col-md-2">
+                <span class="badge bg-danger me-2">●</span>Ausente
+            </div>
+            <div class="col-md-2">
+                <span class="badge bg-info me-2">●</span>Licencia
+            </div>
+            <div class="col-md-2">
+                <span class="badge bg-secondary me-2">●</span>Feriado
+            </div>
+            <div class="col-md-2">
+                <span class="badge bg-light text-dark me-2">●</span>Fin de Semana
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calendario Principal -->
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-calendar3 me-2"></i>{{ mes_actual|date:"F Y" }}
+            </h5>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="mesAnterior()">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary" onclick="mesSiguiente()">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered calendar-table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 14.28%;">Domingo</th>
+                        <th style="width: 14.28%;">Lunes</th>
+                        <th style="width: 14.28%;">Martes</th>
+                        <th style="width: 14.28%;">Miércoles</th>
+                        <th style="width: 14.28%;">Jueves</th>
+                        <th style="width: 14.28%;">Viernes</th>
+                        <th style="width: 14.28%;">Sábado</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarioBody">
+                    <!-- Se llena dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalle del Día -->
+<div class="modal fade" id="detalleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de Asistencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleContent">
+                    <!-- Se carga dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let fechaActual = new Date('{{ mes_actual|date:"Y-m-d" }}');
+let datosAsistencia = {{ datos_asistencia|safe }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    generarCalendario();
+});
+
+function generarCalendario() {
+    const calendario = document.getElementById('calendarioBody');
+    calendario.innerHTML = '';
+    
+    const año = fechaActual.getFullYear();
+    const mes = fechaActual.getMonth();
+    
+    // Primer día del mes
+    const primerDia = new Date(año, mes, 1);
+    const ultimoDia = new Date(año, mes + 1, 0);
+    
+    // Día de la semana del primer día (0 = domingo)
+    const diaSemanaInicio = primerDia.getDay();
+    
+    let fecha = new Date(primerDia);
+    fecha.setDate(fecha.getDate() - diaSemanaInicio);
+    
+    // Generar semanas
+    while (fecha <= ultimoDia || fecha.getDay() !== 0) {
+        const fila = document.createElement('tr');
+        
+        // Generar días de la semana
+        for (let dia = 0; dia < 7; dia++) {
+            const celda = document.createElement('td');
+            celda.className = 'calendar-day';
+            
+            if (fecha.getMonth() === mes) {
+                celda.innerHTML = generarCeldaDia(fecha);
+                celda.onclick = () => mostrarDetalleDia(fecha);
+            } else {
+                celda.className += ' other-month';
+                celda.innerHTML = `<div class="day-number text-muted">${fecha.getDate()}</div>`;
+            }
+            
+            fila.appendChild(celda);
+            fecha.setDate(fecha.getDate() + 1);
+        }
+        
+        calendario.appendChild(fila);
+        
+        if (fecha > ultimoDia && fecha.getDay() === 0) break;
+    }
+}
+
+function generarCeldaDia(fecha) {
+    const fechaStr = fecha.toISOString().split('T')[0];
+    const dia = fecha.getDate();
+    const esHoy = fecha.toDateString() === new Date().toDateString();
+    const esFinSemana = fecha.getDay() === 0 || fecha.getDay() === 6;
+    
+    let html = `<div class="day-number ${esHoy ? 'today' : ''}">${dia}</div>`;
+    
+    if (esFinSemana) {
+        html += '<div class="day-status weekend">Fin de Semana</div>';
+        return html;
+    }
+    
+    // Obtener datos de asistencia para esta fecha
+    const asistenciaDelDia = datosAsistencia[fechaStr] || {
+        presentes: 0,
+        ausentes: 0,
+        tardanzas: 0,
+        total: 0
+    };
+    
+    if (asistenciaDelDia.total > 0) {
+        const porcentaje = Math.round((asistenciaDelDia.presentes / asistenciaDelDia.total) * 100);
+        let clase = 'success';
+        
+        if (porcentaje < 70) clase = 'danger';
+        else if (porcentaje < 85) clase = 'warning';
+        
+        html += `
+            <div class="day-status ${clase}">
+                ${porcentaje}% Asistencia
+            </div>
+            <div class="day-details">
+                <small class="text-success">${asistenciaDelDia.presentes} presentes</small><br>
+                <small class="text-danger">${asistenciaDelDia.ausentes} ausentes</small>
+                ${asistenciaDelDia.tardanzas > 0 ? `<br><small class="text-warning">${asistenciaDelDia.tardanzas} tardanzas</small>` : ''}
+            </div>
+        `;
+    } else {
+        html += '<div class="day-status secondary">Sin datos</div>';
+    }
+    
+    return html;
+}
+
+function mostrarDetalleDia(fecha) {
+    const fechaStr = fecha.toISOString().split('T')[0];
+    const modal = new bootstrap.Modal(document.getElementById('detalleModal'));
+    
+    // Cargar detalle vía AJAX
+    fetch(`/rrhh/api/asistencia-detalle-dia/?fecha=${fechaStr}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('detalleContent').innerHTML = generarDetalleHTML(data, fecha);
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cargar los detalles del día');
+        });
+}
+
+function generarDetalleHTML(data, fecha) {
+    let html = `
+        <h6>Asistencia del ${fecha.toLocaleDateString('es-ES', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        })}</h6>
+        
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Operario</th>
+                        <th>Área</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    if (data.registros && data.registros.length > 0) {
+        data.registros.forEach(registro => {
+            html += `
+                <tr>
+                    <td>${registro.operario}</td>
+                    <td>${registro.area || 'Sin área'}</td>
+                    <td>${registro.entrada || '-'}</td>
+                    <td>${registro.salida || '-'}</td>
+                    <td>
+                        <span class="badge bg-${registro.estado_class}">${registro.estado}</span>
+                    </td>
+                </tr>
+            `;
+        });
+    } else {
+        html += '<tr><td colspan="5" class="text-center">No hay registros para este día</td></tr>';
+    }
+    
+    html += '</tbody></table></div>';
+    return html;
+}
+
+function cambiarMes(valor) {
+    fechaActual = new Date(valor + '-01');
+    location.href = `?mes=${valor}`;
+}
+
+function mesAnterior() {
+    fechaActual.setMonth(fechaActual.getMonth() - 1);
+    const mesStr = fechaActual.getFullYear() + '-' + String(fechaActual.getMonth() + 1).padStart(2, '0');
+    location.href = `?mes=${mesStr}`;
+}
+
+function mesSiguiente() {
+    fechaActual.setMonth(fechaActual.getMonth() + 1);
+    const mesStr = fechaActual.getFullYear() + '-' + String(fechaActual.getMonth() + 1).padStart(2, '0');
+    location.href = `?mes=${mesStr}`;
+}
+
+function irHoy() {
+    const hoy = new Date();
+    const mesStr = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+    location.href = `?mes=${mesStr}`;
+}
+
+function aplicarFiltros() {
+    const area = document.getElementById('filtroArea').value;
+    const estado = document.getElementById('filtroEstado').value;
+    
+    let url = new URL(window.location);
+    if (area) url.searchParams.set('area', area);
+    else url.searchParams.delete('area');
+    
+    if (estado) url.searchParams.set('estado', estado);
+    else url.searchParams.delete('estado');
+    
+    location.href = url;
+}
+
+function exportarCalendario() {
+    window.open(`/rrhh/api/calendario-export/?mes=${fechaActual.getFullYear()}-${String(fechaActual.getMonth() + 1).padStart(2, '0')}`);
+}
+</script>
+
+<style>
+.calendar-table td {
+    height: 120px;
+    vertical-align: top;
+    padding: 8px;
+    border-color: #dee2e6 !important;
+}
+
+.calendar-day {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.day-number {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.day-number.today {
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+.day-status {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.day-status.success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.day-status.warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.day-status.danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.day-status.secondary {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.day-status.weekend {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+.day-details {
+    font-size: 0.7rem;
+    line-height: 1.2;
+}
+
+.other-month {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.metric h5 {
+    margin-bottom: 0;
+}
+
+.metric small {
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}
