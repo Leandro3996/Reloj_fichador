@@ -31,7 +31,7 @@
                     <!-- Botones para cada tipo de movimiento -->
                     <button class="menu-button" onclick="setTipoMovimiento('entrada')">Entrada (Q)</button>
                     <button class="menu-button" onclick="setTipoMovimiento('salida_transitoria')">Salida Transitoria
-                        (V)</button>
+                        (Z)</button>
                     <button class="menu-button" onclick="setTipoMovimiento('entrada_transitoria')">Entrada Transitoria
                         (M)</button>
                     <button class="menu-button" onclick="setTipoMovimiento('salida')">Salida (P)</button>
@@ -48,7 +48,7 @@
                 </div>
             </main>
             <footer>
-                <p class="custom-footer">&copy; 2024 Control Horarios</p>
+                <p class="custom-footer">&copy; Cartotecnica Hores SRL</p>
             </footer>
         </div>
     </div>
@@ -157,7 +157,7 @@
                     case 'Q':
                         setTipoMovimiento('entrada');
                         break;
-                    case 'V':
+                    case 'Z':
                         setTipoMovimiento('salida_transitoria');
                         break;
                     case 'M':
@@ -373,7 +373,8 @@
                 "{% static 'images/login-background5.jpg' %}",
                 "{% static 'images/login-background6.jpg' %}",
                 "{% static 'images/login-background7.jpg' %}",
-                "{% static 'images/login-background8.jpg' %}"
+                "{% static 'images/login-background8.jpg' %}",
+                "{% static 'images/login-background9.jpg' %}"
             ];
 
             let currentIndex = 0;

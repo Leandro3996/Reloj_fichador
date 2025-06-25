@@ -65,7 +65,10 @@ def registrar_movimiento_tipo(request, tipo_movimiento):
             return JsonResponse({'success': True, 'message': success_message})
         except ValidationError as ve:
             # Inconsistencia detectada
-            descripcion_inconsistencia = "; ".join(ve.message_dict.get('tipo_movimiento', []))
+            mensajes = ve.message_dict.get('tipo_movimiento', [])
+            # Elimina duplicados y toma solo el primero si hay más de uno
+            mensajes_unicos = list(dict.fromkeys(mensajes))
+            descripcion_inconsistencia = mensajes_unicos[0] if mensajes_unicos else "Inconsistencia detectada."
             logger.warning(f"Inconsistencia detectada en registro: {descripcion_inconsistencia}")
             return JsonResponse({
                 'success': False,

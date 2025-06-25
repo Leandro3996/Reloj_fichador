@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
-    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida
+    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario
 )
 from django.urls import path, reverse
 from datetime import timedelta
@@ -434,30 +434,28 @@ class RegistroDiarioAdmin(ExportMixin, SimpleHistoryAdmin):
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def recalcular_todas_horas(self, request):
-        from .models import Operario, RegistroDiario, Horas_extras
+        from .models import Operario, RegistroDiario
         import datetime
-
+        
+        # Obtener todos los operarios activos
         operarios = Operario.objects.filter(activo=True)
         contador = 0
-
+        
         for operario in operarios:
+            # Buscar registros de este operario
             registros = RegistroDiario.objects.filter(
                 operario=operario,
                 valido=True
             ).order_by('hora_fichada')
-
-            fechas = set()
-            for registro in registros:
-                # Recalcula horas trabajadas (incluye extras en Horas_trabajadas)
+            
+            if registros.exists():
+                # Tomar el registro más reciente
+                registro = registros.last()
+                # Recalcular horas para este operario
                 actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=registro)
-                fechas.add(registro.hora_fichada.date())
                 contador += 1
-
-            # Ahora recalcula Horas_extras para cada fecha de ese operario
-            for fecha in fechas:
-                Horas_extras.calcular_horas_extras(operario, fecha)
-
-        self.message_user(request, f"Se han recalculado las horas para {contador} registros y horas extras asociadas.")
+        
+        self.message_user(request, f"Se han recalculado las horas para {contador} operarios.")
         return HttpResponseRedirect(reverse('admin:reloj_fichador_horas_trabajadas_changelist'))
 
     def recalcular_horas_trabajadas(self, request, queryset):
@@ -743,7 +741,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
+    list_display = ('get_dni', 'operario', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
@@ -755,15 +753,6 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
         Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
         return super().get_queryset(request).select_related('operario')
-    
-    def get_mes(self, obj):
-        try:
-            anio, mes = obj.mes_actual.split('-')
-            return f"{mes}/{anio}"
-        except Exception as e:
-            return obj.mes_actual
-    get_mes.short_description = 'Mes'
-        
 
     def get_dni(self, obj):
         return obj.operario.dni
@@ -1228,9 +1217,6 @@ class RestrictedUserAdmin(UserAdmin):
             ('Información personal', {'fields': ('first_name', 'last_name', 'email')}),
         ]
 
-
 # Desregistrar el UserAdmin predeterminado y registrar nuestro RestrictedUserAdmin
 admin.site.unregister(User)
 admin.site.register(User, RestrictedUserAdmin)
-admin.site.register(ConfiguracionRedondeo)
-admin.site.register(ConfiguracionRedondeoSalida)
