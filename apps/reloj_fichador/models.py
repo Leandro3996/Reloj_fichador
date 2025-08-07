@@ -544,14 +544,12 @@ class Horas_trabajadas(models.Model):
 
         horas_extras = timedelta()
         if excedente >= timedelta(minutes=30):
-            # Siempre sumar 30 minutos al superar 8h30m
-            excedente_restante = excedente - timedelta(minutes=30)
-            # Sumar bloques de 15 minutos, redondeando al bloque más cercano
-            if excedente_restante > timedelta():
-                bloques_15_min = int(round(excedente_restante.total_seconds() / 900))  # 900s = 15min
-                horas_extras = timedelta(minutes=30 + 15 * bloques_15_min)
-            else:
-                horas_extras = timedelta(minutes=30)
+            # Convertir excedente a minutos totales
+            minutos_excedente = int(excedente.total_seconds() / 60)
+            
+            # Redondear a bloques de 30 minutos hacia abajo
+            bloques_30_min = minutos_excedente // 30
+            horas_extras = timedelta(minutes=30 * bloques_30_min)
         else:
             horas_extras = timedelta()
 
