@@ -353,6 +353,7 @@ class RegistroDiario(models.Model):
 
         from django.conf import settings
         import pytz
+        import inspect
 
         if not self.hora_fichada:
             self.hora_fichada = timezone.now()
@@ -377,6 +378,17 @@ class RegistroDiario(models.Model):
         if self.inconsistencia:
             return
         
+        # Detectar si la llamada viene del admin de Django
+        es_desde_admin = False
+        for frame_info in inspect.stack():
+            if 'django/contrib/admin' in frame_info.filename or 'admin.py' in frame_info.filename:
+                es_desde_admin = True
+                break
+        
+        # Si viene desde admin, permitir cualquier secuencia para correcciones manuales
+        if es_desde_admin:
+            return
+        
         inconsistencias = []
         
         # Obtener el último registro válido
@@ -384,9 +396,8 @@ class RegistroDiario(models.Model):
         
         if self.tipo_movimiento == 'entrada':
             if ultimo_valido:
-                # Validación 1: No puede haber una entrada si no hubo salida el día anterior
+                # Validación desde template: solo permitir entrada después de salida
                 if ultimo_valido.tipo_movimiento != 'salida':
-                    # Convertir a zona horaria de Argentina
                     argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
                     hora_local = ultimo_valido.hora_fichada.astimezone(argentina_tz)
                     fecha_ultimo = hora_local.strftime('%d/%m/%Y %H:%M:%S')
