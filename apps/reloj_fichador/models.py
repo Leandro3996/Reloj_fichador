@@ -253,11 +253,12 @@ class RegistroDiario(models.Model):
     def get_last_valid_record(self):
         """
         Obtiene el último registro válido para el operario (excluyendo el actual).
+        Ordena por ID para obtener el registro creado más recientemente.
         """
         return RegistroDiario.objects.filter(
             operario=self.operario,            
             valido=True
-        ).exclude(pk=self.pk).order_by('-hora_fichada').first()
+        ).exclude(pk=self.pk).order_by('-id_registro').first()
 
     @staticmethod
     def calcular_fecha_logica(hora_fichada, tipo_movimiento=None):
@@ -431,7 +432,7 @@ class RegistroDiario(models.Model):
                 tipo_movimiento='entrada',
                 valido=True,
                 hora_fichada__lt=self.hora_fichada
-            ).order_by('-hora_fichada').first()
+            ).order_by('-id_registro').first()
 
             if not ultima_entrada:
                 inconsistencias.append(
@@ -446,25 +447,23 @@ class RegistroDiario(models.Model):
             tipo_movimiento='entrada',
             hora_fichada__lt=self.hora_fichada,
             valido=True
-        ).order_by('-hora_fichada').first()
+        ).order_by('-id_registro').first()
 
         if ultima_entrada:
             # 2. Tomar todos los movimientos válidos desde esa ENTRADA hasta el actual (excluyendo el actual)
             registros_jornada = RegistroDiario.objects.filter(
                 operario=self.operario,
-                hora_fichada__gt=ultima_entrada.hora_fichada,
-                hora_fichada__lt=self.hora_fichada,
+                id_registro__gt=ultima_entrada.id_registro,
                 valido=True
-            ).order_by('hora_fichada')
+            ).exclude(pk=self.pk).order_by('id_registro')
             movimientos_jornada = ['entrada'] + list(registros_jornada.values_list('tipo_movimiento', flat=True))
         else:
             # Si no hay ENTRADA previa, usar los movimientos del día como fallback
             registros_jornada = RegistroDiario.objects.filter(
                 operario=self.operario,
                 hora_fichada__date=movimiento_fecha,
-                hora_fichada__lt=self.hora_fichada,
                 valido=True
-            ).order_by('hora_fichada')
+            ).exclude(pk=self.pk).order_by('id_registro')
             movimientos_jornada = list(registros_jornada.values_list('tipo_movimiento', flat=True))
 
         last_movement = movimientos_jornada[-1] if movimientos_jornada else None
