@@ -1538,11 +1538,11 @@ class ReporteManager:
     
     @staticmethod
     def generar_reporte_asistencia(fecha_inicio=None, fecha_fin=None, operarios=None):
-        """Genera reporte de asistencia por período"""
-        from django.db.models import Q
+        """Genera reporte de asistencia por período con resumen de horas"""
+        from django.db.models import Q, Sum, Count
         from datetime import datetime, date
         
-        # Filtros base
+        # Filtros base para registros
         filtros = Q(valido=True)
         
         if fecha_inicio:
@@ -1556,12 +1556,60 @@ class ReporteManager:
         
         # Agrupar por operario
         reporte_data = {}
+        operarios_en_reporte = set()
+        
         for registro in registros:
             operario = registro.operario
+            operarios_en_reporte.add(operario)
             if operario not in reporte_data:
-                reporte_data[operario] = []
-            reporte_data[operario].append(registro)
+                reporte_data[operario] = {
+                    'registros': [],
+                    'resumen_horas': None
+                }
+            reporte_data[operario]['registros'].append(registro)
+        
+        # Calcular resumen de horas trabajadas para el período
+        filtros_horas = Q()
+        if fecha_inicio:
+            filtros_horas &= Q(fecha__gte=fecha_inicio)
+        if fecha_fin:
+            filtros_horas &= Q(fecha__lte=fecha_fin)
+        if operarios:
+            filtros_horas &= Q(operario__in=operarios)
+        else:
+            # Si no se especificaron operarios, usar solo los que aparecen en el reporte
+            filtros_horas &= Q(operario__in=operarios_en_reporte)
             
+        # Obtener horas trabajadas agrupadas por operario
+        from django.db.models import DurationField
+        from django.db.models.functions import Coalesce
+        
+        horas_resumen = Horas_trabajadas.objects.filter(filtros_horas).values(
+            'operario',
+            'operario__apellido', 
+            'operario__nombre',
+            'operario__dni'
+        ).annotate(
+            total_horas_normales=Sum('horas_normales'),
+            total_horas_nocturnas=Sum('horas_nocturnas'), 
+            total_horas_extras=Sum('horas_extras'),
+            dias_trabajados=Count('fecha')  # Contar los días únicos trabajados
+        ).order_by('operario__apellido')
+        
+        # Agregar resumen al reporte_data
+        for resumen in horas_resumen:
+            operario_id = resumen['operario']
+            
+            # Buscar el operario en reporte_data
+            operario_obj = None
+            for op in reporte_data.keys():
+                if op.id == operario_id:
+                    operario_obj = op
+                    break
+            
+            if operario_obj:
+                reporte_data[operario_obj]['resumen_horas'] = resumen
+        
         return reporte_data
     
     @staticmethod
@@ -1956,10 +2004,10 @@ class ReporteAdmin(admin.ModelAdmin):
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
-        # Datos
+        # Datos de registros
         row = 2
-        for operario, registros in reporte_data.items():
-            for registro in registros:
+        for operario, data in reporte_data.items():
+            for registro in data['registros']:
                 ws.cell(row=row, column=1, value=f"{operario.apellido}, {operario.nombre}")
                 ws.cell(row=row, column=2, value=operario.dni)
                 ws.cell(row=row, column=3, value=registro.hora_fichada.strftime('%d/%m/%Y'))
@@ -1967,6 +2015,31 @@ class ReporteAdmin(admin.ModelAdmin):
                 ws.cell(row=row, column=5, value=registro.tipo_movimiento.replace('_', ' ').title())
                 ws.cell(row=row, column=6, value=registro.origen_fichada)
                 row += 1
+        
+        # Agregar resumen de horas en una nueva hoja
+        ws_resumen = wb.create_sheet(title="Resumen Horas")
+        headers_resumen = ['Empleado', 'DNI', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Días Trabajados', 'Total Horas']
+        for col, header in enumerate(headers_resumen, 1):
+            ws_resumen.cell(row=1, column=col, value=header)
+        
+        row_resumen = 2
+        for operario, data in reporte_data.items():
+            if data['resumen_horas']:
+                resumen = data['resumen_horas']
+                # Convertir timedelta a horas
+                horas_normales = resumen['total_horas_normales'].total_seconds() / 3600 if resumen['total_horas_normales'] else 0
+                horas_nocturnas = resumen['total_horas_nocturnas'].total_seconds() / 3600 if resumen['total_horas_nocturnas'] else 0
+                horas_extras = resumen['total_horas_extras'].total_seconds() / 3600 if resumen['total_horas_extras'] else 0
+                total_horas = horas_normales + horas_nocturnas + horas_extras
+                
+                ws_resumen.cell(row=row_resumen, column=1, value=f"{operario.apellido}, {operario.nombre}")
+                ws_resumen.cell(row=row_resumen, column=2, value=operario.dni)
+                ws_resumen.cell(row=row_resumen, column=3, value=f"{horas_normales:.1f}h")
+                ws_resumen.cell(row=row_resumen, column=4, value=f"{horas_nocturnas:.1f}h")
+                ws_resumen.cell(row=row_resumen, column=5, value=f"{horas_extras:.1f}h")
+                ws_resumen.cell(row=row_resumen, column=6, value=resumen['dias_trabajados'] or 0)
+                ws_resumen.cell(row=row_resumen, column=7, value=f"{total_horas:.1f}h")
+                row_resumen += 1
         
         # Respuesta HTTP
         response = HttpResponse(

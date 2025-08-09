@@ -83,8 +83,8 @@
         
         .tipo-entrada { color: #28a745; font-weight: bold; }
         .tipo-salida { color: #dc3545; font-weight: bold; }
-        .tipo-entrada_transitoria { color: #17a2b8; }
-        .tipo-salida_transitoria { color: #fd7e14; }
+        .tipo-entrada_transitoria { color: #17a2b8; font-weight: bold; }
+        .tipo-salida_transitoria { color: #fd7e14; font-weight: bold; }
         
         .footer {
             position: fixed;
@@ -130,7 +130,7 @@
     </div>
     
     {% if reporte_data %}
-        {% for operario, registros in reporte_data.items %}
+        {% for operario, data in reporte_data.items %}
         <div class="operario-seccion">
             <div class="operario-header">
                 {{ operario.apellido }}, {{ operario.nombre }} - DNI: {{ operario.dni }}
@@ -147,7 +147,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for registro in registros %}
+                    {% for registro in data.registros %}
                     <tr>
                         <td>{{ registro.hora_fichada|date:'d/m/Y' }}</td>
                         <td><strong>{{ registro.hora_fichada|date:'H:i:s' }}</strong></td>
@@ -170,10 +170,82 @@
             </table>
             
             <div style="text-align: right; font-size: 8px; color: #666; margin-bottom: 10px;">
-                <strong>Total registros:</strong> {{ registros|length }}
+                <strong>Total registros:</strong> {{ data.registros|length }}
             </div>
         </div>
         {% endfor %}
+        
+        <!-- Resumen de Horas Trabajadas -->
+        <div style="margin-top: 30px; page-break-before: auto;">
+            <h2 style="color: #417690; border-bottom: 2px solid #417690; padding-bottom: 5px;">
+                ⏱️ Resumen de Horas Trabajadas
+            </h2>
+            <p style="margin: 5px 0 15px 0; color: #666;">
+                Período: {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}
+            </p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background-color: #417690; color: white;">
+                        <th style="padding: 8px; border: 1px solid #ddd;">Empleado</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">DNI</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">H. Normales</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">H. Nocturnas</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">H. Extras</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">Días Trab.</th>
+                        <th style="padding: 8px; border: 1px solid #ddd; background: #34495e;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for operario, data in reporte_data.items %}
+                        {% if data.resumen_horas %}
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #ddd;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td style="padding: 6px; border: 1px solid #ddd;">{{ operario.dni }}</td>
+                            <td style="padding: 6px; border: 1px solid #ddd; color: #28a745; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_normales %}
+                                    {% widthratio data.resumen_horas.total_horas_normales.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="padding: 6px; border: 1px solid #ddd; color: #17a2b8; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_nocturnas %}
+                                    {% widthratio data.resumen_horas.total_horas_nocturnas.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="padding: 6px; border: 1px solid #ddd; color: #fd7e14; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_extras %}
+                                    {% widthratio data.resumen_horas.total_horas_extras.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">
+                                {{ data.resumen_horas.dias_trabajados|default:"0" }}
+                            </td>
+                            <td style="padding: 6px; border: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">
+                                {% with horas_normales=data.resumen_horas.total_horas_normales.total_seconds|default:0 horas_nocturnas=data.resumen_horas.total_horas_nocturnas.total_seconds|default:0 horas_extras=data.resumen_horas.total_horas_extras.total_seconds|default:0 %}
+                                    {% widthratio horas_normales|add:horas_nocturnas|add:horas_extras 3600 1 %}h
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td style="padding: 6px; border: 1px solid #ddd;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td style="padding: 6px; border: 1px solid #ddd;">{{ operario.dni }}</td>
+                            <td colspan="5" style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #6c757d; font-style: italic;">
+                                Sin datos de horas para este período
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
     {% else %}
     <div class="resumen">
         <h3>⚠️ Sin datos</h3>

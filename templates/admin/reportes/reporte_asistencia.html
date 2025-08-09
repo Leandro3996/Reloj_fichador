@@ -5,6 +5,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
+<!-- Versión 3.0 - Resumen de horas + colores mejorados -->
 <style>
 /* Flat Design - Reportes */
 .reporte-container {
@@ -144,6 +145,8 @@
 
 .tipo-entrada { color: #28a745; font-weight: 500; }
 .tipo-salida { color: #dc3545; font-weight: 500; }
+.tipo-entrada_transitoria { color: #17a2b8; font-weight: 500; }
+.tipo-salida_transitoria { color: #fd7e14; font-weight: 500; }
 .tipo-transitoria { color: #ffc107; font-weight: 500; }
 
 .sin-datos {
@@ -252,13 +255,13 @@
     
     <div class="resultados-container">
         {% if reporte_data %}
-            {% for operario, registros in reporte_data.items %}
+            {% for operario, data in reporte_data.items %}
             <div class="operario-seccion">
                 <div class="operario-header">
                     {{ operario.apellido }}, {{ operario.nombre }} - DNI: {{ operario.dni }}
                 </div>
                 
-                {% if registros %}
+                {% if data.registros %}
                 <table class="registros-tabla">
                     <thead>
                         <tr>
@@ -269,12 +272,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for registro in registros %}
+                        {% for registro in data.registros %}
                         <tr>
                             <td>{{ registro.hora_fichada|date:'d/m/Y' }}</td>
                             <td>{{ registro.hora_fichada|date:'H:i:s' }}</td>
                             <td>
-                                <span class="tipo-{% if 'entrada' in registro.tipo_movimiento %}entrada{% elif 'salida' in registro.tipo_movimiento %}salida{% else %}transitoria{% endif %}">
+                                <span class="tipo-{{ registro.tipo_movimiento }}">
                                     {{ registro.get_tipo_movimiento_display }}
                                 </span>
                             </td>
@@ -296,6 +299,79 @@
         </div>
         {% endif %}
     </div>
+    
+    <!-- Resumen de Horas Trabajadas -->
+    {% if reporte_data %}
+    <div style="margin-top: 3rem;">
+        <h3 style="color: #495057; border-bottom: 2px solid #417690; padding-bottom: 10px;">
+            ⏱️ Resumen de Horas Trabajadas ({{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }})
+        </h3>
+        
+        <div class="resultados-container" style="margin-top: 1rem;">
+            <table class="registros-tabla">
+                <thead>
+                    <tr style="background: #417690; color: white;">
+                        <th>Empleado</th>
+                        <th>DNI</th>
+                        <th style="color: #90EE90;">Horas Normales</th>
+                        <th style="color: #87CEEB;">Horas Nocturnas</th>
+                        <th style="color: #FFB347;">Horas Extras</th>
+                        <th>Días Trabajados</th>
+                        <th style="background: #34495e;">Total Horas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for operario, data in reporte_data.items %}
+                        {% if data.resumen_horas %}
+                        <tr>
+                            <td><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td>{{ operario.dni }}</td>
+                            <td style="color: #28a745; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_normales %}
+                                    {% widthratio data.resumen_horas.total_horas_normales.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="color: #17a2b8; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_nocturnas %}
+                                    {% widthratio data.resumen_horas.total_horas_nocturnas.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="color: #fd7e14; font-weight: bold;">
+                                {% if data.resumen_horas.total_horas_extras %}
+                                    {% widthratio data.resumen_horas.total_horas_extras.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {{ data.resumen_horas.dias_trabajados|default:"0" }} días
+                            </td>
+                            <td style="background: #f8f9fa; font-weight: bold; font-size: 1.1em;">
+                                {% with horas_normales=data.resumen_horas.total_horas_normales.total_seconds|default:0 horas_nocturnas=data.resumen_horas.total_horas_nocturnas.total_seconds|default:0 horas_extras=data.resumen_horas.total_horas_extras.total_seconds|default:0 %}
+                                    {% widthratio horas_normales|add:horas_nocturnas|add:horas_extras 3600 1 %}h
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td>{{ operario.dni }}</td>
+                            <td colspan="5" style="text-align: center; color: #6c757d; font-style: italic;">
+                                Sin datos de horas para este período
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
     {% endif %}
 </div>
 {% endblock %}
