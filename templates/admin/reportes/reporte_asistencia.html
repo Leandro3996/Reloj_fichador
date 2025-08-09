@@ -5,7 +5,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<!-- Versión 3.0 - Resumen de horas + colores mejorados -->
+<!-- Versión 4.0 - Buscador dinámico de operarios [TIMESTAMP: 2025-08-09-14:40] -->
 <style>
 /* Flat Design - Reportes */
 .reporte-container {
@@ -189,6 +189,111 @@
     color: white;
     text-decoration: none;
 }
+
+/* Estilos del buscador de operarios */
+.operarios-container {
+    position: relative;
+}
+
+.controles-operarios {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.btn-control {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-control:hover {
+    background: #5a6268;
+}
+
+.contador-seleccionados {
+    font-size: 12px;
+    color: #417690;
+    font-weight: 500;
+}
+
+.buscador-operarios {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 8px;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.buscador-operarios:focus {
+    outline: none;
+    border-color: #417690;
+    box-shadow: 0 0 0 3px rgba(65, 118, 144, 0.1);
+}
+
+.operarios-select {
+    width: 100%;
+    min-height: 120px;
+    max-height: 200px;
+    padding: 8px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: border-color 0.3s ease;
+    overflow-y: auto;
+}
+
+.operarios-select:focus {
+    outline: none;
+    border-color: #417690;
+}
+
+.operarios-select option {
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+}
+
+.operarios-select option:hover {
+    background: #f8f9fa;
+}
+
+.operarios-select option:checked {
+    background: #417690;
+    color: white;
+}
+
+.ayuda-operarios {
+    display: block;
+    margin-top: 6px;
+    color: #6c757d;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+/* Indicador de operarios ocultos */
+.operarios-hidden-indicator {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+/* FORCE CACHE REFRESH - v4.0.1 */
+.force-refresh-4-0-1 { display: none; }
 </style>
 {% endblock %}
 
@@ -219,15 +324,41 @@
                 </div>
                 
                 <div class="campo-filtro">
-                    <label for="operarios">Operarios (mantén Ctrl para seleccionar varios)</label>
-                    <select name="operarios" id="operarios" multiple>
-                        {% for operario in operarios_disponibles %}
-                            <option value="{{ operario.id }}"
-                                    {% if operarios_seleccionados and operario in operarios_seleccionados %}selected{% endif %}>
-                                {{ operario.apellido }}, {{ operario.nombre }} - {{ operario.dni }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <label for="operarios">Operarios</label>
+                    <div class="operarios-container">
+                        <!-- Buscador -->
+                        <input type="text" 
+                               id="buscador-operarios" 
+                               placeholder="🔍 Buscar operario por nombre, apellido o DNI..." 
+                               class="buscador-operarios">
+                        
+                        <!-- Botones de control -->
+                        <div class="controles-operarios">
+                            <button type="button" id="limpiar-seleccion" class="btn-control">
+                                🗑️ Limpiar selección
+                            </button>
+                            <span class="contador-seleccionados">0 seleccionados</span>
+                        </div>
+                        
+                        <!-- Select múltiple con scroll -->
+                        <select name="operarios" id="operarios" multiple class="operarios-select">
+                            {% for operario in operarios_disponibles %}
+                                <option value="{{ operario.id }}"
+                                        data-nombre="{{ operario.nombre|lower }}"
+                                        data-apellido="{{ operario.apellido|lower }}"
+                                        data-dni="{{ operario.dni }}"
+                                        data-texto="{{ operario.apellido|lower }} {{ operario.nombre|lower }} {{ operario.dni }}"
+                                        {% if operarios_seleccionados and operario in operarios_seleccionados %}selected{% endif %}>
+                                    {{ operario.apellido }}, {{ operario.nombre }} - {{ operario.dni }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        
+                        <!-- Información de ayuda -->
+                        <small class="ayuda-operarios">
+                            💡 Escribe para filtrar, luego Ctrl+click para seleccionar múltiples operarios
+                        </small>
+                    </div>
                 </div>
             </div>
             
@@ -374,4 +505,143 @@
     
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscador-operarios');
+    const select = document.getElementById('operarios');
+    const container = document.querySelector('.operarios-container');
+    const limpiarBtn = document.getElementById('limpiar-seleccion');
+    const contador = document.querySelector('.contador-seleccionados');
+    
+    if (!buscador || !select) return;
+    
+    // Guardar todas las opciones originales
+    const todasLasOpciones = Array.from(select.options).map(option => ({
+        element: option.cloneNode(true),
+        texto: option.getAttribute('data-texto') || option.textContent.toLowerCase(),
+        selected: option.selected
+    }));
+    
+    // Crear indicador de opciones ocultas
+    const indicator = document.createElement('div');
+    indicator.className = 'operarios-hidden-indicator';
+    indicator.style.display = 'none';
+    container.insertBefore(indicator, select);
+    
+    // Función para actualizar contador de seleccionados
+    function actualizarContador() {
+        const seleccionados = todasLasOpciones.filter(op => op.selected).length;
+        contador.textContent = `${seleccionados} seleccionado${seleccionados !== 1 ? 's' : ''}`;
+        contador.style.color = seleccionados > 0 ? '#28a745' : '#417690';
+    }
+    
+    // Función para filtrar operarios
+    function filtrarOperarios() {
+        const terminoBusqueda = buscador.value.toLowerCase().trim();
+        
+        // Limpiar select
+        select.innerHTML = '';
+        
+        let opcionesMostradas = 0;
+        let opcionesOcultas = 0;
+        
+        // Filtrar y agregar opciones que coincidan
+        todasLasOpciones.forEach(opcion => {
+            if (!terminoBusqueda || opcion.texto.includes(terminoBusqueda)) {
+                const newOption = opcion.element.cloneNode(true);
+                newOption.selected = opcion.selected;
+                select.appendChild(newOption);
+                opcionesMostradas++;
+            } else {
+                opcionesOcultas++;
+            }
+        });
+        
+        // Mostrar/ocultar indicador
+        if (terminoBusqueda && opcionesOcultas > 0) {
+            indicator.textContent = `📋 Mostrando ${opcionesMostradas} de ${todasLasOpciones.length} operarios (${opcionesOcultas} ocultos)`;
+            indicator.style.display = 'block';
+        } else {
+            indicator.style.display = 'none';
+        }
+        
+        // Si no hay resultados, mostrar mensaje
+        if (opcionesMostradas === 0 && terminoBusqueda) {
+            const noResultsOption = document.createElement('option');
+            noResultsOption.textContent = '🔍 No se encontraron operarios que coincidan';
+            noResultsOption.disabled = true;
+            noResultsOption.style.fontStyle = 'italic';
+            noResultsOption.style.color = '#6c757d';
+            select.appendChild(noResultsOption);
+        }
+        
+        actualizarContador();
+    }
+    
+    // Función para limpiar selección
+    function limpiarSeleccion() {
+        todasLasOpciones.forEach(opcion => {
+            opcion.selected = false;
+            opcion.element.selected = false;
+        });
+        filtrarOperarios(); // Refrescar vista
+    }
+    
+    // Evento de búsqueda en tiempo real
+    buscador.addEventListener('input', filtrarOperarios);
+    
+    // Limpiar búsqueda al presionar Escape
+    buscador.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            buscador.value = '';
+            filtrarOperarios();
+            buscador.blur();
+        }
+    });
+    
+    // Botón limpiar selección
+    limpiarBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        limpiarSeleccion();
+    });
+    
+    // Mantener selecciones al filtrar
+    select.addEventListener('change', function() {
+        // Actualizar el estado de selección en nuestro array original
+        Array.from(select.options).forEach(option => {
+            const valorOpcion = option.value;
+            const opcionOriginal = todasLasOpciones.find(op => op.element.value === valorOpcion);
+            if (opcionOriginal) {
+                opcionOriginal.selected = option.selected;
+                opcionOriginal.element.selected = option.selected;
+            }
+        });
+        actualizarContador();
+    });
+    
+    // Mejorar la experiencia con el foco
+    buscador.addEventListener('focus', function() {
+        this.select();
+    });
+    
+    // Atajos de teclado
+    buscador.addEventListener('keydown', function(e) {
+        // Flecha abajo: enfocar el select
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            select.focus();
+            if (select.options.length > 0 && select.selectedIndex === -1) {
+                select.selectedIndex = 0;
+            }
+        }
+    });
+    
+    // Inicializar contador
+    actualizarContador();
+    
+    console.log('🔍 Buscador de operarios con controles avanzados inicializado correctamente');
+});
+</script>
+
 {% endblock %}
