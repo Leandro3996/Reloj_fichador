@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static admin_list %}
+
+{% block title %}Centro de Reportes{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Flat Design - Centro de Reportes */
+.reportes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.reporte-card {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 2rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    text-align: center;
+}
+
+.reporte-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.reporte-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #417690;
+}
+
+.reporte-titulo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.reporte-descripcion {
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.btn-reporte {
+    background: #417690;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+.btn-reporte:hover {
+    background: #2c5f7a;
+    color: white;
+    text-decoration: none;
+}
+
+.reportes-titulo {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 3rem;
+    font-weight: 300;
+}
+
+.reportes-subtitulo {
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reportes-container">
+    <h1 class="reportes-titulo">📊 Centro de Reportes</h1>
+    <p class="reportes-subtitulo">Genera reportes personalizados de forma sencilla e intuitiva</p>
+    
+    <div class="reportes-grid">
+        <!-- Reporte de Asistencia -->
+        <div class="reporte-card">
+            <div class="reporte-icon">👥</div>
+            <h2 class="reporte-titulo">Asistencia</h2>
+            <p class="reporte-descripcion">
+                Consulta los registros de entrada y salida de los empleados por período. 
+                Ideal para control de puntualidad y presencia.
+            </p>
+            <a href="{% url 'admin:reporte_asistencia' %}" class="btn-reporte">
+                Generar Reporte
+            </a>
+        </div>
+
+        <!-- Reporte de Horas -->
+        <div class="reporte-card">
+            <div class="reporte-icon">⏱️</div>
+            <h2 class="reporte-titulo">Horas Trabajadas</h2>
+            <p class="reporte-descripcion">
+                Visualiza las horas normales, nocturnas y extras trabajadas por empleado. 
+                Perfecto para nóminas y control de costos.
+            </p>
+            <a href="{% url 'admin:reporte_horas' %}" class="btn-reporte">
+                Generar Reporte
+            </a>
+        </div>
+
+        <!-- Reporte de Inconsistencias -->
+        <div class="reporte-card">
+            <div class="reporte-icon">⚠️</div>
+            <h2 class="reporte-titulo">Inconsistencias</h2>
+            <p class="reporte-descripcion">
+                Revisa todos los fichajes marcados como inconsistentes que requieren 
+                atención o corrección manual.
+            </p>
+            <a href="{% url 'admin:reporte_inconsistencias' %}" class="btn-reporte">
+                Generar Reporte
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

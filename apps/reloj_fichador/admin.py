@@ -10,7 +10,7 @@ from django.utils.html import format_html
 from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
-    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida
+    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida, Reporte
 )
 from django.urls import path, reverse
 from datetime import timedelta
@@ -1527,4 +1527,625 @@ class RestrictedUserAdmin(UserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, RestrictedUserAdmin)
 admin.site.register(ConfiguracionRedondeo)
+
+
+# =============================================================================
+# SECCIÓN DE REPORTES
+# =============================================================================
+
+class ReporteManager:
+    """Gestor de reportes personalizado"""
+    
+    @staticmethod
+    def generar_reporte_asistencia(fecha_inicio=None, fecha_fin=None, operarios=None):
+        """Genera reporte de asistencia por período"""
+        from django.db.models import Q
+        from datetime import datetime, date
+        
+        # Filtros base
+        filtros = Q(valido=True)
+        
+        if fecha_inicio:
+            filtros &= Q(hora_fichada__date__gte=fecha_inicio)
+        if fecha_fin:
+            filtros &= Q(hora_fichada__date__lte=fecha_fin)
+        if operarios:
+            filtros &= Q(operario__in=operarios)
+            
+        registros = RegistroDiario.objects.filter(filtros).select_related('operario').order_by('operario__apellido', 'hora_fichada')
+        
+        # Agrupar por operario
+        reporte_data = {}
+        for registro in registros:
+            operario = registro.operario
+            if operario not in reporte_data:
+                reporte_data[operario] = []
+            reporte_data[operario].append(registro)
+            
+        return reporte_data
+    
+    @staticmethod
+    def generar_reporte_horas(mes=None, año=None, operarios=None):
+        """Genera reporte de horas trabajadas por mes"""
+        from django.db.models import Q
+        from datetime import datetime, date
+        
+        if not mes or not año:
+            hoy = date.today()
+            mes = mes or hoy.month
+            año = año or hoy.year
+            
+        # Filtros
+        filtros = Q(fecha__month=mes, fecha__year=año)
+        if operarios:
+            filtros &= Q(operario__in=operarios)
+            
+        horas_trabajadas = Horas_trabajadas.objects.filter(filtros).select_related('operario').order_by('operario__apellido')
+        
+        return horas_trabajadas, mes, año
+    
+    @staticmethod
+    def generar_reporte_inconsistencias(fecha_inicio=None, fecha_fin=None):
+        """Genera reporte de inconsistencias por período"""
+        from django.db.models import Q
+        from datetime import datetime, date
+        
+        # Filtros base - registros con inconsistencias o no válidos
+        filtros = Q(inconsistencia=True) | Q(valido=False)
+        
+        if fecha_inicio:
+            filtros &= Q(hora_fichada__date__gte=fecha_inicio)
+        if fecha_fin:
+            filtros &= Q(hora_fichada__date__lte=fecha_fin)
+            
+        inconsistencias = RegistroDiario.objects.filter(filtros).select_related('operario').order_by('-hora_fichada')
+        
+        return inconsistencias
+
+
+@admin.register(Reporte)
+class ReporteAdmin(admin.ModelAdmin):
+    """Admin personalizado para la generación de reportes"""
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def changelist_view(self, request, extra_context=None):
+        """Vista personalizada para mostrar las opciones de reportes"""
+        from django.shortcuts import render
+        
+        context = {
+            'title': 'Centro de Reportes',
+            'has_add_permission': False,
+            'has_change_permission': False,
+            'has_delete_permission': False,
+        }
+        
+        if extra_context:
+            context.update(extra_context)
+            
+        return render(request, 'admin/reportes/centro_reportes.html', context)
+    
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('asistencia/', self.admin_site.admin_view(self.reporte_asistencia), name='reporte_asistencia'),
+            path('horas/', self.admin_site.admin_view(self.reporte_horas), name='reporte_horas'),
+            path('inconsistencias/', self.admin_site.admin_view(self.reporte_inconsistencias), name='reporte_inconsistencias'),
+            
+            # Exportaciones
+            path('horas/exportar-excel/', self.admin_site.admin_view(self.exportar_horas_excel), name='exportar_horas_excel'),
+            path('horas/exportar-pdf/', self.admin_site.admin_view(self.exportar_horas_pdf), name='exportar_horas_pdf'),
+            path('asistencia/exportar-excel/', self.admin_site.admin_view(self.exportar_asistencia_excel), name='exportar_asistencia_excel'),
+            path('asistencia/exportar-pdf/', self.admin_site.admin_view(self.exportar_asistencia_pdf), name='exportar_asistencia_pdf'),
+            path('inconsistencias/exportar-excel/', self.admin_site.admin_view(self.exportar_inconsistencias_excel), name='exportar_inconsistencias_excel'),
+            path('inconsistencias/exportar-pdf/', self.admin_site.admin_view(self.exportar_inconsistencias_pdf), name='exportar_inconsistencias_pdf'),
+        ]
+        return custom_urls + urls
+    
+    def reporte_asistencia(self, request):
+        """Vista para generar reporte de asistencia"""
+        from django.shortcuts import render
+        from datetime import datetime, date, timedelta
+        
+        # Valores por defecto
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        operario_ids = request.GET.getlist('operarios')
+        
+        # Convertir fechas si se proporcionaron
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        # Si no hay fechas, usar la última semana
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=7)
+        
+        # Operarios seleccionados
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar reporte
+        reporte_data = None
+        if 'generar' in request.GET:
+            reporte_data = ReporteManager.generar_reporte_asistencia(fecha_inicio, fecha_fin, operarios)
+        
+        context = {
+            'title': 'Reporte de Asistencia',
+            'fecha_inicio': fecha_inicio,
+            'fecha_fin': fecha_fin,
+            'operarios_disponibles': Operario.objects.filter(activo=True).order_by('apellido'),
+            'operarios_seleccionados': operarios,
+            'reporte_data': reporte_data,
+        }
+        
+        return render(request, 'admin/reportes/reporte_asistencia.html', context)
+    
+    def reporte_horas(self, request):
+        """Vista para generar reporte de horas trabajadas"""
+        from django.shortcuts import render
+        from datetime import datetime, date
+        
+        # Parámetros
+        mes = request.GET.get('mes')
+        año = request.GET.get('año')
+        operario_ids = request.GET.getlist('operarios')
+        
+        # Convertir a enteros
+        try:
+            mes = int(mes) if mes else date.today().month
+            año = int(año) if año else date.today().year
+        except:
+            mes = date.today().month
+            año = date.today().year
+        
+        # Operarios seleccionados
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar reporte
+        horas_trabajadas = None
+        if 'generar' in request.GET:
+            horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
+        
+        # Nombres de meses en español
+        meses_es = [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+        ]
+        
+        context = {
+            'title': 'Reporte de Horas Trabajadas',
+            'mes': mes,
+            'año': año,
+            'meses': meses_es,
+            'años': list(range(2020, date.today().year + 2)),
+            'operarios_disponibles': Operario.objects.filter(activo=True).order_by('apellido'),
+            'operarios_seleccionados': operarios,
+            'horas_trabajadas': horas_trabajadas,
+        }
+        
+        return render(request, 'admin/reportes/reporte_horas.html', context)
+    
+    def reporte_inconsistencias(self, request):
+        """Vista para generar reporte de inconsistencias"""
+        from django.shortcuts import render
+        from datetime import datetime, date, timedelta
+        
+        # Parámetros
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        
+        # Convertir fechas
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        # Si no hay fechas, usar el último mes
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=30)
+        
+        # Generar reporte
+        inconsistencias = None
+        if 'generar' in request.GET:
+            inconsistencias = RegistroDiario.objects.filter(
+                inconsistencia=True,
+                hora_fichada__date__range=[fecha_inicio, fecha_fin]
+            ).select_related('operario').order_by('-hora_fichada')
+        
+        context = {
+            'title': 'Reporte de Inconsistencias',
+            'fecha_inicio': fecha_inicio,
+            'fecha_fin': fecha_fin,
+            'inconsistencias': inconsistencias,
+        }
+        
+        return render(request, 'admin/reportes/reporte_inconsistencias.html', context)
+    
+    # ===== FUNCIONES DE EXPORTACIÓN =====
+    
+    def exportar_horas_excel(self, request):
+        """Exportar reporte de horas a Excel"""
+        import openpyxl
+        from django.http import HttpResponse
+        from datetime import datetime, date
+        
+        # Obtener los mismos parámetros que en reporte_horas
+        mes = request.GET.get('mes')
+        año = request.GET.get('año')
+        operario_ids = request.GET.getlist('operarios')
+        
+        try:
+            mes = int(mes) if mes else date.today().month
+            año = int(año) if año else date.today().year
+        except:
+            mes = date.today().month
+            año = date.today().year
+        
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar los datos
+        horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
+        
+        # Nombres de meses en español
+        meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        
+        # Crear workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = f"Horas {meses_es[mes]} {año}"
+        
+        # Headers
+        headers = ['Empleado', 'DNI', 'Fecha', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Total Diario']
+        for col, header in enumerate(headers, 1):
+            ws.cell(row=1, column=col, value=header)
+        
+        # Datos
+        row = 2
+        for hora in horas_trabajadas:
+            # Calcular totales
+            horas_normales_num = hora.horas_normales.total_seconds() / 3600 if hora.horas_normales else 0
+            horas_nocturnas_num = hora.horas_nocturnas.total_seconds() / 3600 if hora.horas_nocturnas else 0
+            horas_extras_num = hora.horas_extras.total_seconds() / 3600 if hora.horas_extras else 0
+            total_diario = horas_normales_num + horas_nocturnas_num + horas_extras_num
+            
+            ws.cell(row=row, column=1, value=f"{hora.operario.apellido}, {hora.operario.nombre}")
+            ws.cell(row=row, column=2, value=hora.operario.dni)
+            ws.cell(row=row, column=3, value=hora.fecha.strftime('%d/%m/%Y'))
+            ws.cell(row=row, column=4, value=f"{horas_normales_num:.1f}h")
+            ws.cell(row=row, column=5, value=f"{horas_nocturnas_num:.1f}h")
+            ws.cell(row=row, column=6, value=f"{horas_extras_num:.1f}h")
+            ws.cell(row=row, column=7, value=f"{total_diario:.1f}h")
+            row += 1
+        
+        # Respuesta HTTP
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_{meses_es[mes]}_{año}.xlsx"'
+        wb.save(response)
+        return response
+    
+    def exportar_horas_pdf(self, request):
+        """Exportar reporte de horas a PDF"""
+        from django.http import HttpResponse
+        from django.template.loader import get_template
+        from weasyprint import HTML
+        from datetime import datetime, date
+        import tempfile
+        
+        # Obtener los mismos parámetros que en reporte_horas
+        mes = request.GET.get('mes')
+        año = request.GET.get('año')
+        operario_ids = request.GET.getlist('operarios')
+        
+        try:
+            mes = int(mes) if mes else date.today().month
+            año = int(año) if año else date.today().year
+        except:
+            mes = date.today().month
+            año = date.today().year
+        
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar los datos
+        horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
+        
+        # Nombres de meses en español
+        meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        
+        # Contexto para el template
+        context = {
+            'horas_trabajadas': horas_trabajadas,
+            'mes_nombre': meses_es[mes],
+            'año': año,
+            'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'operarios_filtro': operarios.count() if operarios else 'Todos los operarios',
+        }
+        
+        # Renderizar template
+        template = get_template('admin/reportes/pdf/reporte_horas_pdf.html')
+        html_string = template.render(context)
+        
+        # Generar PDF
+        html = HTML(string=html_string)
+        pdf = html.write_pdf()
+        
+        # Respuesta HTTP
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_{meses_es[mes]}_{año}.pdf"'
+        return response
+    
+    def exportar_asistencia_excel(self, request):
+        """Exportar reporte de asistencia a Excel"""
+        import openpyxl
+        from django.http import HttpResponse
+        from datetime import datetime, date, timedelta
+        
+        # Obtener parámetros
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        operario_ids = request.GET.getlist('operarios')
+        
+        # Convertir fechas
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=7)
+        
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar datos
+        reporte_data = ReporteManager.generar_reporte_asistencia(fecha_inicio, fecha_fin, operarios)
+        
+        # Crear workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Reporte Asistencia"
+        
+        # Headers
+        headers = ['Empleado', 'DNI', 'Fecha', 'Hora', 'Tipo Movimiento', 'Origen']
+        for col, header in enumerate(headers, 1):
+            ws.cell(row=1, column=col, value=header)
+        
+        # Datos
+        row = 2
+        for operario, registros in reporte_data.items():
+            for registro in registros:
+                ws.cell(row=row, column=1, value=f"{operario.apellido}, {operario.nombre}")
+                ws.cell(row=row, column=2, value=operario.dni)
+                ws.cell(row=row, column=3, value=registro.hora_fichada.strftime('%d/%m/%Y'))
+                ws.cell(row=row, column=4, value=registro.hora_fichada.strftime('%H:%M:%S'))
+                ws.cell(row=row, column=5, value=registro.tipo_movimiento.replace('_', ' ').title())
+                ws.cell(row=row, column=6, value=registro.origen_fichada)
+                row += 1
+        
+        # Respuesta HTTP
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Asistencia_{fecha_str}.xlsx"'
+        wb.save(response)
+        return response
+    
+    def exportar_asistencia_pdf(self, request):
+        """Exportar reporte de asistencia a PDF"""
+        from django.http import HttpResponse
+        from django.template.loader import get_template
+        from weasyprint import HTML
+        from datetime import datetime, date, timedelta
+        
+        # Obtener parámetros (mismo código que exportar_asistencia_excel)
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        operario_ids = request.GET.getlist('operarios')
+        
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=7)
+        
+        operarios = None
+        if operario_ids:
+            operarios = Operario.objects.filter(id__in=operario_ids)
+        
+        # Generar datos
+        reporte_data = ReporteManager.generar_reporte_asistencia(fecha_inicio, fecha_fin, operarios)
+        
+        # Contexto para el template
+        context = {
+            'reporte_data': reporte_data,
+            'fecha_inicio': fecha_inicio,
+            'fecha_fin': fecha_fin,
+            'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'operarios_filtro': operarios.count() if operarios else 'Todos los operarios',
+        }
+        
+        # Renderizar template
+        template = get_template('admin/reportes/pdf/reporte_asistencia_pdf.html')
+        html_string = template.render(context)
+        
+        # Generar PDF
+        html = HTML(string=html_string)
+        pdf = html.write_pdf()
+        
+        # Respuesta HTTP
+        response = HttpResponse(pdf, content_type='application/pdf')
+        fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Asistencia_{fecha_str}.pdf"'
+        return response
+    
+    def exportar_inconsistencias_excel(self, request):
+        """Exportar reporte de inconsistencias a Excel"""
+        import openpyxl
+        from django.http import HttpResponse
+        from datetime import datetime, date, timedelta
+        
+        # Obtener parámetros
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        
+        # Convertir fechas
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=7)
+        
+        # Generar datos
+        inconsistencias = ReporteManager.generar_reporte_inconsistencias(fecha_inicio, fecha_fin)
+        
+        # Crear workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Inconsistencias"
+        
+        # Headers
+        headers = ['Empleado', 'DNI', 'Fecha', 'Hora', 'Tipo Movimiento', 'Descripción', 'Válido']
+        for col, header in enumerate(headers, 1):
+            ws.cell(row=1, column=col, value=header)
+        
+        # Datos
+        row = 2
+        for inconsistencia in inconsistencias:
+            ws.cell(row=row, column=1, value=f"{inconsistencia.operario.apellido}, {inconsistencia.operario.nombre}")
+            ws.cell(row=row, column=2, value=inconsistencia.operario.dni)
+            ws.cell(row=row, column=3, value=inconsistencia.hora_fichada.strftime('%d/%m/%Y'))
+            ws.cell(row=row, column=4, value=inconsistencia.hora_fichada.strftime('%H:%M:%S'))
+            ws.cell(row=row, column=5, value=inconsistencia.tipo_movimiento.replace('_', ' ').title())
+            ws.cell(row=row, column=6, value=inconsistencia.descripcion_inconsistencia or "Sin descripción")
+            ws.cell(row=row, column=7, value="Sí" if inconsistencia.valido else "No")
+            row += 1
+        
+        # Respuesta HTTP
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Inconsistencias_{fecha_str}.xlsx"'
+        wb.save(response)
+        return response
+    
+    def exportar_inconsistencias_pdf(self, request):
+        """Exportar reporte de inconsistencias a PDF"""
+        from django.http import HttpResponse
+        from django.template.loader import get_template
+        from weasyprint import HTML
+        from datetime import datetime, date, timedelta
+        
+        # Obtener parámetros
+        fecha_inicio = request.GET.get('fecha_inicio')
+        fecha_fin = request.GET.get('fecha_fin')
+        
+        if fecha_inicio:
+            try:
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            except:
+                fecha_inicio = None
+        
+        if fecha_fin:
+            try:
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+            except:
+                fecha_fin = None
+        
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = date.today()
+            fecha_inicio = fecha_fin - timedelta(days=7)
+        
+        # Generar datos
+        inconsistencias = ReporteManager.generar_reporte_inconsistencias(fecha_inicio, fecha_fin)
+        
+        # Contexto para el template
+        context = {
+            'inconsistencias': inconsistencias,
+            'fecha_inicio': fecha_inicio,
+            'fecha_fin': fecha_fin,
+            'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M'),
+        }
+        
+        # Renderizar template
+        template = get_template('admin/reportes/pdf/reporte_inconsistencias_pdf.html')
+        html_string = template.render(context)
+        
+        # Generar PDF
+        html = HTML(string=html_string)
+        pdf = html.write_pdf()
+        
+        # Respuesta HTTP
+        response = HttpResponse(pdf, content_type='application/pdf')
+        fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
+        response['Content-Disposition'] = f'attachment; filename="Reporte_Inconsistencias_{fecha_str}.pdf"'
+        return response
+
 admin.site.register(ConfiguracionRedondeoSalida)

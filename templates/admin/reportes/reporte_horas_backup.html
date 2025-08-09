@@ -1,0 +1,273 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Reutilizar estilos del reporte de asistencia */
+.reporte-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.reporte-header {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.reporte-titulo {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+.reporte-subtitulo {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.filtros-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.campo-filtro label {
+    display: block;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.campo-filtro input,
+.campo-filtro select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.campo-filtro select[multiple] {
+    height: 120px;
+}
+
+.btn-generar {
+    background: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-generar:hover {
+    background: #218838;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-right: 1rem;
+}
+
+.btn-volver:hover {
+    background: #545b62;
+    color: white;
+    text-decoration: none;
+}
+
+.resultados-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.horas-tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.horas-tabla th {
+    background: #417690;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+
+.horas-tabla td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.horas-tabla tr:hover {
+    background: #f8f9fa;
+}
+
+.horas-normales { color: #28a745; font-weight: 500; }
+.horas-nocturnas { color: #6f42c1; font-weight: 500; }
+.horas-extras { color: #fd7e14; font-weight: 500; }
+
+.sin-datos {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.resumen-mes {
+    background: #e3f2fd;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border-left: 4px solid #2196f3;
+}
+
+.resumen-mes h3 {
+    color: #1976d2;
+    margin: 0 0 0.5rem 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reporte-container">
+    <div class="reporte-header">
+        <h1 class="reporte-titulo">⏱️ {{ title }}</h1>
+        <p class="reporte-subtitulo">Consulta las horas trabajadas por empleado y período</p>
+    </div>
+
+    <div class="filtros-form">
+        <form method="GET">
+            <div class="filtros-grid">
+                <div class="campo-filtro">
+                    <label for="mes">Mes</label>
+                    <select name="mes" id="mes">
+                        {% for num_mes, nombre_mes in meses %}
+                            <option value="{{ num_mes }}" {% if num_mes == mes %}selected{% endif %}>
+                                {{ nombre_mes }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="campo-filtro">
+                    <label for="año">Año</label>
+                    <select name="año" id="año">
+                        {% for año_opcion in años %}
+                            <option value="{{ año_opcion }}" {% if año_opcion == año %}selected{% endif %}>
+                                {{ año_opcion }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="campo-filtro">
+                    <label for="operarios">Operarios (mantén Ctrl para seleccionar varios)</label>
+                    <select name="operarios" id="operarios" multiple>
+                        {% for operario in operarios_disponibles %}
+                            <option value="{{ operario.id }}"
+                                    {% if operarios_seleccionados and operario in operarios_seleccionados %}selected{% endif %}>
+                                {{ operario.apellido }}, {{ operario.nombre }} - {{ operario.dni }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <a href="{% url 'admin:reloj_fichador_reporte_changelist' %}" class="btn-volver">← Volver</a>
+                <button type="submit" name="generar" class="btn-generar">📊 Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+
+    {% if horas_trabajadas %}
+    <div class="resumen-mes">
+        <h3>📅 Reporte de {% for num_mes, nombre_mes in meses %}{% if num_mes == mes %}{{ nombre_mes }}{% endif %}{% endfor %} {{ año }}</h3>
+        <p>Mostrando las horas trabajadas de {% if operarios_seleccionados %}operarios seleccionados{% else %}todos los operarios activos{% endif %}</p>
+    </div>
+
+    <div class="resultados-container">
+        {% if horas_trabajadas %}
+        <table class="horas-tabla">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>DNI</th>
+                    <th>Fecha</th>
+                    <th>Horas Normales</th>
+                    <th>Horas Nocturnas</th>
+                    <th>Horas Extras</th>
+                    <th>Total Diario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hora in horas_trabajadas %}
+                <tr>
+                    <td>{{ hora.operario.apellido }}, {{ hora.operario.nombre }}</td>
+                    <td>{{ hora.operario.dni }}</td>
+                    <td>{{ hora.fecha|date:'d/m/Y' }}</td>
+                    <td class="horas-normales">
+                        {% if hora.horas_normales.total_seconds %}
+                            {% widthratio hora.horas_normales.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td class="horas-nocturnas">
+                        {% if hora.horas_nocturnas.total_seconds %}
+                            {% widthratio hora.horas_nocturnas.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td class="horas-extras">
+                        {% if hora.horas_extras.total_seconds %}
+                            {% widthratio hora.horas_extras.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% widthratio hora.horas_normales.total_seconds 3600 1 as normales_h %}
+                        {% widthratio hora.horas_nocturnas.total_seconds 3600 1 as nocturnas_h %}
+                        {% widthratio hora.horas_extras.total_seconds 3600 1 as extras_h %}
+                        {{ normales_h|add:nocturnas_h|add:extras_h }}h
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="sin-datos">
+            No se encontraron horas trabajadas para los filtros seleccionados
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

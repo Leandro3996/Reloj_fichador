@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Inconsistencias</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #dc3545;
+            margin: 0;
+            font-size: 18px;
+        }
+        
+        .header p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .info-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #dc3545;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        td {
+            font-size: 9px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .inconsistencia-si { color: #dc3545; font-weight: bold; }
+        .valido-no { color: #fd7e14; font-weight: bold; }
+        .valido-si { color: #28a745; }
+        
+        .footer {
+            position: fixed;
+            bottom: 1cm;
+            left: 1cm;
+            right: 1cm;
+            text-align: center;
+            font-size: 8px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 5px;
+        }
+        
+        .resumen {
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .resumen h3 {
+            margin: 0 0 10px 0;
+            color: #721c24;
+        }
+        
+        .alerta {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .alerta strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚠️ REPORTE DE INCONSISTENCIAS</h1>
+        <p><strong>Del {{ fecha_inicio|date:'d/m/Y' }} al {{ fecha_fin|date:'d/m/Y' }}</strong></p>
+        <p>Generado el {{ fecha_generacion }}</p>
+    </div>
+    
+    <div class="info-meta">
+        <div>
+            <strong>Período:</strong> {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}<br>
+            <strong>Tipo:</strong> Registros con inconsistencias o no válidos
+        </div>
+        <div>
+            <strong>Total inconsistencias:</strong> {{ inconsistencias|length }}<br>
+            <strong>Sistema:</strong> Reloj Fichador
+        </div>
+    </div>
+    
+    {% if inconsistencias %}
+    <div class="alerta">
+        <strong>⚠️ Atención:</strong> Este reporte contiene registros que requieren revisión manual. 
+        Verifique cada inconsistencia y tome las medidas necesarias.
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%">Empleado</th>
+                <th style="width: 12%">DNI</th>
+                <th style="width: 10%">Fecha</th>
+                <th style="width: 8%">Hora</th>
+                <th style="width: 15%">Tipo Movimiento</th>
+                <th style="width: 25%">Descripción</th>
+                <th style="width: 10%">Válido</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inconsistencia in inconsistencias %}
+            <tr>
+                <td>{{ inconsistencia.operario.apellido }}, {{ inconsistencia.operario.nombre }}</td>
+                <td>{{ inconsistencia.operario.dni }}</td>
+                <td>{{ inconsistencia.hora_fichada|date:'d/m/Y' }}</td>
+                <td><strong>{{ inconsistencia.hora_fichada|date:'H:i:s' }}</strong></td>
+                <td>{{ inconsistencia.tipo_movimiento|capfirst }}</td>
+                <td>
+                    {% if inconsistencia.descripcion_inconsistencia %}
+                        {{ inconsistencia.descripcion_inconsistencia }}
+                    {% else %}
+                        <em style="color: #6c757d;">Sin descripción</em>
+                    {% endif %}
+                </td>
+                <td class="{% if inconsistencia.valido %}valido-si{% else %}valido-no{% endif %}">
+                    {% if inconsistencia.valido %}✅ Sí{% else %}❌ No{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 5px;">
+        <h4 style="margin: 0 0 10px 0; color: #495057;">📋 Resumen del Reporte</h4>
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <strong>Total de inconsistencias:</strong> {{ inconsistencias|length }}<br>
+                <strong>Período analizado:</strong> {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}
+            </div>
+            <div>
+                <strong>Fecha de generación:</strong> {{ fecha_generacion }}<br>
+                <strong>Requiere revisión:</strong> Todos los registros
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="resumen">
+        <h3>✅ Excelente</h3>
+        <p>No se encontraron inconsistencias para el período seleccionado. Todos los registros están correctos.</p>
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <p>⚠️ Reporte generado por Sistema de Reloj Fichador • {{ fecha_generacion }} • Página 1</p>
+    </div>
+</body>
+</html>

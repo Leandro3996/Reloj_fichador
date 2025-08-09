@@ -1,0 +1,315 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Reutilizar estilos base */
+.reporte-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.reporte-header {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.reporte-titulo {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+.reporte-subtitulo {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.filtros-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.campo-filtro label {
+    display: block;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.campo-filtro input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-generar {
+    background: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-generar:hover {
+    background: #218838;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-right: 1rem;
+}
+
+.btn-volver:hover {
+    background: #545b62;
+    color: white;
+    text-decoration: none;
+}
+
+.resultados-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.inconsistencias-tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inconsistencias-tabla th {
+    background: #dc3545;
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+
+.inconsistencias-tabla td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: top;
+}
+
+.inconsistencias-tabla tr:hover {
+    background: #f8f9fa;
+}
+
+.inconsistencia-row {
+    border-left: 4px solid #dc3545;
+}
+
+.descripcion-inconsistencia {
+    color: #721c24;
+    font-style: italic;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+.tipo-movimiento {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.tipo-entrada { background: #d4edda; color: #155724; }
+.tipo-salida { background: #f8d7da; color: #721c24; }
+.tipo-transitoria { background: #fff3cd; color: #856404; }
+
+.sin-datos {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.alerta-inconsistencias {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+.stats-inconsistencias {
+    background: #e2e3e5;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border-left: 4px solid #6c757d;
+}
+
+.btn-exportar {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-excel {
+    background: #1d7044;
+    color: white;
+}
+
+.btn-excel:hover {
+    background: #155a35;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-pdf {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-pdf:hover {
+    background: #c82333;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reporte-container">
+    <div class="reporte-header">
+        <h1 class="reporte-titulo">⚠️ {{ title }}</h1>
+        <p class="reporte-subtitulo">Revisa los fichajes que requieren atención o corrección manual</p>
+    </div>
+
+    <div class="filtros-form">
+        <form method="GET">
+            <div class="filtros-grid">
+                <div class="campo-filtro">
+                    <label for="fecha_inicio">Fecha Inicio</label>
+                    <input type="date" 
+                           id="fecha_inicio" 
+                           name="fecha_inicio" 
+                           value="{% if fecha_inicio %}{{ fecha_inicio|date:'Y-m-d' }}{% endif %}">
+                </div>
+                
+                <div class="campo-filtro">
+                    <label for="fecha_fin">Fecha Fin</label>
+                    <input type="date" 
+                           id="fecha_fin" 
+                           name="fecha_fin" 
+                           value="{% if fecha_fin %}{{ fecha_fin|date:'Y-m-d' }}{% endif %}">
+                </div>
+            </div>
+            
+            <div>
+                <a href="{% url 'admin:reloj_fichador_reporte_changelist' %}" class="btn-volver">← Volver</a>
+                <button type="submit" name="generar" class="btn-generar">📊 Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+
+    {% if inconsistencias %}
+        {% if inconsistencias.count > 0 %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+            <div>
+                <div class="alerta-inconsistencias">
+                    <strong>⚠️ Inconsistencias Encontradas:</strong> Se encontraron {{ inconsistencias.count }} fichajes con inconsistencias que requieren revisión.
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'admin:exportar_inconsistencias_excel' %}?{{ request.GET.urlencode }}" 
+                   class="btn-exportar btn-excel" title="Descargar Excel">
+                    📊 Excel
+                </a>
+                <a href="{% url 'admin:exportar_inconsistencias_pdf' %}?{{ request.GET.urlencode }}" 
+                   class="btn-exportar btn-pdf" title="Descargar PDF">
+                    📋 PDF
+                </a>
+            </div>
+        </div>
+        
+        <div class="stats-inconsistencias">
+            <strong>📅 Período:</strong> {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}
+        </div>
+
+        <div class="resultados-container">
+            <table class="inconsistencias-tabla">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>DNI</th>
+                        <th>Fecha y Hora</th>
+                        <th>Tipo Movimiento</th>
+                        <th>Descripción</th>
+                        <th>Origen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inconsistencia in inconsistencias %}
+                    <tr class="inconsistencia-row">
+                        <td>{{ inconsistencia.operario.apellido }}, {{ inconsistencia.operario.nombre }}</td>
+                        <td>{{ inconsistencia.operario.dni }}</td>
+                        <td>
+                            <div>{{ inconsistencia.hora_fichada|date:'d/m/Y' }}</div>
+                            <div style="font-size: 0.875rem; color: #6c757d;">
+                                {{ inconsistencia.hora_fichada|date:'H:i:s' }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tipo-movimiento tipo-{% if 'entrada' in inconsistencia.tipo_movimiento %}entrada{% elif 'salida' in inconsistencia.tipo_movimiento %}salida{% else %}transitoria{% endif %}">
+                                {{ inconsistencia.get_tipo_movimiento_display }}
+                            </span>
+                        </td>
+                        <td class="descripcion-inconsistencia">
+                            {% if inconsistencia.descripcion_inconsistencia %}
+                                {{ inconsistencia.descripcion_inconsistencia|safe }}
+                            {% else %}
+                                <em>Sin descripción específica</em>
+                            {% endif %}
+                        </td>
+                        <td>{{ inconsistencia.origen_fichada }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="sin-datos">
+            🎉 ¡Excelente! No se encontraron inconsistencias en el período seleccionado.
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

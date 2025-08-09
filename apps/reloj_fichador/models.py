@@ -683,6 +683,15 @@ class Horas_totales(models.Model):
         return obj
 
 
+# Modelo proxy para los reportes
+class Reporte(RegistroDiario):
+    """Modelo proxy para la sección de reportes"""
+    class Meta:
+        proxy = True
+        verbose_name = "Reporte"
+        verbose_name_plural = "📊 Reportes"
+
+
 class RegistroAsistencia(models.Model):
     presente = 'presente'
     ausente = 'ausente'

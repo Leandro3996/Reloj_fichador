@@ -1,0 +1,301 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Flat Design - Reportes */
+.reporte-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.reporte-header {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.reporte-titulo {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+.reporte-subtitulo {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.filtros-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.campo-filtro label {
+    display: block;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.campo-filtro input,
+.campo-filtro select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.campo-filtro select[multiple] {
+    height: 120px;
+}
+
+.btn-generar {
+    background: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-generar:hover {
+    background: #218838;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-right: 1rem;
+}
+
+.btn-volver:hover {
+    background: #545b62;
+    color: white;
+    text-decoration: none;
+}
+
+.resultados-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.operario-seccion {
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.operario-header {
+    background: #417690;
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.registros-tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.registros-tabla th {
+    background: #f8f9fa;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.registros-tabla td {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.registros-tabla tr:hover {
+    background: #f8f9fa;
+}
+
+.tipo-entrada { color: #28a745; font-weight: 500; }
+.tipo-salida { color: #dc3545; font-weight: 500; }
+.tipo-transitoria { color: #ffc107; font-weight: 500; }
+
+.sin-datos {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.btn-exportar {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-excel {
+    background: #1d7044;
+    color: white;
+}
+
+.btn-excel:hover {
+    background: #155a35;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-pdf {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-pdf:hover {
+    background: #c82333;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reporte-container">
+    <div class="reporte-header">
+        <h1 class="reporte-titulo">👥 {{ title }}</h1>
+        <p class="reporte-subtitulo">Consulta los registros de asistencia por período y empleado</p>
+    </div>
+
+    <div class="filtros-form">
+        <form method="GET">
+            <div class="filtros-grid">
+                <div class="campo-filtro">
+                    <label for="fecha_inicio">Fecha Inicio</label>
+                    <input type="date" 
+                           id="fecha_inicio" 
+                           name="fecha_inicio" 
+                           value="{% if fecha_inicio %}{{ fecha_inicio|date:'Y-m-d' }}{% endif %}">
+                </div>
+                
+                <div class="campo-filtro">
+                    <label for="fecha_fin">Fecha Fin</label>
+                    <input type="date" 
+                           id="fecha_fin" 
+                           name="fecha_fin" 
+                           value="{% if fecha_fin %}{{ fecha_fin|date:'Y-m-d' }}{% endif %}">
+                </div>
+                
+                <div class="campo-filtro">
+                    <label for="operarios">Operarios (mantén Ctrl para seleccionar varios)</label>
+                    <select name="operarios" id="operarios" multiple>
+                        {% for operario in operarios_disponibles %}
+                            <option value="{{ operario.id }}"
+                                    {% if operarios_seleccionados and operario in operarios_seleccionados %}selected{% endif %}>
+                                {{ operario.apellido }}, {{ operario.nombre }} - {{ operario.dni }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <a href="{% url 'admin:reloj_fichador_reporte_changelist' %}" class="btn-volver">← Volver</a>
+                <button type="submit" name="generar" class="btn-generar">📊 Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+
+    {% if reporte_data %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+        <h3>📋 Registros de Asistencia</h3>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'admin:exportar_asistencia_excel' %}?{{ request.GET.urlencode }}" 
+               class="btn-exportar btn-excel" title="Descargar Excel">
+                📊 Excel
+            </a>
+            <a href="{% url 'admin:exportar_asistencia_pdf' %}?{{ request.GET.urlencode }}" 
+               class="btn-exportar btn-pdf" title="Descargar PDF">
+                📋 PDF
+            </a>
+        </div>
+    </div>
+    
+    <div class="resultados-container">
+        {% if reporte_data %}
+            {% for operario, registros in reporte_data.items %}
+            <div class="operario-seccion">
+                <div class="operario-header">
+                    {{ operario.apellido }}, {{ operario.nombre }} - DNI: {{ operario.dni }}
+                </div>
+                
+                {% if registros %}
+                <table class="registros-tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Tipo de Movimiento</th>
+                            <th>Origen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro.hora_fichada|date:'d/m/Y' }}</td>
+                            <td>{{ registro.hora_fichada|date:'H:i:s' }}</td>
+                            <td>
+                                <span class="tipo-{% if 'entrada' in registro.tipo_movimiento %}entrada{% elif 'salida' in registro.tipo_movimiento %}salida{% else %}transitoria{% endif %}">
+                                    {{ registro.get_tipo_movimiento_display }}
+                                </span>
+                            </td>
+                            <td>{{ registro.origen_fichada }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="sin-datos">
+                    No hay registros para este operario en el período seleccionado
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="sin-datos">
+            No se encontraron registros para los filtros seleccionados
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
