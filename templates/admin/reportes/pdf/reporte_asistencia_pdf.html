@@ -139,14 +139,17 @@
             <table class="operario-table">
                 <thead>
                     <tr>
-                        <th style="width: 15%">Fecha</th>
-                        <th style="width: 12%">Hora</th>
-                        <th style="width: 25%">Tipo Movimiento</th>
-                        <th style="width: 15%">Origen</th>
-                        <th style="width: 33%">Observaciones</th>
+                        <th style="width: 12%">Fecha</th>
+                        <th style="width: 10%">Hora</th>
+                        <th style="width: 20%">Tipo Movimiento</th>
+                        <th style="width: 12%">Origen</th>
+                        <th style="width: 12%">Horas Trab.</th>
+                        <th style="width: 10%">H. Extras</th>
+                        <th style="width: 24%">Observaciones</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% load reporte_filters %}
                     {% for registro in data.registros %}
                     <tr>
                         <td>{{ registro.hora_fichada|date:'d/m/Y' }}</td>
@@ -155,6 +158,44 @@
                             {{ registro.tipo_movimiento|capfirst }}
                         </td>
                         <td>{{ registro.origen_fichada }}</td>
+                        <td>
+                            {% if registro.tipo_movimiento == 'salida' %}
+                                {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
+                                    {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
+                                        {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
+                                            {% if horas_dia.total_trabajadas %}
+                                                <strong style="color: #28a745;">{% widthratio horas_dia.total_trabajadas.total_seconds 3600 1 %}h</strong>
+                                            {% else %}
+                                                0h
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if registro.tipo_movimiento == 'salida' %}
+                                {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
+                                    {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
+                                        {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
+                                            {% if horas_dia.horas_extras %}
+                                                <strong style="color: #fd7e14;">{% widthratio horas_dia.horas_extras.total_seconds 3600 1 %}h</strong>
+                                            {% else %}
+                                                0h
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td>
                             {% if registro.inconsistencia %}
                                 <span style="color: #dc3545;">⚠️ Inconsistencia</span>

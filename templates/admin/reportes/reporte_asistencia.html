@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load admin_urls static %}
+{% load admin_urls static reporte_filters %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -400,6 +400,8 @@
                             <th>Hora</th>
                             <th>Tipo de Movimiento</th>
                             <th>Origen</th>
+                            <th>Horas Trabajadas</th>
+                            <th>Horas Extras</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -413,6 +415,48 @@
                                 </span>
                             </td>
                             <td>{{ registro.origen_fichada }}</td>
+                            <td>
+                                {% if registro.tipo_movimiento == 'salida' %}
+                                    {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
+                                        {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
+                                            <span style="color: #28a745; font-weight: bold;">
+                                                {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
+                                                    {% if horas_dia.total_trabajadas %}
+                                                        {% widthratio horas_dia.total_trabajadas.total_seconds 3600 1 %}h
+                                                    {% else %}
+                                                        0h
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </span>
+                                        {% else %}
+                                            <span style="color: #6c757d;">-</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span style="color: #6c757d;">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registro.tipo_movimiento == 'salida' %}
+                                    {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
+                                        {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
+                                            {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
+                                                {% if horas_dia.horas_extras %}
+                                                    <span style="color: #fd7e14; font-weight: bold;">
+                                                        {% widthratio horas_dia.horas_extras.total_seconds 3600 1 %}h
+                                                    </span>
+                                                {% else %}
+                                                    <span style="color: #6c757d;">0h</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <span style="color: #6c757d;">-</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span style="color: #6c757d;">-</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

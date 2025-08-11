@@ -1564,7 +1564,8 @@ class ReporteManager:
             if operario not in reporte_data:
                 reporte_data[operario] = {
                     'registros': [],
-                    'resumen_horas': None
+                    'resumen_horas': None,
+                    'horas_por_fecha': {}  # Para almacenar horas trabajadas por fecha
                 }
             reporte_data[operario]['registros'].append(registro)
         
@@ -1609,6 +1610,37 @@ class ReporteManager:
             
             if operario_obj:
                 reporte_data[operario_obj]['resumen_horas'] = resumen
+        
+        # Obtener horas trabajadas detalladas por fecha para cada operario
+        horas_detalladas = Horas_trabajadas.objects.filter(filtros_horas).select_related('operario')
+        
+        from datetime import timedelta
+        
+        for hora in horas_detalladas:
+            # Buscar el operario en reporte_data
+            operario_obj = None
+            for op in reporte_data.keys():
+                if op.id == hora.operario.id:
+                    operario_obj = op
+                    break
+            
+            if operario_obj:
+                fecha_str = hora.fecha.strftime('%Y-%m-%d')
+                
+                # Calcular total sumando los campos que SÍ existen en el modelo
+                total_trabajadas = timedelta(0)
+                if hora.horas_normales:
+                    total_trabajadas += hora.horas_normales
+                if hora.horas_nocturnas:
+                    total_trabajadas += hora.horas_nocturnas
+                # Las horas extras NO se incluyen en el total trabajado
+                
+                reporte_data[operario_obj]['horas_por_fecha'][fecha_str] = {
+                    'horas_normales': hora.horas_normales,
+                    'horas_nocturnas': hora.horas_nocturnas,
+                    'horas_extras': hora.horas_extras,
+                    'total_trabajadas': total_trabajadas if total_trabajadas.total_seconds() > 0 else None
+                }
         
         return reporte_data
     
@@ -2000,7 +2032,7 @@ class ReporteAdmin(admin.ModelAdmin):
         ws.title = "Reporte Asistencia"
         
         # Headers
-        headers = ['Empleado', 'DNI', 'Fecha', 'Hora', 'Tipo Movimiento', 'Origen']
+        headers = ['Empleado', 'DNI', 'Fecha', 'Hora', 'Tipo Movimiento', 'Origen', 'Horas Trabajadas', 'Horas Extras']
         for col, header in enumerate(headers, 1):
             ws.cell(row=1, column=col, value=header)
         
@@ -2014,6 +2046,33 @@ class ReporteAdmin(admin.ModelAdmin):
                 ws.cell(row=row, column=4, value=registro.hora_fichada.strftime('%H:%M:%S'))
                 ws.cell(row=row, column=5, value=registro.tipo_movimiento.replace('_', ' ').title())
                 ws.cell(row=row, column=6, value=registro.origen_fichada)
+                
+                # Agregar horas trabajadas y extras solo para salidas
+                if registro.tipo_movimiento == 'salida':
+                    fecha_str = registro.hora_fichada.strftime('%Y-%m-%d')
+                    horas_fecha = data.get('horas_por_fecha', {}).get(fecha_str)
+                    
+                    if horas_fecha:
+                        # Horas trabajadas totales del día
+                        if horas_fecha.get('total_trabajadas'):
+                            horas_trabajadas = horas_fecha['total_trabajadas'].total_seconds() / 3600
+                            ws.cell(row=row, column=7, value=f"{horas_trabajadas:.1f}h")
+                        else:
+                            ws.cell(row=row, column=7, value="0h")
+                        
+                        # Horas extras del día
+                        if horas_fecha.get('horas_extras'):
+                            horas_extras = horas_fecha['horas_extras'].total_seconds() / 3600
+                            ws.cell(row=row, column=8, value=f"{horas_extras:.1f}h")
+                        else:
+                            ws.cell(row=row, column=8, value="0h")
+                    else:
+                        ws.cell(row=row, column=7, value="-")
+                        ws.cell(row=row, column=8, value="-")
+                else:
+                    ws.cell(row=row, column=7, value="-")
+                    ws.cell(row=row, column=8, value="-")
+                
                 row += 1
         
         # Agregar resumen de horas en una nueva hoja
