@@ -31,6 +31,10 @@ app.conf.beat_schedule = {
         'task': 'apps.reloj_fichador.tasks.generar_registros_asistencia',  # Ruta a la tarea
         'schedule': crontab(hour=1, minute=0),  # Se ejecuta todos los días a las 1:00 AM (Argentina)
     },
+    'verificar-licencias-activas-diario': {
+        'task': 'apps.reloj_fichador.tasks.verificar_licencias_activas',  # Nueva tarea para licencias
+        'schedule': crontab(hour=2, minute=0),  # Se ejecuta todos los días a las 2:00 AM (Argentina)
+    },
 }
 
 

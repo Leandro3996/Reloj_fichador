@@ -196,21 +196,99 @@ def validate_file_extension(value):
 
 
 class Licencia(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', '⏳ Pendiente'),
+        ('aprobada', '✅ Aprobada'),
+        ('rechazada', '❌ Rechazada'),
+    ]
+    
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE, related_name='licencias')
     archivo = models.FileField(upload_to='licencias/', validators=[validate_file_extension])
-    descripcion = models.TextField(blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True, help_text="Descripción o motivo de la licencia")
     fecha_subida = models.DateField(auto_now_add=True)
-    fecha_inicio = models.DateField(null=True, blank=True)
-    fecha_fin = models.DateField(null=True, blank=True)
+    fecha_inicio = models.DateField(null=True, blank=True, help_text="Fecha de inicio de la licencia")
+    fecha_fin = models.DateField(null=True, blank=True, help_text="Fecha de fin de la licencia")
+    
+    # Nuevos campos para integración con asistencia
+    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente', 
+                             help_text="Estado de aprobación de la licencia")
+    aplicar_a_asistencia = models.BooleanField(default=True, 
+                                             help_text="Si está marcado, justificará automáticamente las ausencias en el período")
+    
+    # Campos de auditoría
+    aprobada_por = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+                                   help_text="Usuario que aprobó/rechazó la licencia")
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True,
+                                          help_text="Fecha y hora de aprobación/rechazo")
+    observaciones = models.TextField(blank=True, null=True,
+                                   help_text="Observaciones del aprobador")
+
+    history = HistoricalRecords()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['operario', 'fecha_inicio']),
+            models.Index(fields=['estado']),
+        ]
 
     @property
     def duracion(self):
         if self.fecha_inicio and self.fecha_fin:
-            return (self.fecha_fin - self.fecha_inicio).days
+            return (self.fecha_fin - self.fecha_inicio).days + 1  # +1 para incluir ambos días
+        return None
+
+    def clean(self):
+        super().clean()
+        if self.fecha_inicio and self.fecha_fin:
+            if self.fecha_inicio > self.fecha_fin:
+                raise ValidationError({'fecha_fin': 'La fecha de fin debe ser posterior a la fecha de inicio.'})
+            
+            # Validar que no se solapen con otras licencias aprobadas del mismo operario
+            if self.estado == 'aprobada':
+                licencias_existentes = Licencia.objects.filter(
+                    operario=self.operario,
+                    estado='aprobada',
+                    fecha_inicio__lte=self.fecha_fin,
+                    fecha_fin__gte=self.fecha_inicio
+                ).exclude(pk=self.pk)
+                
+                if licencias_existentes.exists():
+                    raise ValidationError('Ya existe una licencia aprobada que se solapa con este período.')
+
+    def save(self, *args, **kwargs):
+        # Si se está aprobando la licencia, registrar fecha y procesar con Celery
+        es_aprobacion_nueva = False
+        if self.pk:
+            try:
+                original = Licencia.objects.get(pk=self.pk)
+                if original.estado != 'aprobada' and self.estado == 'aprobada':
+                    self.fecha_aprobacion = timezone.now()
+                    es_aprobacion_nueva = True
+            except Licencia.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+        
+        # Procesar asistencia de forma asíncrona después de guardar
+        if es_aprobacion_nueva:
+            from .tasks import procesar_licencia_aprobada
+            procesar_licencia_aprobada.delay(self.pk)
+
+    def actualizar_asistencia(self):
+        """
+        Método legacy para compatibilidad. El procesamiento real
+        se hace de forma asíncrona en tasks.procesar_licencia_aprobada
+        """
+        if self.estado == 'aprobada':
+            from .tasks import procesar_licencia_aprobada
+            # Ejecutar inmediatamente si es necesario (para comandos de management)
+            return procesar_licencia_aprobada.delay(self.pk)
         return None
 
     def __str__(self):
-        return f"Licencia {self.archivo.name} para {self.operario.nombre} ({self.duracion} días)"
+        duracion_str = f" ({self.duracion} días)" if self.duracion else ""
+        estado_str = f" - {self.get_estado_display()}"
+        return f"Licencia para {self.operario.apellido}, {self.operario.nombre}{duracion_str}{estado_str}"
 
 
 class RegistroDiario(models.Model):
@@ -710,12 +788,22 @@ class RegistroAsistencia(models.Model):
         help_text="Marcar como justificado (1) o no justificado (0)"
     )
     descripcion = models.TextField(blank=True, null=True)
+    
+    # Campo para vincular con licencias
+    licencia_relacionada = models.ForeignKey('Licencia', on_delete=models.SET_NULL, null=True, blank=True,
+                                           help_text="Licencia que justifica esta ausencia")
 
     def __str__(self):
-        return f"{self.operario} - {self.fecha} - {self.get_estado_asistencia_display()}"
+        justificacion = " (Justificado)" if self.estado_justificacion else ""
+        return f"{self.operario} - {self.fecha} - {self.get_estado_asistencia_display()}{justificacion}"
 
     def verificar_asistencia(self):
+        """
+        Verifica la asistencia basándose en registros de entrada y licencias aprobadas
+        """
         from .models import RegistroDiario
+        
+        # Primero verificar si hay registros de entrada
         entradas = RegistroDiario.objects.filter(
             operario=self.operario,
             tipo_movimiento__in=['entrada', 'entrada_transitoria'],
@@ -723,12 +811,59 @@ class RegistroAsistencia(models.Model):
             hora_fichada__date=self.fecha,
             valido=True
         )
+        
         if entradas.exists():
             self.estado_asistencia = self.presente
+            # Si está presente, no necesita justificación por licencia
+            if self.licencia_relacionada:
+                self.licencia_relacionada = None
+                self.estado_justificacion = False
+                self.descripcion = None
         else:
             self.estado_asistencia = self.ausente
+            # Verificar si hay una licencia aprobada que cubra esta fecha
+            self.verificar_licencia()
+        
         self.save()
+
+    def verificar_licencia(self):
+        """
+        Verifica si existe una licencia aprobada que justifique la ausencia en esta fecha
+        """
+        licencia = Licencia.objects.filter(
+            operario=self.operario,
+            estado='aprobada',
+            aplicar_a_asistencia=True,
+            fecha_inicio__lte=self.fecha,
+            fecha_fin__gte=self.fecha
+        ).first()
+        
+        if licencia:
+            self.estado_justificacion = True
+            self.licencia_relacionada = licencia
+            if not self.descripcion or 'licencia' not in self.descripcion.lower():
+                self.descripcion = f'Ausencia justificada por licencia (ID: {licencia.pk})'
+            logger.info(f'Ausencia justificada automáticamente para {self.operario} el {self.fecha} por licencia {licencia.pk}')
+        else:
+            # Si no hay licencia y no hay justificación manual, marcar como no justificado
+            if self.licencia_relacionada:
+                self.licencia_relacionada = None
+                self.estado_justificacion = False
+                # Solo limpiar descripción si era automática
+                if self.descripcion and 'licencia' in self.descripcion.lower():
+                    self.descripcion = None
+
+    @property
+    def es_ausencia_justificada_por_licencia(self):
+        """
+        Retorna True si la ausencia está justificada por una licencia
+        """
+        return self.estado_justificacion and self.licencia_relacionada is not None
 
     class Meta:
         unique_together = ('operario', 'fecha')
+        indexes = [
+            models.Index(fields=['operario', 'fecha']),
+            models.Index(fields=['estado_asistencia', 'estado_justificacion']),
+        ]
 

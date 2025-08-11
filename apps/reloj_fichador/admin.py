@@ -2281,3 +2281,272 @@ class ReporteAdmin(admin.ModelAdmin):
         return response
 
 admin.site.register(ConfiguracionRedondeoSalida)
+
+
+# ===============================================================================
+# ADMIN INDEPENDIENTE PARA LICENCIAS
+# ===============================================================================
+
+class EstadoLicenciaFilter(admin.SimpleListFilter):
+    title = _('Estado de Licencia')
+    parameter_name = 'estado'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('pendiente', _('⏳ Pendientes')),
+            ('aprobada', _('✅ Aprobadas')),
+            ('rechazada', _('❌ Rechazadas')),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(estado=self.value())
+        return queryset
+
+
+class LicenciasPorAprobarFilter(admin.SimpleListFilter):
+    title = _('Licencias por Aprobar')
+    parameter_name = 'por_aprobar'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('si', _('🔍 Solo pendientes de aprobación')),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'si':
+            return queryset.filter(estado='pendiente')
+        return queryset
+
+
+@admin.register(Licencia)
+class LicenciaAdmin(SimpleHistoryAdmin):
+    list_display = [
+        'get_operario_info', 'descripcion_corta', 'periodo_licencia', 
+        'duracion_dias', 'estado_display', 'fecha_subida', 'aprobada_por', 
+        'aplicar_a_asistencia', 'acciones_licencia'
+    ]
+    
+    list_filter = [
+        EstadoLicenciaFilter,
+        LicenciasPorAprobarFilter,
+        'aplicar_a_asistencia',
+        ('fecha_inicio', DateRangeFilter),
+        ('fecha_subida', DateRangeFilter),
+        'aprobada_por',
+    ]
+    
+    search_fields = [
+        'operario__dni',
+        'operario__nombre', 
+        'operario__apellido',
+        'descripcion',
+        'observaciones'
+    ]
+    
+    readonly_fields = [
+        'fecha_subida', 'fecha_aprobacion', 'duracion_display', 'historia_cambios'
+    ]
+    
+    fieldsets = (
+        ('📋 Información Básica', {
+            'fields': ('operario', 'descripcion', 'archivo')
+        }),
+        ('📅 Período de Licencia', {
+            'fields': ('fecha_inicio', 'fecha_fin', 'duracion_display')
+        }),
+        ('⚙️ Configuración', {
+            'fields': ('estado', 'aplicar_a_asistencia')
+        }),
+        ('✅ Aprobación', {
+            'fields': ('aprobada_por', 'fecha_aprobacion', 'observaciones'),
+            'classes': ('collapse',)
+        }),
+        ('📊 Metadatos', {
+            'fields': ('fecha_subida', 'historia_cambios'),
+            'classes': ('collapse',)
+        })
+    )
+    
+    ordering = ['-fecha_subida', '-fecha_inicio']
+    
+    list_per_page = 25
+    
+    actions = ['aprobar_licencias_masivo', 'rechazar_licencias_masivo', 'exportar_excel_licencias']
+
+    def get_operario_info(self, obj):
+        """Información completa del operario"""
+        return format_html(
+            '<strong>{}, {}</strong><br><small>DNI: {}</small>',
+            obj.operario.apellido,
+            obj.operario.nombre,
+            obj.operario.dni
+        )
+    get_operario_info.short_description = '👤 Operario'
+    get_operario_info.admin_order_field = 'operario__apellido'
+
+    def descripcion_corta(self, obj):
+        """Descripción truncada"""
+        if obj.descripcion:
+            texto = obj.descripcion[:50]
+            if len(obj.descripcion) > 50:
+                texto += '...'
+            return texto
+        return '-'
+    descripcion_corta.short_description = '📝 Descripción'
+
+    def periodo_licencia(self, obj):
+        """Período de la licencia con formato"""
+        if obj.fecha_inicio and obj.fecha_fin:
+            return format_html(
+                '<strong>{}</strong><br><small>al {}</small>',
+                obj.fecha_inicio.strftime('%d/%m/%Y'),
+                obj.fecha_fin.strftime('%d/%m/%Y')
+            )
+        return '-'
+    periodo_licencia.short_description = '📅 Período'
+    periodo_licencia.admin_order_field = 'fecha_inicio'
+
+    def duracion_dias(self, obj):
+        """Duración en días"""
+        if obj.duracion:
+            if obj.duracion == 1:
+                return f'{obj.duracion} día'
+            else:
+                return f'{obj.duracion} días'
+        return '-'
+    duracion_dias.short_description = '⏱️ Duración'
+
+    def estado_display(self, obj):
+        """Estado con iconos y colores"""
+        estados = {
+            'pendiente': ('⏳', 'orange', 'Pendiente'),
+            'aprobada': ('✅', 'green', 'Aprobada'), 
+            'rechazada': ('❌', 'red', 'Rechazada')
+        }
+        
+        icono, color, texto = estados.get(obj.estado, ('❓', 'gray', obj.estado))
+        
+        return format_html(
+            '<span style="color: {}; font-weight: bold;">{} {}</span>',
+            color, icono, texto
+        )
+    estado_display.short_description = '📊 Estado'
+    estado_display.admin_order_field = 'estado'
+
+    def duracion_display(self, obj):
+        """Duración calculada para readonly"""
+        return self.duracion_dias(obj)
+    duracion_display.short_description = 'Duración Calculada'
+
+    def historia_cambios(self, obj):
+        """Link al historial de cambios"""
+        if obj.pk:
+            return format_html(
+                '<a href="{}">Ver historial de cambios</a>',
+                reverse('admin:reloj_fichador_historicallicencia_changelist') + f'?id={obj.pk}'
+            )
+        return 'Guarde primero para ver el historial'
+    historia_cambios.short_description = 'Historial'
+
+    def acciones_licencia(self, obj):
+        """Acciones rápidas"""
+        acciones = []
+        
+        if obj.estado == 'pendiente':
+            # Botones de aprobación/rechazo
+            aprobar_url = reverse('admin:reloj_fichador_licencia_change', args=[obj.pk])
+            acciones.append(f'<a class="button" href="{aprobar_url}" style="background: green; color: white; margin: 2px;">✅ Aprobar</a>')
+            acciones.append(f'<a class="button" href="{aprobar_url}" style="background: red; color: white; margin: 2px;">❌ Rechazar</a>')
+        
+        if obj.archivo:
+            # Link para descargar archivo
+            acciones.append(f'<a class="button" href="{obj.archivo.url}" target="_blank">📄 Ver Archivo</a>')
+        
+        # Link a asistencia del operario
+        asistencia_url = reverse('admin:reloj_fichador_registroasistencia_changelist')
+        asistencia_url += f'?operario__id__exact={obj.operario.pk}'
+        if obj.fecha_inicio and obj.fecha_fin:
+            asistencia_url += f'&fecha__gte={obj.fecha_inicio}&fecha__lte={obj.fecha_fin}'
+        
+        acciones.append(f'<a class="button" href="{asistencia_url}">👥 Ver Asistencia</a>')
+        
+        return format_html('<br>'.join(acciones))
+    acciones_licencia.short_description = '🔧 Acciones'
+
+    def save_model(self, request, obj, form, change):
+        """Personalizar guardado para auditoría"""
+        if change and 'estado' in form.changed_data:
+            # Si se está cambiando el estado y se está aprobando
+            if obj.estado in ['aprobada', 'rechazada'] and not obj.aprobada_por:
+                obj.aprobada_por = request.user
+                obj.fecha_aprobacion = timezone.now()
+        
+        super().save_model(request, obj, form, change)
+
+    def aprobar_licencias_masivo(self, request, queryset):
+        """Acción masiva para aprobar licencias"""
+        count = 0
+        for licencia in queryset.filter(estado='pendiente'):
+            licencia.estado = 'aprobada'
+            licencia.aprobada_por = request.user
+            licencia.fecha_aprobacion = timezone.now()
+            licencia.save()
+            count += 1
+        
+        if count:
+            self.message_user(request, f'Se aprobaron {count} licencia(s) correctamente.')
+        else:
+            self.message_user(request, 'No hay licencias pendientes para aprobar.')
+    aprobar_licencias_masivo.short_description = "✅ Aprobar licencias seleccionadas"
+
+    def rechazar_licencias_masivo(self, request, queryset):
+        """Acción masiva para rechazar licencias"""
+        count = 0
+        for licencia in queryset.filter(estado='pendiente'):
+            licencia.estado = 'rechazada'
+            licencia.aprobada_por = request.user
+            licencia.fecha_aprobacion = timezone.now()
+            licencia.save()
+            count += 1
+        
+        if count:
+            self.message_user(request, f'Se rechazaron {count} licencia(s).')
+        else:
+            self.message_user(request, 'No hay licencias pendientes para rechazar.')
+    rechazar_licencias_masivo.short_description = "❌ Rechazar licencias seleccionadas"
+
+    def exportar_excel_licencias(self, request, queryset):
+        """Exportar licencias a Excel"""
+        # Implementación básica - se puede expandir
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        response['Content-Disposition'] = f'attachment; filename="licencias_{timezone.now().strftime("%Y%m%d")}.xlsx"'
+        
+        import openpyxl
+        from openpyxl import Workbook
+        
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Licencias"
+        
+        # Encabezados
+        headers = ['DNI', 'Operario', 'Descripción', 'Fecha Inicio', 'Fecha Fin', 'Duración', 'Estado', 'Aprobada Por']
+        for col, header in enumerate(headers, 1):
+            ws.cell(row=1, column=col, value=header)
+        
+        # Datos
+        for row, licencia in enumerate(queryset, 2):
+            ws.cell(row=row, column=1, value=licencia.operario.dni)
+            ws.cell(row=row, column=2, value=str(licencia.operario))
+            ws.cell(row=row, column=3, value=licencia.descripcion or '-')
+            ws.cell(row=row, column=4, value=licencia.fecha_inicio.strftime('%d/%m/%Y') if licencia.fecha_inicio else '-')
+            ws.cell(row=row, column=5, value=licencia.fecha_fin.strftime('%d/%m/%Y') if licencia.fecha_fin else '-')
+            ws.cell(row=row, column=6, value=f'{licencia.duracion} días' if licencia.duracion else '-')
+            ws.cell(row=row, column=7, value=licencia.get_estado_display())
+            ws.cell(row=row, column=8, value=str(licencia.aprobada_por) if licencia.aprobada_por else '-')
+        
+        wb.save(response)
+        return response
+    exportar_excel_licencias.short_description = "📊 Exportar a Excel"
