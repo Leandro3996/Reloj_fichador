@@ -181,4 +181,25 @@ class TerminalCriticoMiddleware(MiddlewareMixin):
                 # Indicar que no se debe aplicar verificación CSRF estricta
                 request._dont_enforce_csrf_checks = True
                 
-        return None 
+        return None
+
+
+class DisableCacheMiddleware(MiddlewareMixin):
+    """
+    Middleware para desactivar completamente el cache durante desarrollo
+    """
+    def process_response(self, request, response):
+        # Solo aplicar en modo DEBUG
+        if settings.DEBUG:
+            # Headers para desactivar cache del navegador completamente
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
+            response['Last-Modified'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+            response['ETag'] = ''
+            
+            # Para archivos estáticos también
+            if 'text/html' in response.get('Content-Type', ''):
+                response['Vary'] = 'Accept-Encoding'
+        
+        return response

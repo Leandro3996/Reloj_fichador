@@ -64,6 +64,8 @@ MIDDLEWARE = [
     # Middlewares personalizados para manejo de errores
     'apps.reloj_fichador.middleware.PermissionMiddleware',
     'apps.reloj_fichador.middleware.ErrorHandlerMiddleware',
+    # Middleware para desactivar cache en desarrollo
+    'apps.reloj_fichador.middleware.DisableCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'mantenedor.urls'
@@ -151,7 +153,7 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
     'https://localhost:5443',
