@@ -6,13 +6,15 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 1cm;
+            margin: 1.5cm 1cm 2cm 1cm;
         }
         
         body {
             font-family: Arial, sans-serif;
             font-size: 10px;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
         
         .header {
@@ -76,7 +78,7 @@
         
         .footer {
             position: fixed;
-            bottom: 1cm;
+            bottom: 0.5cm;
             left: 1cm;
             right: 1cm;
             text-align: center;
@@ -84,6 +86,7 @@
             color: #666;
             border-top: 1px solid #ddd;
             padding-top: 5px;
+            background: white;
         }
         
         .resumen {
@@ -116,6 +119,7 @@
             padding: 15px;
             border-radius: 5px;
             border-left: 4px solid #417690;
+            page-break-inside: avoid;
         }
         
         .operario-header {
@@ -366,7 +370,7 @@
     {% endif %}
     
     <div class="footer">
-        <p>📊 Reporte generado por Sistema de Reloj Fichador • {{ fecha_generacion }} • Página 1</p>
+        <p>📊 Reporte generado por Sistema de Reloj Fichador • {{ fecha_generacion }}</p>
     </div>
 </body>
 </html>
