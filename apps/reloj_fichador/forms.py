@@ -11,7 +11,7 @@ class LicenciaForm(forms.ModelForm):
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
         }
         labels = {
-            'archivo': 'Cargar archivo de licencia (PDF, JPG, JPEG, PNG)',
+            'archivo': 'Cargar archivo de licencia (PDF, JPG, JPEG, PNG) - Opcional',
             'descripcion': 'Descripción (opcional)',
             'fecha_inicio': 'Fecha de inicio',
             'fecha_fin': 'Fecha de fin',

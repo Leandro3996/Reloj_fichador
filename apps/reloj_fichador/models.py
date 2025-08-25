@@ -203,7 +203,8 @@ class Licencia(models.Model):
     ]
     
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE, related_name='licencias')
-    archivo = models.FileField(upload_to='licencias/', validators=[validate_file_extension])
+    archivo = models.FileField(upload_to='licencias/', validators=[validate_file_extension], 
+                                blank=True, null=True, help_text="Archivo adjunto (opcional)")
     descripcion = models.TextField(blank=True, null=True, help_text="Descripción o motivo de la licencia")
     fecha_subida = models.DateField(auto_now_add=True)
     fecha_inicio = models.DateField(null=True, blank=True, help_text="Fecha de inicio de la licencia")

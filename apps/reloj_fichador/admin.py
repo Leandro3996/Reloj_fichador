@@ -12,6 +12,10 @@ from .models import (
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
     Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida, Reporte
 )
+
+# Importar el modelo histórico de Licencia
+from apps.reloj_fichador.models import Licencia
+HistoricalLicencia = Licencia.history.model
 from django.urls import path, reverse
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
@@ -1432,6 +1436,37 @@ class HistoricalRegistroDiarioAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+@admin.register(HistoricalLicencia)
+class HistoricalLicenciaAdmin(admin.ModelAdmin):
+    list_display = ('get_operario', 'descripcion_corta', 'estado', 'fecha_inicio', 'fecha_fin', 'history_date', 'history_user', 'history_type')
+    list_filter = ('history_date', 'history_type', 'estado', 'aplicar_a_asistencia')
+    search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido', 'descripcion', 'history_user__username')
+    readonly_fields = ('operario', 'descripcion', 'estado', 'fecha_inicio', 'fecha_fin', 'archivo', 
+                      'aplicar_a_asistencia', 'aprobada_por', 'observaciones', 
+                      'history_date', 'history_user', 'history_type')
+    
+    def get_operario(self, obj):
+        return f"{obj.operario}" if obj.operario else '—'
+    get_operario.short_description = 'Operario'
+    
+    def descripcion_corta(self, obj):
+        if obj.descripcion:
+            texto = obj.descripcion[:50]
+            if len(obj.descripcion) > 50:
+                texto += '...'
+            return texto
+        return '-'
+    descripcion_corta.short_description = 'Descripción'
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 # Asignar la función exportar_pdf a cada clase
 OperarioAdmin.exportar_pdf = exportar_pdf
 RegistroDiarioAdmin.exportar_pdf = exportar_pdf  # Usar la versión sin cálculo de totales
@@ -2442,10 +2477,14 @@ class LicenciaAdmin(SimpleHistoryAdmin):
     def historia_cambios(self, obj):
         """Link al historial de cambios"""
         if obj.pk:
-            return format_html(
-                '<a href="{}">Ver historial de cambios</a>',
-                reverse('admin:reloj_fichador_historicallicencia_changelist') + f'?id={obj.pk}'
-            )
+            try:
+                url = reverse('admin:reloj_fichador_historicallicencia_changelist')
+                return format_html(
+                    '<a href="{}">Ver historial de cambios</a>',
+                    url + f'?history_id={obj.pk}'
+                )
+            except:
+                return 'Historial no disponible'
         return 'Guarde primero para ver el historial'
     historia_cambios.short_description = 'Historial'
 
@@ -2462,6 +2501,9 @@ class LicenciaAdmin(SimpleHistoryAdmin):
         if obj.archivo:
             # Link para descargar archivo
             acciones.append(f'<a class="button" href="{obj.archivo.url}" target="_blank">📄 Ver Archivo</a>')
+        else:
+            # Advertencia si no hay archivo
+            acciones.append('<span style="color: orange; font-weight: bold;">⚠️ Sin archivo adjunto</span>')
         
         # Link a asistencia del operario
         asistencia_url = reverse('admin:reloj_fichador_registroasistencia_changelist')
@@ -2481,21 +2523,41 @@ class LicenciaAdmin(SimpleHistoryAdmin):
             if obj.estado in ['aprobada', 'rechazada'] and not obj.aprobada_por:
                 obj.aprobada_por = request.user
                 obj.fecha_aprobacion = timezone.now()
+                
+                # Mostrar advertencia si no hay archivo adjunto
+                if not obj.archivo:
+                    if obj.estado == 'aprobada':
+                        self.message_user(request, 
+                            f"⚠️ ADVERTENCIA: Se aprobó la licencia de {obj.operario} sin archivo adjunto.", 
+                            level='WARNING')
+                    elif obj.estado == 'rechazada':
+                        self.message_user(request, 
+                            f"⚠️ ADVERTENCIA: Se rechazó la licencia de {obj.operario} sin archivo adjunto.", 
+                            level='WARNING')
         
         super().save_model(request, obj, form, change)
 
     def aprobar_licencias_masivo(self, request, queryset):
         """Acción masiva para aprobar licencias"""
         count = 0
+        sin_archivo = 0
+        
         for licencia in queryset.filter(estado='pendiente'):
             licencia.estado = 'aprobada'
             licencia.aprobada_por = request.user
             licencia.fecha_aprobacion = timezone.now()
             licencia.save()
             count += 1
+            
+            if not licencia.archivo:
+                sin_archivo += 1
         
         if count:
-            self.message_user(request, f'Se aprobaron {count} licencia(s) correctamente.')
+            mensaje = f'Se aprobaron {count} licencia(s) correctamente.'
+            if sin_archivo > 0:
+                mensaje += f' ⚠️ ADVERTENCIA: {sin_archivo} licencia(s) se aprobaron sin archivo adjunto.'
+            self.message_user(request, mensaje, 
+                            level='WARNING' if sin_archivo > 0 else 'SUCCESS')
         else:
             self.message_user(request, 'No hay licencias pendientes para aprobar.')
     aprobar_licencias_masivo.short_description = "✅ Aprobar licencias seleccionadas"
@@ -2503,15 +2565,24 @@ class LicenciaAdmin(SimpleHistoryAdmin):
     def rechazar_licencias_masivo(self, request, queryset):
         """Acción masiva para rechazar licencias"""
         count = 0
+        sin_archivo = 0
+        
         for licencia in queryset.filter(estado='pendiente'):
             licencia.estado = 'rechazada'
             licencia.aprobada_por = request.user
             licencia.fecha_aprobacion = timezone.now()
             licencia.save()
             count += 1
+            
+            if not licencia.archivo:
+                sin_archivo += 1
         
         if count:
-            self.message_user(request, f'Se rechazaron {count} licencia(s).')
+            mensaje = f'Se rechazaron {count} licencia(s).'
+            if sin_archivo > 0:
+                mensaje += f' ⚠️ ADVERTENCIA: {sin_archivo} licencia(s) se rechazaron sin archivo adjunto.'
+            self.message_user(request, mensaje, 
+                            level='WARNING' if sin_archivo > 0 else 'SUCCESS')
         else:
             self.message_user(request, 'No hay licencias pendientes para rechazar.')
     rechazar_licencias_masivo.short_description = "❌ Rechazar licencias seleccionadas"
