@@ -1986,19 +1986,48 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar los datos
         horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
         
-        # Calcular totales
+        # Agrupar por operario y calcular subtotales
+        horas_agrupadas = None
         total_normales = timedelta()
         total_nocturnas = timedelta()
         total_extras = timedelta()
         
         if horas_trabajadas:
+            from collections import OrderedDict
+            horas_agrupadas = OrderedDict()
+            
             for hora in horas_trabajadas:
+                operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
+                
+                if operario_key not in horas_agrupadas:
+                    horas_agrupadas[operario_key] = {
+                        'operario': hora.operario,
+                        'registros': [],
+                        'subtotal_normales': timedelta(),
+                        'subtotal_nocturnas': timedelta(),
+                        'subtotal_extras': timedelta(),
+                    }
+                
+                horas_agrupadas[operario_key]['registros'].append(hora)
+                
+                # Sumar a subtotales del operario
                 if hora.horas_normales:
+                    horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
                     total_normales += hora.horas_normales
                 if hora.horas_nocturnas:
+                    horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
                     total_nocturnas += hora.horas_nocturnas
                 if hora.horas_extras:
+                    horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
                     total_extras += hora.horas_extras
+            
+            # Calcular total general para cada operario
+            for operario_data in horas_agrupadas.values():
+                operario_data['subtotal_general'] = (
+                    operario_data['subtotal_normales'] + 
+                    operario_data['subtotal_nocturnas'] + 
+                    operario_data['subtotal_extras']
+                )
         
         # Nombres de meses en español
         meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
