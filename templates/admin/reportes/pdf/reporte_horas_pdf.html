@@ -97,6 +97,55 @@
             margin: 0 0 10px 0;
             color: #495057;
         }
+        
+        .totales-row {
+            background-color: #f8f9fa !important;
+            border-top: 3px solid #417690;
+            font-weight: bold;
+        }
+        
+        .totales-row td {
+            background-color: #f8f9fa !important;
+            border: 2px solid #417690;
+            font-weight: bold;
+        }
+        
+        .totales-section {
+            margin-top: 20px;
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #417690;
+        }
+        
+        .operario-header {
+            background-color: #17a2b8 !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        
+        .operario-header td {
+            background-color: #17a2b8 !important;
+            color: white !important;
+            border: 2px solid #138496;
+        }
+        
+        .subtotal-operario {
+            background-color: #e8f4fd !important;
+            border-top: 2px solid #17a2b8;
+            font-weight: bold;
+            font-style: italic;
+        }
+        
+        .subtotal-operario td {
+            background-color: #e8f4fd !important;
+            border: 1px solid #17a2b8;
+        }
+        
+        .operario-registro {
+            padding-left: 15px !important;
+        }
     </style>
 </head>
 <body>
@@ -117,7 +166,7 @@
         </div>
     </div>
     
-    {% if horas_trabajadas %}
+    {% if horas_agrupadas %}
     <table>
         <thead>
             <tr>
@@ -131,41 +180,184 @@
             </tr>
         </thead>
         <tbody>
-            {% for hora in horas_trabajadas %}
-            <tr>
-                <td>{{ hora.operario.apellido }}, {{ hora.operario.nombre }}</td>
-                <td>{{ hora.operario.dni }}</td>
-                <td>{{ hora.fecha|date:'d/m/Y' }}</td>
-                <td class="horas-normales">
-                    {% if hora.horas_normales.total_seconds %}
-                        {% widthratio hora.horas_normales.total_seconds 3600 1 %}h
-                    {% else %}
-                        0h
-                    {% endif %}
-                </td>
-                <td class="horas-nocturnas">
-                    {% if hora.horas_nocturnas.total_seconds %}
-                        {% widthratio hora.horas_nocturnas.total_seconds 3600 1 %}h
-                    {% else %}
-                        0h
-                    {% endif %}
-                </td>
-                <td class="horas-extras">
-                    {% if hora.horas_extras.total_seconds %}
-                        {% widthratio hora.horas_extras.total_seconds 3600 1 %}h
-                    {% else %}
-                        0h
-                    {% endif %}
-                </td>
-                <td class="total-diario">
-                    {% with horas_normales=hora.horas_normales.total_seconds|default:0 horas_nocturnas=hora.horas_nocturnas.total_seconds|default:0 horas_extras=hora.horas_extras.total_seconds|default:0 %}
-                        {% widthratio horas_normales|add:horas_nocturnas|add:horas_extras 3600 1 %}h
-                    {% endwith %}
-                </td>
-            </tr>
+            {% for operario_nombre, operario_data in horas_agrupadas.items %}
+                <!-- Cabecera del operario -->
+                <tr class="operario-header">
+                    <td colspan="7">
+                        <strong>{{ operario_nombre }} - DNI: {{ operario_data.operario.dni }}</strong>
+                    </td>
+                </tr>
+                
+                <!-- Registros del operario -->
+                {% for hora in operario_data.registros %}
+                <tr>
+                    <td class="operario-registro">{{ hora.operario.apellido }}, {{ hora.operario.nombre }}</td>
+                    <td>{{ hora.operario.dni }}</td>
+                    <td>{{ hora.fecha|date:'d/m/Y' }}</td>
+                    <td class="horas-normales">
+                        {% if hora.horas_normales.total_seconds %}
+                            {% widthratio hora.horas_normales.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td class="horas-nocturnas">
+                        {% if hora.horas_nocturnas.total_seconds %}
+                            {% widthratio hora.horas_nocturnas.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td class="horas-extras">
+                        {% if hora.horas_extras.total_seconds %}
+                            {% widthratio hora.horas_extras.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </td>
+                    <td class="total-diario">
+                        {% with horas_normales=hora.horas_normales.total_seconds|default:0 horas_nocturnas=hora.horas_nocturnas.total_seconds|default:0 horas_extras=hora.horas_extras.total_seconds|default:0 %}
+                            {% widthratio horas_normales|add:horas_nocturnas|add:horas_extras 3600 1 %}h
+                        {% endwith %}
+                    </td>
+                </tr>
+                {% endfor %}
+                
+                <!-- Subtotal del operario -->
+                <tr class="subtotal-operario">
+                    <td colspan="3"><strong>Subtotal {{ operario_nombre }}</strong></td>
+                    <td class="horas-normales">
+                        <strong>
+                            {% if operario_data.subtotal_normales.total_seconds %}
+                                {% widthratio operario_data.subtotal_normales.total_seconds 3600 1 %}h
+                            {% else %}
+                                0h
+                            {% endif %}
+                        </strong>
+                    </td>
+                    <td class="horas-nocturnas">
+                        <strong>
+                            {% if operario_data.subtotal_nocturnas.total_seconds %}
+                                {% widthratio operario_data.subtotal_nocturnas.total_seconds 3600 1 %}h
+                            {% else %}
+                                0h
+                            {% endif %}
+                        </strong>
+                    </td>
+                    <td class="horas-extras">
+                        <strong>
+                            {% if operario_data.subtotal_extras.total_seconds %}
+                                {% widthratio operario_data.subtotal_extras.total_seconds 3600 1 %}h
+                            {% else %}
+                                0h
+                            {% endif %}
+                        </strong>
+                    </td>
+                    <td class="total-diario">
+                        <strong>
+                            {% if operario_data.subtotal_general.total_seconds %}
+                                {% widthratio operario_data.subtotal_general.total_seconds 3600 1 %}h
+                            {% else %}
+                                0h
+                            {% endif %}
+                        </strong>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
+        {% if totales %}
+        <tfoot>
+            <tr class="totales-row">
+                <td colspan="3"><strong>TOTALES</strong></td>
+                <td class="horas-normales">
+                    <strong>
+                        {% if totales.total_normales.total_seconds %}
+                            {% widthratio totales.total_normales.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </strong>
+                </td>
+                <td class="horas-nocturnas">
+                    <strong>
+                        {% if totales.total_nocturnas.total_seconds %}
+                            {% widthratio totales.total_nocturnas.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </strong>
+                </td>
+                <td class="horas-extras">
+                    <strong>
+                        {% if totales.total_extras.total_seconds %}
+                            {% widthratio totales.total_extras.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </strong>
+                </td>
+                <td class="total-diario">
+                    <strong>
+                        {% if totales.total_general.total_seconds %}
+                            {% widthratio totales.total_general.total_seconds 3600 1 %}h
+                        {% else %}
+                            0h
+                        {% endif %}
+                    </strong>
+                </td>
+            </tr>
+        </tfoot>
+        {% endif %}
     </table>
+    
+    {% if totales %}
+    <div class="totales-section">
+        <h3>📊 RESUMEN TOTAL DEL PERÍODO</h3>
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <strong>Horas Normales</strong><br>
+                <span style="font-size: 12px; color: #28a745;">
+                    {% if totales.total_normales.total_seconds %}
+                        {% widthratio totales.total_normales.total_seconds 3600 1 %}h
+                    {% else %}
+                        0h
+                    {% endif %}
+                </span>
+            </div>
+            <div>
+                <strong>Horas Nocturnas</strong><br>
+                <span style="font-size: 12px; color: #17a2b8;">
+                    {% if totales.total_nocturnas.total_seconds %}
+                        {% widthratio totales.total_nocturnas.total_seconds 3600 1 %}h
+                    {% else %}
+                        0h
+                    {% endif %}
+                </span>
+            </div>
+            <div>
+                <strong>Horas Extras</strong><br>
+                <span style="font-size: 12px; color: #fd7e14;">
+                    {% if totales.total_extras.total_seconds %}
+                        {% widthratio totales.total_extras.total_seconds 3600 1 %}h
+                    {% else %}
+                        0h
+                    {% endif %}
+                </span>
+            </div>
+            <div>
+                <strong>TOTAL GENERAL</strong><br>
+                <span style="font-size: 14px; color: #343a40; font-weight: bold;">
+                    {% if totales.total_general.total_seconds %}
+                        {% widthratio totales.total_general.total_seconds 3600 1 %}h
+                    {% else %}
+                        0h
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     {% else %}
     <div class="resumen">
         <h3>⚠️ Sin datos</h3>

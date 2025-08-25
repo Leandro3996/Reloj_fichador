@@ -1817,7 +1817,7 @@ class ReporteAdmin(admin.ModelAdmin):
     def reporte_horas(self, request):
         """Vista para generar reporte de horas trabajadas"""
         from django.shortcuts import render
-        from datetime import datetime, date
+        from datetime import datetime, date, timedelta
         
         # Parámetros
         mes = request.GET.get('mes')
@@ -1839,8 +1839,58 @@ class ReporteAdmin(admin.ModelAdmin):
         
         # Generar reporte
         horas_trabajadas = None
+        horas_agrupadas = None
+        totales = None
         if 'generar' in request.GET:
             horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
+            
+            # Agrupar por operario y calcular subtotales
+            if horas_trabajadas:
+                from collections import OrderedDict
+                horas_agrupadas = OrderedDict()
+                total_normales = timedelta()
+                total_nocturnas = timedelta()
+                total_extras = timedelta()
+                
+                for hora in horas_trabajadas:
+                    operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
+                    
+                    if operario_key not in horas_agrupadas:
+                        horas_agrupadas[operario_key] = {
+                            'operario': hora.operario,
+                            'registros': [],
+                            'subtotal_normales': timedelta(),
+                            'subtotal_nocturnas': timedelta(),
+                            'subtotal_extras': timedelta(),
+                        }
+                    
+                    horas_agrupadas[operario_key]['registros'].append(hora)
+                    
+                    # Sumar a subtotales del operario
+                    if hora.horas_normales:
+                        horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
+                        total_normales += hora.horas_normales
+                    if hora.horas_nocturnas:
+                        horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
+                        total_nocturnas += hora.horas_nocturnas
+                    if hora.horas_extras:
+                        horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
+                        total_extras += hora.horas_extras
+                
+                # Calcular total general para cada operario
+                for operario_data in horas_agrupadas.values():
+                    operario_data['subtotal_general'] = (
+                        operario_data['subtotal_normales'] + 
+                        operario_data['subtotal_nocturnas'] + 
+                        operario_data['subtotal_extras']
+                    )
+                
+                totales = {
+                    'total_normales': total_normales,
+                    'total_nocturnas': total_nocturnas,
+                    'total_extras': total_extras,
+                    'total_general': total_normales + total_nocturnas + total_extras
+                }
         
         # Nombres de meses en español
         meses_es = [
@@ -1858,6 +1908,8 @@ class ReporteAdmin(admin.ModelAdmin):
             'operarios_disponibles': Operario.objects.filter(activo=True).order_by('apellido'),
             'operarios_seleccionados': operarios,
             'horas_trabajadas': horas_trabajadas,
+            'horas_agrupadas': horas_agrupadas,
+            'totales': totales,
         }
         
         return render(request, 'admin/reportes/reporte_horas.html', context)
@@ -1912,7 +1964,8 @@ class ReporteAdmin(admin.ModelAdmin):
         """Exportar reporte de horas a Excel"""
         import openpyxl
         from django.http import HttpResponse
-        from datetime import datetime, date
+        from datetime import datetime, date, timedelta
+        from openpyxl.styles import Font, PatternFill, Border, Side
         
         # Obtener los mismos parámetros que en reporte_horas
         mes = request.GET.get('mes')
@@ -1933,6 +1986,20 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar los datos
         horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
         
+        # Calcular totales
+        total_normales = timedelta()
+        total_nocturnas = timedelta()
+        total_extras = timedelta()
+        
+        if horas_trabajadas:
+            for hora in horas_trabajadas:
+                if hora.horas_normales:
+                    total_normales += hora.horas_normales
+                if hora.horas_nocturnas:
+                    total_nocturnas += hora.horas_nocturnas
+                if hora.horas_extras:
+                    total_extras += hora.horas_extras
+        
         # Nombres de meses en español
         meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -1945,25 +2012,107 @@ class ReporteAdmin(admin.ModelAdmin):
         # Headers
         headers = ['Empleado', 'DNI', 'Fecha', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Total Diario']
         for col, header in enumerate(headers, 1):
-            ws.cell(row=1, column=col, value=header)
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color='417690', end_color='417690', fill_type='solid')
+            cell.font = Font(bold=True, color='FFFFFF')
         
-        # Datos
+        # Datos agrupados por operario
         row = 2
-        for hora in horas_trabajadas:
-            # Calcular totales
-            horas_normales_num = hora.horas_normales.total_seconds() / 3600 if hora.horas_normales else 0
-            horas_nocturnas_num = hora.horas_nocturnas.total_seconds() / 3600 if hora.horas_nocturnas else 0
-            horas_extras_num = hora.horas_extras.total_seconds() / 3600 if hora.horas_extras else 0
-            total_diario = horas_normales_num + horas_nocturnas_num + horas_extras_num
+        if horas_agrupadas:
+            # Estilos para headers de operarios
+            fill_operario = PatternFill(start_color='17A2B8', end_color='17A2B8', fill_type='solid')
+            font_operario = Font(bold=True, color='FFFFFF')
             
-            ws.cell(row=row, column=1, value=f"{hora.operario.apellido}, {hora.operario.nombre}")
-            ws.cell(row=row, column=2, value=hora.operario.dni)
-            ws.cell(row=row, column=3, value=hora.fecha.strftime('%d/%m/%Y'))
-            ws.cell(row=row, column=4, value=f"{horas_normales_num:.1f}h")
-            ws.cell(row=row, column=5, value=f"{horas_nocturnas_num:.1f}h")
-            ws.cell(row=row, column=6, value=f"{horas_extras_num:.1f}h")
-            ws.cell(row=row, column=7, value=f"{total_diario:.1f}h")
+            # Estilos para subtotales
+            fill_subtotal = PatternFill(start_color='E8F4FD', end_color='E8F4FD', fill_type='solid')
+            font_subtotal = Font(bold=True, italic=True)
+            border_subtotal = Border(
+                top=Side(border_style='thin', color='17A2B8'),
+                bottom=Side(border_style='thin', color='17A2B8')
+            )
+            
+            for operario_nombre, operario_data in horas_agrupadas.items():
+                # Header del operario
+                header_cell = ws.cell(row=row, column=1, value=f"{operario_nombre} - DNI: {operario_data['operario'].dni}")
+                ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=7)
+                header_cell.fill = fill_operario
+                header_cell.font = font_operario
+                row += 1
+                
+                # Registros del operario
+                for hora in operario_data['registros']:
+                    horas_normales_num = hora.horas_normales.total_seconds() / 3600 if hora.horas_normales else 0
+                    horas_nocturnas_num = hora.horas_nocturnas.total_seconds() / 3600 if hora.horas_nocturnas else 0
+                    horas_extras_num = hora.horas_extras.total_seconds() / 3600 if hora.horas_extras else 0
+                    total_diario = horas_normales_num + horas_nocturnas_num + horas_extras_num
+                    
+                    ws.cell(row=row, column=1, value=f"    {hora.operario.apellido}, {hora.operario.nombre}")
+                    ws.cell(row=row, column=2, value=hora.operario.dni)
+                    ws.cell(row=row, column=3, value=hora.fecha.strftime('%d/%m/%Y'))
+                    ws.cell(row=row, column=4, value=f"{horas_normales_num:.1f}h")
+                    ws.cell(row=row, column=5, value=f"{horas_nocturnas_num:.1f}h")
+                    ws.cell(row=row, column=6, value=f"{horas_extras_num:.1f}h")
+                    ws.cell(row=row, column=7, value=f"{total_diario:.1f}h")
+                    row += 1
+                
+                # Subtotal del operario
+                subtotal_normales = operario_data['subtotal_normales'].total_seconds() / 3600
+                subtotal_nocturnas = operario_data['subtotal_nocturnas'].total_seconds() / 3600
+                subtotal_extras = operario_data['subtotal_extras'].total_seconds() / 3600
+                subtotal_general = operario_data['subtotal_general'].total_seconds() / 3600
+                
+                subtotal_data = [
+                    f"Subtotal {operario_nombre}", '', '',
+                    f"{subtotal_normales:.1f}h",
+                    f"{subtotal_nocturnas:.1f}h",
+                    f"{subtotal_extras:.1f}h",
+                    f"{subtotal_general:.1f}h"
+                ]
+                
+                for col, value in enumerate(subtotal_data, 1):
+                    cell = ws.cell(row=row, column=col, value=value)
+                    cell.fill = fill_subtotal
+                    cell.font = font_subtotal
+                    cell.border = border_subtotal
+                
+                row += 2  # Espacio entre operarios
+        
+        # Agregar fila de totales
+        if horas_agrupadas:
+            # Fila vacía de separación
             row += 1
+            
+            # Fila de totales
+            totales_normales = total_normales.total_seconds() / 3600
+            totales_nocturnas = total_nocturnas.total_seconds() / 3600
+            totales_extras = total_extras.total_seconds() / 3600
+            total_general = totales_normales + totales_nocturnas + totales_extras
+            
+            # Estilos para la fila de totales
+            fill_totales = PatternFill(start_color='F8F9FA', end_color='F8F9FA', fill_type='solid')
+            font_totales = Font(bold=True)
+            border_totales = Border(
+                top=Side(border_style='thick', color='417690'),
+                bottom=Side(border_style='thick', color='417690'),
+                left=Side(border_style='thin'),
+                right=Side(border_style='thin')
+            )
+            
+            # Datos de totales
+            totales_data = [
+                'TOTALES', '', '', 
+                f"{totales_normales:.1f}h",
+                f"{totales_nocturnas:.1f}h", 
+                f"{totales_extras:.1f}h",
+                f"{total_general:.1f}h"
+            ]
+            
+            for col, value in enumerate(totales_data, 1):
+                cell = ws.cell(row=row, column=col, value=value)
+                cell.fill = fill_totales
+                cell.font = font_totales
+                cell.border = border_totales
         
         # Respuesta HTTP
         response = HttpResponse(
@@ -1978,7 +2127,7 @@ class ReporteAdmin(admin.ModelAdmin):
         from django.http import HttpResponse
         from django.template.loader import get_template
         from weasyprint import HTML
-        from datetime import datetime, date
+        from datetime import datetime, date, timedelta
         import tempfile
         
         # Obtener los mismos parámetros que en reporte_horas
@@ -2000,6 +2149,56 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar los datos
         horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
         
+        # Agrupar por operario y calcular subtotales
+        horas_agrupadas = None
+        totales = None
+        if horas_trabajadas:
+            from collections import OrderedDict
+            horas_agrupadas = OrderedDict()
+            total_normales = timedelta()
+            total_nocturnas = timedelta()
+            total_extras = timedelta()
+            
+            for hora in horas_trabajadas:
+                operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
+                
+                if operario_key not in horas_agrupadas:
+                    horas_agrupadas[operario_key] = {
+                        'operario': hora.operario,
+                        'registros': [],
+                        'subtotal_normales': timedelta(),
+                        'subtotal_nocturnas': timedelta(),
+                        'subtotal_extras': timedelta(),
+                    }
+                
+                horas_agrupadas[operario_key]['registros'].append(hora)
+                
+                # Sumar a subtotales del operario
+                if hora.horas_normales:
+                    horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
+                    total_normales += hora.horas_normales
+                if hora.horas_nocturnas:
+                    horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
+                    total_nocturnas += hora.horas_nocturnas
+                if hora.horas_extras:
+                    horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
+                    total_extras += hora.horas_extras
+            
+            # Calcular total general para cada operario
+            for operario_data in horas_agrupadas.values():
+                operario_data['subtotal_general'] = (
+                    operario_data['subtotal_normales'] + 
+                    operario_data['subtotal_nocturnas'] + 
+                    operario_data['subtotal_extras']
+                )
+            
+            totales = {
+                'total_normales': total_normales,
+                'total_nocturnas': total_nocturnas,
+                'total_extras': total_extras,
+                'total_general': total_normales + total_nocturnas + total_extras
+            }
+        
         # Nombres de meses en español
         meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -2007,6 +2206,8 @@ class ReporteAdmin(admin.ModelAdmin):
         # Contexto para el template
         context = {
             'horas_trabajadas': horas_trabajadas,
+            'horas_agrupadas': horas_agrupadas,
+            'totales': totales,
             'mes_nombre': meses_es[mes],
             'año': año,
             'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M'),
