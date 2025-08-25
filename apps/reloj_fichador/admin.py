@@ -1864,7 +1864,47 @@ class ReporteAdmin(admin.ModelAdmin):
                             'subtotal_extras': timedelta(),
                         }
                     
-                    horas_agrupadas[operario_key]['registros'].append(hora)
+                    # Obtener movimientos de entrada y salida para esta fecha (solo principales, no transitorios)
+                    registros_dia = RegistroDiario.objects.filter(
+                        operario=hora.operario,
+                        hora_fichada__date=hora.fecha,
+                        tipo_movimiento__in=['entrada', 'salida'],
+                        valido=True
+                    ).order_by('hora_fichada')
+                    
+                    entradas = []
+                    salidas = []
+                    
+                    for registro in registros_dia:
+                        if registro.tipo_movimiento == 'entrada':
+                            entradas.append(registro.hora_fichada)
+                        elif registro.tipo_movimiento == 'salida':
+                            salidas.append(registro.hora_fichada)
+                    
+                    # Crear pares entrada/salida y generar filas separadas
+                    max_movimientos = max(len(entradas), len(salidas))
+                    
+                    if max_movimientos == 0:
+                        # No hay movimientos, crear una fila vacía
+                        hora_con_movimientos = {
+                            'hora': hora,
+                            'entrada': None,
+                            'salida': None
+                        }
+                        horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+                    else:
+                        # Crear una fila por cada par entrada/salida
+                        for i in range(max_movimientos):
+                            entrada = entradas[i] if i < len(entradas) else None
+                            salida = salidas[i] if i < len(salidas) else None
+                            
+                            hora_con_movimientos = {
+                                'hora': hora,
+                                'entrada': entrada,
+                                'salida': salida,
+                                'es_primera_fila': i == 0  # Para mostrar horas solo en la primera fila
+                            }
+                            horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
                     
                     # Sumar a subtotales del operario
                     if hora.horas_normales:
@@ -1964,8 +2004,10 @@ class ReporteAdmin(admin.ModelAdmin):
         """Exportar reporte de horas a Excel"""
         import openpyxl
         from django.http import HttpResponse
+        from django.utils import timezone
         from datetime import datetime, date, timedelta
         from openpyxl.styles import Font, PatternFill, Border, Side
+        import pytz
         
         # Obtener los mismos parámetros que en reporte_horas
         mes = request.GET.get('mes')
@@ -2008,7 +2050,47 @@ class ReporteAdmin(admin.ModelAdmin):
                         'subtotal_extras': timedelta(),
                     }
                 
-                horas_agrupadas[operario_key]['registros'].append(hora)
+                # Obtener movimientos de entrada y salida para esta fecha (solo principales, no transitorios)
+                registros_dia = RegistroDiario.objects.filter(
+                    operario=hora.operario,
+                    hora_fichada__date=hora.fecha,
+                    tipo_movimiento__in=['entrada', 'salida'],
+                    valido=True
+                ).order_by('hora_fichada')
+                
+                entradas = []
+                salidas = []
+                
+                for registro in registros_dia:
+                    if registro.tipo_movimiento == 'entrada':
+                        entradas.append(registro.hora_fichada)
+                    elif registro.tipo_movimiento == 'salida':
+                        salidas.append(registro.hora_fichada)
+                
+                # Crear pares entrada/salida y generar filas separadas
+                max_movimientos = max(len(entradas), len(salidas))
+                
+                if max_movimientos == 0:
+                    # No hay movimientos, crear una fila vacía
+                    hora_con_movimientos = {
+                        'hora': hora,
+                        'entrada': None,
+                        'salida': None
+                    }
+                    horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+                else:
+                    # Crear una fila por cada par entrada/salida
+                    for i in range(max_movimientos):
+                        entrada = entradas[i] if i < len(entradas) else None
+                        salida = salidas[i] if i < len(salidas) else None
+                        
+                        hora_con_movimientos = {
+                            'hora': hora,
+                            'entrada': entrada,
+                            'salida': salida,
+                            'es_primera_fila': i == 0  # Para mostrar horas solo en la primera fila
+                        }
+                        horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
                 
                 # Sumar a subtotales del operario
                 if hora.horas_normales:
@@ -2039,7 +2121,7 @@ class ReporteAdmin(admin.ModelAdmin):
         ws.title = f"Horas {meses_es[mes]} {año}"
         
         # Headers
-        headers = ['Empleado', 'DNI', 'Fecha', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Total Diario']
+        headers = ['Empleado', 'Fecha Entrada', 'Fecha Salida', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Total Diario']
         for col, header in enumerate(headers, 1):
             cell = ws.cell(row=1, column=col, value=header)
             cell.font = Font(bold=True)
@@ -2063,26 +2145,67 @@ class ReporteAdmin(admin.ModelAdmin):
             
             for operario_nombre, operario_data in horas_agrupadas.items():
                 # Header del operario
-                header_cell = ws.cell(row=row, column=1, value=f"{operario_nombre} - DNI: {operario_data['operario'].dni}")
+                header_cell = ws.cell(row=row, column=1, value=f"{operario_nombre}")
                 ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=7)
                 header_cell.fill = fill_operario
                 header_cell.font = font_operario
                 row += 1
                 
                 # Registros del operario
-                for hora in operario_data['registros']:
-                    horas_normales_num = hora.horas_normales.total_seconds() / 3600 if hora.horas_normales else 0
-                    horas_nocturnas_num = hora.horas_nocturnas.total_seconds() / 3600 if hora.horas_nocturnas else 0
-                    horas_extras_num = hora.horas_extras.total_seconds() / 3600 if hora.horas_extras else 0
-                    total_diario = horas_normales_num + horas_nocturnas_num + horas_extras_num
+                for registro in operario_data['registros']:
+                    hora = registro['hora']
+                    
+                    # Formatear entrada y salida individual
+                    dias_es = {
+                        'Monday': 'Lunes', 'Tuesday': 'Martes', 'Wednesday': 'Miércoles',
+                        'Thursday': 'Jueves', 'Friday': 'Viernes', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
+                    }
+                    
+                    entrada_text = "-"
+                    if registro['entrada']:
+                        # Convertir de UTC a timezone de Argentina
+                        if timezone.is_aware(registro['entrada']):
+                            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                            entrada_local = registro['entrada'].astimezone(argentina_tz)
+                        else:
+                            entrada_local = registro['entrada']
+                        dia_en = entrada_local.strftime('%A')
+                        dia_es = dias_es.get(dia_en, dia_en)
+                        entrada_text = f"{dia_es} - {entrada_local.strftime('%d/%m/%Y - %H:%M:%S')}"
+                    
+                    salida_text = "-"
+                    if registro['salida']:
+                        # Convertir de UTC a timezone de Argentina
+                        if timezone.is_aware(registro['salida']):
+                            argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+                            salida_local = registro['salida'].astimezone(argentina_tz)
+                        else:
+                            salida_local = registro['salida']
+                        dia_en = salida_local.strftime('%A')
+                        dia_es = dias_es.get(dia_en, dia_en)
+                        salida_text = f"{dia_es} - {salida_local.strftime('%d/%m/%Y - %H:%M:%S')}"
                     
                     ws.cell(row=row, column=1, value=f"    {hora.operario.apellido}, {hora.operario.nombre}")
-                    ws.cell(row=row, column=2, value=hora.operario.dni)
-                    ws.cell(row=row, column=3, value=hora.fecha.strftime('%d/%m/%Y'))
-                    ws.cell(row=row, column=4, value=f"{horas_normales_num:.1f}h")
-                    ws.cell(row=row, column=5, value=f"{horas_nocturnas_num:.1f}h")
-                    ws.cell(row=row, column=6, value=f"{horas_extras_num:.1f}h")
-                    ws.cell(row=row, column=7, value=f"{total_diario:.1f}h")
+                    ws.cell(row=row, column=2, value=entrada_text)
+                    ws.cell(row=row, column=3, value=salida_text)
+                    
+                    # Solo mostrar horas en la primera fila de cada día
+                    if registro.get('es_primera_fila', True):
+                        horas_normales_num = hora.horas_normales.total_seconds() / 3600 if hora.horas_normales else 0
+                        horas_nocturnas_num = hora.horas_nocturnas.total_seconds() / 3600 if hora.horas_nocturnas else 0
+                        horas_extras_num = hora.horas_extras.total_seconds() / 3600 if hora.horas_extras else 0
+                        total_diario = horas_normales_num + horas_nocturnas_num + horas_extras_num
+                        
+                        ws.cell(row=row, column=4, value=f"{horas_normales_num:.1f}h")
+                        ws.cell(row=row, column=5, value=f"{horas_nocturnas_num:.1f}h")
+                        ws.cell(row=row, column=6, value=f"{horas_extras_num:.1f}h")
+                        ws.cell(row=row, column=7, value=f"{total_diario:.1f}h")
+                    else:
+                        ws.cell(row=row, column=4, value="-")
+                        ws.cell(row=row, column=5, value="-")
+                        ws.cell(row=row, column=6, value="-")
+                        ws.cell(row=row, column=7, value="-")
+                    
                     row += 1
                 
                 # Subtotal del operario
@@ -2155,6 +2278,7 @@ class ReporteAdmin(admin.ModelAdmin):
         """Exportar reporte de horas a PDF"""
         from django.http import HttpResponse
         from django.template.loader import get_template
+        from django.utils import timezone
         from weasyprint import HTML
         from datetime import datetime, date, timedelta
         import tempfile
@@ -2178,7 +2302,7 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar los datos
         horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
         
-        # Agrupar por operario y calcular subtotales
+        # Agrupar por operario y calcular subtotales (misma lógica que HTML)
         horas_agrupadas = None
         totales = None
         if horas_trabajadas:
@@ -2200,9 +2324,33 @@ class ReporteAdmin(admin.ModelAdmin):
                         'subtotal_extras': timedelta(),
                     }
                 
-                horas_agrupadas[operario_key]['registros'].append(hora)
+                # Obtener movimientos de entrada y salida para esta fecha (excluyendo transitorios)
+                registros_dia = RegistroDiario.objects.filter(
+                    operario=hora.operario,
+                    hora_fichada__date=hora.fecha,
+                    tipo_movimiento__in=['entrada', 'salida']
+                ).order_by('hora_fichada')
                 
-                # Sumar a subtotales del operario
+                # Separar entradas y salidas
+                entradas = [r for r in registros_dia if r.tipo_movimiento == 'entrada']
+                salidas = [r for r in registros_dia if r.tipo_movimiento == 'salida']
+                
+                # Crear pares entrada/salida y generar filas separadas
+                max_movimientos = max(len(entradas), len(salidas)) if (entradas or salidas) else 1
+                
+                for i in range(max_movimientos):
+                    entrada = entradas[i] if i < len(entradas) else None
+                    salida = salidas[i] if i < len(salidas) else None
+                    
+                    hora_con_movimientos = {
+                        'hora': hora,
+                        'entrada': entrada.hora_fichada if entrada else None,
+                        'salida': salida.hora_fichada if salida else None,
+                        'es_primera_fila': i == 0
+                    }
+                    horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+                
+                # Sumar a subtotales del operario (solo una vez por día)
                 if hora.horas_normales:
                     horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
                     total_normales += hora.horas_normales
@@ -2239,7 +2387,7 @@ class ReporteAdmin(admin.ModelAdmin):
             'totales': totales,
             'mes_nombre': meses_es[mes],
             'año': año,
-            'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M'),
+            'fecha_generacion': timezone.now().astimezone(timezone.get_default_timezone()).strftime('%d/%m/%Y %H:%M'),
             'operarios_filtro': operarios.count() if operarios else 'Todos los operarios',
         }
         

@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load admin_urls static %}
+{% load admin_urls static reporte_filters %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -432,8 +432,8 @@
             <thead>
                 <tr>
                     <th>Empleado</th>
-                    <th>DNI</th>
-                    <th>Fecha</th>
+                    <th>Fecha Entrada</th>
+                    <th>Fecha Salida</th>
                     <th>Horas Normales</th>
                     <th>Horas Nocturnas</th>
                     <th>Horas Extras</th>
@@ -445,42 +445,56 @@
                     <!-- Cabecera del operario -->
                     <tr class="operario-header">
                         <td colspan="7">
-                            <strong>👤 {{ operario_nombre }} - DNI: {{ operario_data.operario.dni }}</strong>
+                            <strong>👤 {{ operario_nombre }}</strong>
                         </td>
                     </tr>
                     
                     <!-- Registros del operario -->
-                    {% for hora in operario_data.registros %}
+                    {% for registro in operario_data.registros %}
                     <tr>
-                        <td style="padding-left: 20px;">{{ hora.operario.apellido }}, {{ hora.operario.nombre }}</td>
-                        <td>{{ hora.operario.dni }}</td>
-                        <td>{{ hora.fecha|date:'d/m/Y' }}</td>
+                        <td style="padding-left: 20px;">{{ registro.hora.operario.apellido }}, {{ registro.hora.operario.nombre }}</td>
+                        <td>
+                            {{ registro.entrada|fecha_completa_es }}
+                        </td>
+                        <td>
+                            {{ registro.salida|fecha_completa_es }}
+                        </td>
                         <td class="horas-normales">
-                            {% if hora.horas_normales.total_seconds %}
-                                {% widthratio hora.horas_normales.total_seconds 3600 1 %}h
-                            {% else %}
+                            {% if registro.es_primera_fila and registro.hora.horas_normales.total_seconds %}
+                                {% widthratio registro.hora.horas_normales.total_seconds 3600 1 %}h
+                            {% elif registro.es_primera_fila %}
                                 0h
+                            {% else %}
+                                -
                             {% endif %}
                         </td>
                         <td class="horas-nocturnas">
-                            {% if hora.horas_nocturnas.total_seconds %}
-                                {% widthratio hora.horas_nocturnas.total_seconds 3600 1 %}h
-                            {% else %}
+                            {% if registro.es_primera_fila and registro.hora.horas_nocturnas.total_seconds %}
+                                {% widthratio registro.hora.horas_nocturnas.total_seconds 3600 1 %}h
+                            {% elif registro.es_primera_fila %}
                                 0h
+                            {% else %}
+                                -
                             {% endif %}
                         </td>
                         <td class="horas-extras">
-                            {% if hora.horas_extras.total_seconds %}
-                                {% widthratio hora.horas_extras.total_seconds 3600 1 %}h
-                            {% else %}
+                            {% if registro.es_primera_fila and registro.hora.horas_extras.total_seconds %}
+                                {% widthratio registro.hora.horas_extras.total_seconds 3600 1 %}h
+                            {% elif registro.es_primera_fila %}
                                 0h
+                            {% else %}
+                                -
                             {% endif %}
                         </td>
                         <td>
-                            {% widthratio hora.horas_normales.total_seconds 3600 1 as normales_h %}
-                            {% widthratio hora.horas_nocturnas.total_seconds 3600 1 as nocturnas_h %}
-                            {% widthratio hora.horas_extras.total_seconds 3600 1 as extras_h %}
-                            {{ normales_h|add:nocturnas_h|add:extras_h }}h
+                            {% if registro.es_primera_fila %}
+                                {% widthratio registro.hora.horas_normales.total_seconds 3600 1 as normales_h %}
+                                {% widthratio registro.hora.horas_nocturnas.total_seconds 3600 1 as nocturnas_h %}
+                                {% widthratio registro.hora.horas_extras.total_seconds 3600 1 as extras_h %}
+                                {{ normales_h|add:nocturnas_h|add:extras_h }}h
+                            {% else %}
+                                -
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
