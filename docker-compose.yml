@@ -22,6 +22,33 @@ services:
       timeout: 5s
       retries: 10
 
+  db_postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${POSTGRES_DATABASE}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: America/Argentina/Buenos_Aires
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "54321:5432"
+    networks:
+      - app_network_fichador
+    command: >
+      postgres
+      -c timezone=America/Argentina/Buenos_Aires
+      -c log_timezone=America/Argentina/Buenos_Aires
+      -c max_connections=200
+      -c shared_buffers=256MB
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DATABASE" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build:
       context: .
@@ -168,6 +195,7 @@ volumes:
   static_volume:
   media_volume:
   mysql_data:
+  postgres_data:
   redis_data:
 
 

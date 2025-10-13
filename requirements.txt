@@ -28,6 +28,7 @@ fonttools==4.53.1
 html5lib==1.1
 kombu==5.4.0
 mysqlclient==2.2.4
+psycopg2-binary==2.9.9
 numpy==2.1.1
 openpyxl==3.0.10
 pandas==2.2.2

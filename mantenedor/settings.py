@@ -108,6 +108,20 @@ DATABASES = {
             'autocommit': True,
             'isolation_level': 'READ COMMITTED',
         },
+    },
+    'postgres': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DATABASE', 'docker_horesdb_pg'),
+        'USER': os.environ.get('POSTGRES_USER', 'sistemas'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'S1st3mas2024'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db_postgres'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'OPTIONS': {
+            'connect_timeout': 30,
+            'options': '-c timezone=America/Argentina/Buenos_Aires',
+        },
+        'CONN_MAX_AGE': 600,
+        'ATOMIC_REQUESTS': True,
     }
 }
 

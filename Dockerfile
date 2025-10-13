@@ -7,16 +7,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
     gcc \
     default-libmysqlclient-dev \
+    libpq-dev \
     pkg-config \
-    libpango1.0-0 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
     libcairo2 \
     gobject-introspection \
-    libgdk-pixbuf2.0-0 \
+    libgdk-pixbuf-2.0-0 \
     libffi-dev \
     shared-mime-info \
-    libpangocairo-1.0-0 \
-    fonts-liberation2 \
-    libpangoft2-1.0-0 && \
+    fonts-liberation2 && \
     rm -rf /var/lib/apt/lists/*
 
 # Configurar locale en español
