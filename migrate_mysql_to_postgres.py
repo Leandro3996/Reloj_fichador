@@ -32,11 +32,12 @@ def get_all_models():
     """Obtiene todos los modelos de la aplicación en orden de dependencia."""
     # Orden específico para respetar las relaciones FK
     ordered_models = [
-        # Primero los modelos de Django auth
+        # Primero los modelos de Django auth y admin
         'auth.Group',
         'auth.User',
         'auth.Permission',
         'contenttypes.ContentType',
+        'admin.LogEntry',  # Historial de acciones del Django Admin (auditoría)
 
         # Modelos de la aplicación en orden de dependencias
         'reloj_fichador.ConfiguracionRedondeo',
