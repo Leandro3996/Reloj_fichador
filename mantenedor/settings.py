@@ -24,19 +24,23 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '192.168.10.12', '192.168.10.43',
-                 '192.168.10.18', '192.168.10.11', '192.168.10.17',
-                 '192.168.10.8', '192.168.10.4', '192.168.10.13', '190.96.116.202'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '192.168.10.11', ])
 
 INSTALLED_APPS = [
-    'admin_interface',
-    'colorfield',
+    # Unfold debe ir PRIMERO para sobreescribir templates del admin
+    'unfold',
+    'unfold.contrib.import_export',
+    'unfold.contrib.simple_history',
+
+    # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Apps del proyecto
     'apps.reloj_fichador',
     'mantenedor',
 
@@ -95,6 +99,20 @@ WSGI_APPLICATION = 'mantenedor.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DATABASE', 'docker_horesdb_pg'),
+        'USER': os.environ.get('POSTGRES_USER', 'sistemas'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'S1st3mas2024'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db_postgres'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'OPTIONS': {
+            'connect_timeout': 30,
+            'options': '-c timezone=America/Argentina/Buenos_Aires',
+        },
+        'CONN_MAX_AGE': 600,
+        'ATOMIC_REQUESTS': True,
+    },
+    'mysql': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
@@ -108,20 +126,6 @@ DATABASES = {
             'autocommit': True,
             'isolation_level': 'READ COMMITTED',
         },
-    },
-    'postgres': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DATABASE', 'docker_horesdb_pg'),
-        'USER': os.environ.get('POSTGRES_USER', 'sistemas'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'S1st3mas2024'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'db_postgres'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-        'OPTIONS': {
-            'connect_timeout': 30,
-            'options': '-c timezone=America/Argentina/Buenos_Aires',
-        },
-        'CONN_MAX_AGE': 600,
-        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -154,6 +158,223 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Django Unfold
+UNFOLD = {
+    "SITE_TITLE": "Reloj Fichador - Administración",
+    "SITE_HEADER": "Sistema de Control de Asistencia",
+    "SITE_URL": "/",
+    "SITE_ICON": {
+        "light": lambda request: "img/logo_hores.png",
+        "dark": lambda request: "img/logo_hores.png",
+    },
+    "SITE_LOGO": {
+        "light": lambda request: "img/logo_hores.png",
+        "dark": lambda request: "img/logo_hores.png",
+    },
+    "SITE_SYMBOL": "schedule",  # Icono de Material Design para reloj/horario
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": False,
+    "ENVIRONMENT": "mantenedor.utils.environment_callback",
+    "DASHBOARD_CALLBACK": "mantenedor.utils.dashboard_callback",
+    "THEME": "dark",  # "light", "dark" o "auto"
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "168 85 247",
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+    },
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "es": "🇪🇸",
+                "en": "🇬🇧",
+            },
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Panel Principal",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": "/admin/",
+                    },
+                ],
+            },
+            {
+                "title": "Gestión de Personal",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Operarios",
+                        "icon": "people",
+                        "link": "/admin/reloj_fichador/operario/",
+                    },
+                    {
+                        "title": "Áreas",
+                        "icon": "business",
+                        "link": "/admin/reloj_fichador/area/",
+                    },
+                    {
+                        "title": "Horarios",
+                        "icon": "schedule",
+                        "link": "/admin/reloj_fichador/horario/",
+                    },
+                ],
+            },
+            {
+                "title": "Registros de Asistencia",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Registro Diario",
+                        "icon": "access_time",
+                        "link": "/admin/reloj_fichador/registrodiario/",
+                    },
+                    {
+                        "title": "Registro de Asistencia",
+                        "icon": "event_available",
+                        "link": "/admin/reloj_fichador/registroasistencia/",
+                    },
+                    {
+                        "title": "Licencias",
+                        "icon": "description",
+                        "link": "/admin/reloj_fichador/licencia/",
+                    },
+                ],
+            },
+            {
+                "title": "Cálculos de Horas",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Horas Trabajadas",
+                        "icon": "timer",
+                        "link": "/admin/reloj_fichador/horas_trabajadas/",
+                    },
+                    {
+                        "title": "Horas Extras",
+                        "icon": "alarm_add",
+                        "link": "/admin/reloj_fichador/horas_extras/",
+                    },
+                    {
+                        "title": "Horas Feriado",
+                        "icon": "event",
+                        "link": "/admin/reloj_fichador/horas_feriado/",
+                    },
+                    {
+                        "title": "Horas Totales",
+                        "icon": "summarize",
+                        "link": "/admin/reloj_fichador/horas_totales/",
+                    },
+                ],
+            },
+            {
+                "title": "Configuración",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Configuración Redondeo Entrada",
+                        "icon": "settings",
+                        "link": "/admin/reloj_fichador/configuracionredondeo/",
+                    },
+                    {
+                        "title": "Configuración Redondeo Salida",
+                        "icon": "tune",
+                        "link": "/admin/reloj_fichador/configuracionredondeosalida/",
+                    },
+                ],
+            },
+            {
+                "title": "Reportes",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Reportes",
+                        "icon": "assessment",
+                        "link": "/admin/reloj_fichador/reporte/",
+                    },
+                ],
+            },
+            {
+                "title": "Tareas Programadas",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Periodic Tasks",
+                        "icon": "schedule",
+                        "link": "/admin/django_celery_beat/periodictask/",
+                    },
+                    {
+                        "title": "Intervalos",
+                        "icon": "timer",
+                        "link": "/admin/django_celery_beat/intervalschedule/",
+                    },
+                    {
+                        "title": "Crontab",
+                        "icon": "event_repeat",
+                        "link": "/admin/django_celery_beat/crontabschedule/",
+                    },
+                ],
+            },
+            {
+                "title": "Administración",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Usuarios",
+                        "icon": "account_circle",
+                        "link": "/admin/auth/user/",
+                    },
+                    {
+                        "title": "Grupos",
+                        "icon": "group",
+                        "link": "/admin/auth/group/",
+                    },
+                ],
+            },
+        ],
+    },
+    "TABS": [
+        {
+            "models": [
+                "reloj_fichador.operario",
+            ],
+            "items": [
+                {
+                    "title": "Información General",
+                    "link": "change",
+                },
+                {
+                    "title": "Historial",
+                    "link": "history",
+                },
+            ],
+        },
+    ],
+}
 
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/5')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379/5')

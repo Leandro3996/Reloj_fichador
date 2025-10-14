@@ -7,6 +7,10 @@ from django.contrib.admin.models import LogEntry
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.html import format_html
+
+# Imports de Unfold
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
@@ -28,8 +32,8 @@ from django.http import HttpResponse
 import os
 from django.conf import settings
 from simple_history.admin import SimpleHistoryAdmin
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin, GroupAdmin as BaseGroupAdmin
 from django.http import HttpResponseRedirect
 import pytz
 from .signals import actualizar_horas_despues_de_guardar
@@ -128,7 +132,7 @@ class ExportarPDFMixin:
     exportar_pdf.short_description = "Exportar seleccionados a PDF"
 
 @admin.register(Operario)
-class OperarioAdmin(ExportMixin, SimpleHistoryAdmin):
+class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
     inlines = [LicenciaInline]
     list_display = (
         'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo', 'view_history_button'
@@ -524,7 +528,7 @@ class RegistroDiarioResource(resources.ModelResource):
 
 
 @admin.register(RegistroDiario)
-class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin):
+class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
     resource_class = RegistroDiarioResource
     list_display = ('get_dni', 'get_nombre', 'get_apellido', 'tipo_movimiento', 'formatted_hora_fichada', 
                     'origen_fichada', 'mostrar_inconsistencia', 'mostrar_valido', 'view_history_button')
@@ -777,7 +781,7 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin):
     recalcular_horas_trabajadas.short_description = "Recalcular horas seleccionadas"
 
 @admin.register(Horas_trabajadas)
-class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
+class HorasTrabajadasAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
@@ -942,7 +946,7 @@ class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Horas_extras)
-class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
+class HorasExtrasAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
@@ -1040,7 +1044,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Horas_totales)
-class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
+class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
@@ -1210,7 +1214,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(RegistroAsistencia)
-class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
+class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = (
         'operario', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones'
     )
@@ -1337,18 +1341,18 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
         return exportar_pdf(self, request, queryset, calculate_hours_total=True)
 
 @admin.register(Horario)
-class HorarioAdmin(ExportarPDFMixin, admin.ModelAdmin):
+class HorarioAdmin(ExportarPDFMixin, UnfoldModelAdmin):
     list_display = ('nombre', 'hora_inicio', 'hora_fin')
     search_fields = ('nombre',)
 
 @admin.register(Area)
-class AreaAdmin(ExportarPDFMixin, admin.ModelAdmin):
+class AreaAdmin(ExportarPDFMixin, UnfoldModelAdmin):
     list_display = ('nombre',)
     search_fields = ('nombre',)
     filter_horizontal = ('horarios',)
 
 @admin.register(Horas_feriado)
-class HorasFeriadoAdmin(ExportMixin, admin.ModelAdmin):
+class HorasFeriadoAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = ('operario', 'fecha', 'horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
@@ -1359,7 +1363,7 @@ class HorasFeriadoAdmin(ExportMixin, admin.ModelAdmin):
         return exportar_pdf(self, request, queryset, calculate_hours_total=True)
 
 @admin.register(LogEntry)
-class LogEntryAdmin(ExportarPDFMixin, admin.ModelAdmin):
+class LogEntryAdmin(ExportarPDFMixin, UnfoldModelAdmin):
     list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
     list_filter = ('action_flag', 'user', 'content_type')
     search_fields = ('object_repr', 'change_message', 'user__username')
@@ -1390,7 +1394,7 @@ class LogEntryAdmin(ExportarPDFMixin, admin.ModelAdmin):
 
 # Registro de modelos históricos
 @admin.register(HistoricalOperario)
-class HistoricalOperarioAdmin(admin.ModelAdmin):
+class HistoricalOperarioAdmin(UnfoldModelAdmin):
     list_display = ('dni', 'nombre', 'apellido', 'activo', 'history_date', 'history_user', 'history_type')
     list_filter = ('history_date', 'history_type', 'activo')
     search_fields = ('dni', 'nombre', 'apellido', 'history_user__username')
@@ -1406,7 +1410,7 @@ class HistoricalOperarioAdmin(admin.ModelAdmin):
         return False
 
 @admin.register(HistoricalRegistroDiario)
-class HistoricalRegistroDiarioAdmin(admin.ModelAdmin):
+class HistoricalRegistroDiarioAdmin(UnfoldModelAdmin):
     list_display = ('get_operario', 'tipo_movimiento', 'formatted_hora_fichada', 'valido', 'inconsistencia', 'history_date', 'history_user', 'history_type')
     list_filter = ('history_date', 'history_type', 'tipo_movimiento', 'valido', 'inconsistencia')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido', 'history_user__username')
@@ -1437,7 +1441,7 @@ class HistoricalRegistroDiarioAdmin(admin.ModelAdmin):
         return False
 
 @admin.register(HistoricalLicencia)
-class HistoricalLicenciaAdmin(admin.ModelAdmin):
+class HistoricalLicenciaAdmin(UnfoldModelAdmin):
     list_display = ('get_operario', 'descripcion_corta', 'estado', 'fecha_inicio', 'fecha_fin', 'history_date', 'history_user', 'history_type')
     list_filter = ('history_date', 'history_type', 'estado', 'aplicar_a_asistencia')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido', 'descripcion', 'history_user__username')
@@ -1489,13 +1493,20 @@ HorasTotalesAdmin.exportar_pdf = exportar_pdf_con_totales
 HorasFeriadoAdmin.exportar_pdf = exportar_pdf_con_totales
 
 # Personalizar el admin de User para limitar permisos
-class RestrictedUserAdmin(UserAdmin):
+class RestrictedUserAdmin(UserAdmin, UnfoldModelAdmin):
     """
     Administrador personalizado para User que restringe la edición
     de usuarios de manera que los usuarios staff solo puedan editar
     su propio perfil, mientras que los superusuarios pueden editar cualquiera.
+
+    Integrado con Unfold para una interfaz moderna.
     """
-    
+
+    # Formularios de Unfold para User
+    form = UserChangeForm
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
+
     def has_change_permission(self, request, obj=None):
         # Si el usuario es superusuario, tiene permiso completo
         if request.user.is_superuser:
@@ -1558,9 +1569,18 @@ class RestrictedUserAdmin(UserAdmin):
         ]
 
 
-# Desregistrar el UserAdmin predeterminado y registrar nuestro RestrictedUserAdmin
+# Clase personalizada para Group con Unfold
+class GroupAdmin(BaseGroupAdmin, UnfoldModelAdmin):
+    """
+    Admin para el modelo Group integrado con Unfold.
+    """
+    pass
+
+# Desregistrar los modelos predeterminados y registrar con Unfold
 admin.site.unregister(User)
+admin.site.unregister(Group)
 admin.site.register(User, RestrictedUserAdmin)
+admin.site.register(Group, GroupAdmin)
 admin.site.register(ConfiguracionRedondeo)
 
 
@@ -1719,7 +1739,7 @@ class ReporteManager:
 
 
 @admin.register(Reporte)
-class ReporteAdmin(admin.ModelAdmin):
+class ReporteAdmin(UnfoldModelAdmin):
     """Admin personalizado para la generación de reportes"""
     
     def has_add_permission(self, request):
@@ -2733,7 +2753,7 @@ class LicenciasPorAprobarFilter(admin.SimpleListFilter):
 
 
 @admin.register(Licencia)
-class LicenciaAdmin(SimpleHistoryAdmin):
+class LicenciaAdmin(SimpleHistoryAdmin, UnfoldModelAdmin):
     list_display = [
         'get_operario_info', 'descripcion_corta', 'periodo_licencia', 
         'duracion_dias', 'estado_display', 'fecha_subida', 'aprobada_por', 

@@ -1,4 +1,5 @@
 Django==5.1.4
+django-unfold==0.42.0
 amqp==5.2.0
 asgiref==3.8.1
 billiard==4.2.0
@@ -14,11 +15,9 @@ colorama==0.4.6
 cron-descriptor==1.4.5
 cssselect2==0.7.0
 diff-match-patch==20230430
-django-admin-interface==0.28.8
 django-admin-rangefilter==0.13.1
 django-celery-beat==2.7.0
 django-celery-results==2.5.1
-django-colorfield==0.11.0
 django-import-export==4.1.1
 django-tables2==2.7.0
 django-timezone-field==7.0
