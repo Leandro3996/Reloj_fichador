@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import environ
 import sys
+from django.templatetags.static import static
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env()
@@ -165,12 +166,12 @@ UNFOLD = {
     "SITE_HEADER": "Sistema de Control de Asistencia",
     "SITE_URL": "/",
     "SITE_ICON": {
-        "light": lambda request: "img/logo_hores.png",
-        "dark": lambda request: "img/logo_hores.png",
+        "light": lambda request: static("img/logo_hores.png"),
+        "dark": lambda request: static("img/logo_hores.png"),
     },
     "SITE_LOGO": {
-        "light": lambda request: "img/logo_hores.png",
-        "dark": lambda request: "img/logo_hores.png",
+        "light": lambda request: static("img/logo_hores.png"),
+        "dark": lambda request: static("img/logo_hores.png"),
     },
     "SITE_SYMBOL": "schedule",  # Icono de Material Design para reloj/horario
     "SHOW_HISTORY": True,
