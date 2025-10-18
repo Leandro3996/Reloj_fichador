@@ -1576,12 +1576,59 @@ class GroupAdmin(BaseGroupAdmin, UnfoldModelAdmin):
     """
     pass
 
+# =============================================================================
+# CONFIGURACIÓN DE REDONDEO
+# =============================================================================
+
+@admin.register(ConfiguracionRedondeo)
+class ConfiguracionRedondeoAdmin(UnfoldModelAdmin):
+    """
+    Admin para ConfiguracionRedondeo con Unfold.
+    """
+    list_display = ['id', 'minutos_redondeo_baja', 'minutos_redondeo_media']
+    fieldsets = (
+        ('Configuración de Redondeo de Entrada', {
+            'fields': ('minutos_redondeo_baja', 'minutos_redondeo_media'),
+            'description': 'Configura los minutos de redondeo para las entradas de los operarios.'
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Solo permitir un registro
+        return not ConfiguracionRedondeo.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # No permitir eliminación
+        return False
+
+
+@admin.register(ConfiguracionRedondeoSalida)
+class ConfiguracionRedondeoSalidaAdmin(UnfoldModelAdmin):
+    """
+    Admin para ConfiguracionRedondeoSalida con Unfold.
+    """
+    list_display = ['id', 'minutos_redondeo_salida']
+    fieldsets = (
+        ('Configuración de Redondeo de Salida', {
+            'fields': ('minutos_redondeo_salida',),
+            'description': 'Configura los minutos de redondeo para las salidas de los operarios.'
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Solo permitir un registro
+        return not ConfiguracionRedondeoSalida.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # No permitir eliminación
+        return False
+
+
 # Desregistrar los modelos predeterminados y registrar con Unfold
 admin.site.unregister(User)
 admin.site.unregister(Group)
 admin.site.register(User, RestrictedUserAdmin)
 admin.site.register(Group, GroupAdmin)
-admin.site.register(ConfiguracionRedondeo)
 
 
 # =============================================================================
@@ -2712,8 +2759,6 @@ class ReporteAdmin(UnfoldModelAdmin):
         fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
         response['Content-Disposition'] = f'attachment; filename="Reporte_Inconsistencias_{fecha_str}.pdf"'
         return response
-
-admin.site.register(ConfiguracionRedondeoSalida)
 
 
 # ===============================================================================

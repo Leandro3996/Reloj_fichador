@@ -15,6 +15,7 @@ This is a Django-based time tracking system ("Reloj Fichador") deployed with Doc
 - **Task Queue**: Celery with Redis as broker
 - **Web Server**: Nginx with Gunicorn
 - **Deployment**: Docker Compose
+- **Admin Interface**: Django Unfold 0.42.0 (modern admin theme)
 - **MCP Server**: Enhanced PostgreSQL MCP for Claude Code integration
 
 ### Key Models (apps/reloj_fichador/models.py)
@@ -113,45 +114,132 @@ docker compose restart celery celery-beat
 
 ### MCP (Model Context Protocol) for Claude Code
 
-The project includes MCP configuration for direct database queries from Claude Code using natural language.
+The project includes MCP configuration for direct database queries from Claude Code using natural language. This allows Claude to execute SQL queries directly against PostgreSQL without manual command execution.
 
-#### Quick Setup
-The MCP configuration file is already included: `mcp_postgres_config.json`
+#### Prerequisites
+- **Node.js v18+**: Required for npx to run the MCP server
+- **PostgreSQL running**: Database must be accessible on port 54321
+- **Claude Desktop**: MCP servers are configured through Claude Desktop
 
-To use MCP with Claude Code:
-1. Ensure PostgreSQL is running: `docker compose up -d db_postgres`
-2. Verify Node.js is installed: `node --version` (requires v18+)
-3. The MCP server will auto-connect when you use Claude Code
-
-#### Example Queries
-Once configured, you can ask Claude Code:
-- "Show me the last 10 employee entries"
-- "How many daily records are there in October?"
-- "Describe the structure of the horas_trabajadas table"
-- "Summarize overtime hours by employee for last month"
-
-#### MCP Configuration Details
-- **Server**: `enhanced-postgres-mcp-server` (installed via npx)
-- **Database**: `docker_horesdb_pg` on port `54321`
-- **Permissions**: Read-only (SELECT queries only)
-- **Timezone**: America/Argentina/Buenos_Aires
-
-For detailed setup instructions, see: `CONFIGURACION_MCP_POSTGRESQL.md`
-
-#### Troubleshooting MCP
+Verify prerequisites:
 ```bash
-# Test MCP connection manually
+# Check Node.js version (should be v18 or higher)
+node --version
+
+# Ensure PostgreSQL is running
+docker compose up -d db_postgres
+docker compose ps db_postgres
+
+# Test database connection
+docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT 1;"
+```
+
+#### Configuration File Location
+MCP servers are configured in Claude Desktop's configuration file:
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+#### Current Configuration
+The MCP server is already configured in the Claude Desktop config file with the following settings:
+
+```json
+{
+  "mcpServers": {
+    "postgres-reloj-fichador": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "enhanced-postgres-mcp-server",
+        "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg"
+      ],
+      "disabled": false,
+      "alwaysAllow": [
+        "list-tables",
+        "describe-table",
+        "query"
+      ],
+      "env": {
+        "PGTZ": "America/Argentina/Buenos_Aires"
+      }
+    }
+  }
+}
+```
+
+**Configuration Details:**
+- **Server Name**: `postgres-reloj-fichador`
+- **Command**: `npx -y enhanced-postgres-mcp-server`
+- **Database**: `docker_horesdb_pg` on `localhost:54321`
+- **User**: `sistemas` (password: `S1st3mas2024`)
+- **Permissions**: `list-tables`, `describe-table`, `query` (read-only)
+- **Timezone**: `America/Argentina/Buenos_Aires`
+- **Auto-allow**: All three operations are pre-approved for seamless usage
+
+#### How to Use MCP with Claude Code
+
+Once configured (and after restarting Claude Desktop), you can ask Claude Code natural language questions about the database:
+
+**Example queries:**
+- "Show me the last 10 employee entries"
+- "How many daily records are there in October 2025?"
+- "Describe the structure of the horas_trabajadas table"
+- "What are all the tables in the database?"
+- "Show me operators with more than 40 overtime hours this month"
+- "List all areas and their assigned schedules"
+- "Summarize total worked hours by employee for last week"
+
+Claude will automatically translate these requests into SQL queries and execute them via MCP.
+
+#### Activating MCP
+1. **Restart Claude Desktop** after modifying the configuration file
+2. **Start PostgreSQL**: `docker compose up -d db_postgres`
+3. **Open Claude Code** and start asking database questions
+4. MCP tools should appear with the `mcp__` prefix in the tool list
+
+#### Verifying MCP Connection
+
+To verify MCP is working correctly:
+
+1. **Check available MCP tools** in Claude Code (they start with `mcp__`)
+2. **Ask a simple query**: "List all tables in the database"
+3. **Expected response**: Claude should list all Django tables without using `docker compose exec`
+
+If MCP is not working:
+```bash
+# 1. Test MCP server manually (should start without errors)
 npx -y enhanced-postgres-mcp-server \
   "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg"
 
-# Verify PostgreSQL is accessible
-docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT 1;"
+# 2. Verify PostgreSQL is accessible from localhost
+psql "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg" -c "SELECT version();"
+
+# 3. Check Claude Desktop logs (Linux)
+journalctl --user -u claude-desktop -n 50
+
+# 4. Restart Claude Desktop completely (close all windows)
 ```
+
+#### Security Notes
+- **Read-only access**: MCP is configured with SELECT permissions only
+- **Local access only**: Database accessible only from localhost:54321
+- **No DDL operations**: Cannot create, modify, or delete database objects
+- **Password in config**: The config file contains database credentials, ensure proper file permissions:
+  ```bash
+  chmod 600 ~/.config/Claude/claude_desktop_config.json
+  ```
+
+#### Reference Documentation
+For detailed setup instructions and advanced configuration, see:
+- `CONFIGURACION_MCP_POSTGRESQL.md` - Complete MCP setup guide
+- `mcp_postgres_config.json` - Reference configuration file (not used directly, integrated into Claude Desktop config)
+- MCP Official Docs: https://modelcontextprotocol.io/
 
 ## Important Files and Locations
 
 ### Configuration
 - `mantenedor/settings.py` - Django settings with timezone configuration (USE_TZ=True for timezone-aware datetimes)
+- `mantenedor/utils.py` - Utility functions for Unfold callbacks (environment badges, dashboard statistics)
 - `docker-compose.yml` - Service orchestration
 - `.env` - Environment variables (not in repo)
 - `nginx.conf` - Web server configuration
@@ -160,6 +248,7 @@ docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT
 ### Documentation
 - `documentacion/` - Comprehensive project documentation
 - `documentacion/analista/` - System analysis, design guides, and technical documentation
+- `documentacion/django-unfold-manual.md` - Complete guide for Django Unfold implementation
 - `CONFIGURACION_MCP_POSTGRESQL.md` - Complete MCP setup guide
 - `POSTGRESQL_SETUP.md` - PostgreSQL migration and setup guide
 
@@ -200,10 +289,13 @@ docker compose exec web python manage.py migrate
 
 ### Admin Interface Customizations
 The Django admin is heavily customized with:
+- **Django Unfold Theme**: Modern, responsive interface with dark mode support
 - Custom list displays and filters
 - Export functionality (PDF/Excel)
 - Import/export capabilities for bulk operations
 - Historical tracking via django-simple-history
+- Custom navigation sidebar with icons
+- Personalized dashboard with real-time statistics
 
 ### Error Handling and Logging
 - Logs are stored in `logs/` directory
@@ -296,3 +388,48 @@ The project emphasizes:
 - All scripts and automation tools are documented in `documentacion/analista/scripts/`
 
 For complete project rules and guidelines, see `.cursor/rules/instrucciones.mdc`
+
+## Django Unfold Implementation
+
+### Overview
+The project uses **Django Unfold 0.42.0** as a modern admin theme, replacing the default Django admin interface with a clean, responsive, and feature-rich interface.
+
+### Key Features Implemented
+- **Modern UI**: Clean, responsive design with dark mode support
+- **Custom Navigation**: Hierarchical sidebar menu with Material Design icons
+- **Dashboard**: Real-time statistics showing active operators, daily records, and attendance
+- **Environment Badge**: Visual indicator showing Development/Production environment
+- **Integration**: Seamless integration with django-import-export and django-simple-history
+- **Personalization**: Custom colors, logo, and site branding
+
+### Configuration Location
+All Unfold configuration is centralized in `mantenedor/settings.py` under the `UNFOLD` dictionary (lines 145-377):
+- **SITE_TITLE**: "Reloj Fichador - Administración"
+- **SITE_HEADER**: "Sistema de Control de Asistencia"
+- **THEME**: Dark mode by default
+- **SIDEBAR**: Custom navigation with 7 main sections
+- **COLORS**: Purple-based color scheme (primary color: #A855F7)
+
+### Admin Classes Structure
+All admin classes in `apps/reloj_fichador/admin.py` inherit from `UnfoldModelAdmin`:
+- 15 model admins fully migrated to Unfold
+- 2 configuration admins with restricted permissions
+- Custom user and group admins integrated with Unfold
+- Historical tracking admins for audit purposes
+
+### Utility Functions
+Located in `mantenedor/utils.py`:
+- `environment_callback()`: Shows environment badge (Development/Production)
+- `dashboard_callback()`: Provides real-time statistics for the dashboard
+
+### Access
+Admin interface accessible at: `http://localhost:58000/admin/` (or configured domain)
+
+### Maintenance
+When adding new models:
+1. Inherit from `UnfoldModelAdmin` instead of `admin.ModelAdmin`
+2. Import: `from unfold.admin import ModelAdmin as UnfoldModelAdmin`
+3. Use `@admin.register(YourModel)` decorator or `admin.site.register()`
+4. Collect static files: `docker compose exec web python manage.py collectstatic --noinput`
+
+For detailed Unfold configuration options, see `documentacion/django-unfold-manual.md`

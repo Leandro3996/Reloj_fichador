@@ -35,10 +35,10 @@ def dashboard_callback(request, context):
     # Estadísticas básicas
     context.update({
         'total_operarios': Operario.objects.filter(activo=True).count(),
-        'registros_hoy': RegistroDiario.objects.filter(fecha=hoy).count(),
+        'registros_hoy': RegistroDiario.objects.filter(hora_fichada__date=hoy).count(),
         'operarios_presentes_hoy': RegistroDiario.objects.filter(
-            fecha=hoy,
-            movimiento='entrada'
+            hora_fichada__date=hoy,
+            tipo_movimiento='entrada'
         ).values('operario').distinct().count(),
     })
 
