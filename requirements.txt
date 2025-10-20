@@ -58,3 +58,4 @@ zopfli==0.2.3
 gunicorn
 django-simple-history
 django-environ
+django-axes==6.5.1

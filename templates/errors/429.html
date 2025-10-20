@@ -1,0 +1,101 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}429 - Cuenta bloqueada temporalmente{% endblock %}
+
+{% block error_code %}429{% endblock %}
+
+{% block error_title %}Cuenta bloqueada temporalmente{% endblock %}
+
+{% block error_message %}
+<p>Su cuenta ha sido <strong>bloqueada temporalmente</strong> debido a múltiples intentos de inicio de sesión fallidos.</p>
+
+<div style="margin: 20px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+    <h3 style="margin-top: 0; color: #856404;">
+        <span style="font-size: 24px;">🔒</span> Medida de seguridad
+    </h3>
+    <p style="margin: 10px 0; color: #856404;">
+        Por su seguridad, hemos bloqueado temporalmente los intentos de acceso desde su ubicación.
+    </p>
+    <p style="margin: 10px 0; color: #856404;">
+        <strong>Tiempo de bloqueo:</strong> 15 minutos
+    </p>
+</div>
+
+<h3 style="margin-top: 30px; color: #2C3E50;">¿Qué puedo hacer?</h3>
+<div style="text-align: left; max-width: 500px; margin: 0 auto;">
+    <ul style="line-height: 1.8;">
+        <li>Espere <strong>15 minutos</strong> y vuelva a intentarlo</li>
+        <li>Asegúrese de estar usando las <strong>credenciales correctas</strong></li>
+        <li>Verifique que no tiene activado el <strong>Bloq Mayús</strong></li>
+        <li>Si olvidó su contraseña, contacte al administrador del sistema</li>
+    </ul>
+</div>
+
+<div style="margin-top: 30px; padding: 15px; background-color: #d1ecf1; border-left: 4px solid #0c5460; border-radius: 5px;">
+    <p style="margin: 0; color: #0c5460;">
+        <strong>ℹ️ Nota:</strong> Este bloqueo es temporal y se levantará automáticamente después de 15 minutos de inactividad.
+    </p>
+</div>
+{% endblock %}
+
+{% block action_buttons %}
+<a href="{% url 'admin:login' %}" class="btn">Volver al login</a>
+<a href="/" class="btn btn-secondary">Ir al sitio principal</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Animación para el icono de bloqueo */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .error-code {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    /* Timer countdown */
+    #countdown {
+        font-size: 20px;
+        font-weight: bold;
+        color: #EA8A2F;
+        margin: 15px 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Opcional: Mostrar un contador regresivo si conocemos el tiempo de bloqueo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Puedes descomentar esto si quieres agregar un contador regresivo
+        /*
+        let timeRemaining = 15 * 60; // 15 minutos en segundos
+
+        const countdownDiv = document.createElement('div');
+        countdownDiv.id = 'countdown';
+        countdownDiv.innerHTML = 'Tiempo restante: <span id="time">15:00</span>';
+
+        const errorMessage = document.querySelector('.error-message');
+        errorMessage.appendChild(countdownDiv);
+
+        const interval = setInterval(function() {
+            timeRemaining--;
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('time').textContent =
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(interval);
+                document.getElementById('countdown').innerHTML =
+                    '✅ Puede intentar iniciar sesión nuevamente';
+                document.getElementById('countdown').style.color = '#28a745';
+            }
+        }, 1000);
+        */
+    });
+</script>
+{% endblock %}

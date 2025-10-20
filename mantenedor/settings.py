@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'mantenedor',
 
     # Aplicaciones de terceros
+    'axes',  # django-axes para protección contra brute force
     'simple_history',
     'rangefilter',
     'django_celery_beat',
@@ -66,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    # Django-axes debe ir después de AuthenticationMiddleware
+    'axes.middleware.AxesMiddleware',
     # Middlewares personalizados para manejo de errores
     'apps.reloj_fichador.middleware.PermissionMiddleware',
     'apps.reloj_fichador.middleware.ErrorHandlerMiddleware',
@@ -129,6 +132,12 @@ DATABASES = {
         },
     }
 }
+
+# Authentication Backends (requerido por django-axes)
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # AxesStandaloneBackend debe ir primero
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -505,3 +514,54 @@ if 'test' in sys.argv:
     }
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
     DEBUG = False
+
+# ============================================================================
+# CONFIGURACIÓN DE DJANGO-AXES (Protección contra Brute Force)
+# ============================================================================
+
+# Número máximo de intentos de login fallidos antes de bloquear
+AXES_FAILURE_LIMIT = 5
+
+# Tiempo de bloqueo después de exceder el límite (en minutos)
+from datetime import timedelta
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+
+# Usar IP + username para rastrear intentos (más seguro)
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+
+# Mensaje personalizado cuando se bloquea al usuario
+AXES_LOCKOUT_TEMPLATE = 'errors/429.html'  # Template personalizado en español
+AXES_VERBOSE = True  # Habilitar logs detallados
+
+# Solo bloquear en el admin login
+AXES_ONLY_ADMIN_SITE = True
+
+# Reiniciar intentos después del cooloff
+AXES_RESET_ON_SUCCESS = True
+
+# Usar cache de Django (Redis) para almacenar intentos
+AXES_CACHE = 'default'
+
+# Habilitar integración con Django admin para ver intentos bloqueados
+AXES_ENABLE_ADMIN = True
+
+# No bloquear IPs de la whitelist (opcional, comentado por ahora)
+# AXES_NEVER_LOCKOUT_WHITELIST = True
+# AXES_IP_WHITELIST = ['127.0.0.1', '172.19.0.2']
+
+# Lockout por IP o por usuario+IP (más seguro: usuario+IP)
+# AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True  # DEPRECADO en versión 6.x
+# En su lugar, usar AXES_LOCKOUT_PARAMETERS arriba configurado como [["username", "ip_address"]]
+
+# ============================================================================
+# CONFIGURACIÓN DE REDIRECCIONES DE LOGIN/LOGOUT
+# ============================================================================
+
+# Redirigir al admin después de login exitoso
+LOGIN_REDIRECT_URL = '/admin/'
+
+# Redirigir al login después de logout
+LOGOUT_REDIRECT_URL = '/admin/login/'
+
+# URL de login (usado por @login_required decorator)
+LOGIN_URL = '/admin/login/'
