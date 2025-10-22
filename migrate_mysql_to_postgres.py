@@ -197,7 +197,7 @@ def main():
         return 1
 
     try:
-        connections['postgres'].ensure_connection()
+        connections['default'].ensure_connection()
         print("  ✓ PostgreSQL conectada")
     except Exception as e:
         print(f"  ✗ Error conectando a PostgreSQL: {e}")

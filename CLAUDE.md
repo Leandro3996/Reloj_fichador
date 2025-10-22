@@ -1,4 +1,32 @@
-# CLAUDE.md
+# CLAUDE.md - Reloj Fichador
+
+> **📍 CONFIGURACIÓN GLOBAL:** Este proyecto usa MCPs centralizados en `~/.claude.json`
+>
+> **Instrucciones Globales:** `~/.claude/CLAUDE.md` (⭐ LEER PRIMERO)
+>
+> **Documentación de MCPs:** Ver archivos en `~/.claude/`:
+> - `CONFIGURACION_GLOBAL.md` - Guía completa de MCPs
+> - `ANADIR_NUEVOS_MCPS.md` - Cómo añadir nuevas BDs
+> - `MULTIPLES_CONFIGURACIONES.md` - Opciones avanzadas
+
+---
+
+## 🔄 Bucle de Verificación (Verificación Obligatoria)
+
+Este proyecto sigue el **protocolo global de verificación** de Claude Code:
+
+**Ciclo:** PLAN → EXEC → VERIFY → CORRECT (si falla)
+
+**Documentación Completa:** Ver `~/.claude/CLAUDE.md` - Sección "Bucle de Verificación"
+
+**Resumen:**
+- ✅ Usar TodoWrite para planificar pasos
+- ✅ Siempre verificar que las tareas funcionan
+- ✅ Ejecutar tests después de cambios
+- ✅ Capturar evidencia (logs, screenshots)
+- ❌ NUNCA asumir que algo funcionó sin probar
+
+---
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -114,12 +142,32 @@ docker compose restart celery celery-beat
 
 ### MCP (Model Context Protocol) for Claude Code
 
+#### 🔗 CONFIGURACIÓN GLOBAL DE MCPs
+
+**⭐ IMPORTANTE:** Todos los MCPs están configurados centralmente en `~/.claude.json`
+
+No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles globalmente:
+
+| MCP | Base de Datos | Ubicación | Estado |
+|-----|---------------|-----------|--------|
+| `postgres-reloj-fichador` | docker_horesdb_pg | localhost:54321 | ✅ Activo |
+| `context7` | (documentación) | - | ✅ Activo |
+| `browsermcp` | (navegador) | - | ✅ Activo |
+| `chrome-devtools` | (Chrome) | - | ✅ Activo |
+
+**Documentación Completa:**
+- Instrucciones globales: `~/.claude/CLAUDE.md`
+- Configuración: `~/.claude/CONFIGURACION_GLOBAL.md`
+- Cómo añadir nuevos MCPs: `~/.claude/ANADIR_NUEVOS_MCPS.md`
+
+---
+
 The project includes MCP configuration for direct database queries from Claude Code using natural language. This allows Claude to execute SQL queries directly against PostgreSQL without manual command execution.
 
 #### Prerequisites
 - **Node.js v18+**: Required for npx to run the MCP server
 - **PostgreSQL running**: Database must be accessible on port 54321
-- **Claude Desktop**: MCP servers are configured through Claude Desktop
+- **Claude Desktop**: MCP servers are configured through Claude Desktop (Global configuration)
 
 Verify prerequisites:
 ```bash
