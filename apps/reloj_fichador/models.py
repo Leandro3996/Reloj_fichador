@@ -267,13 +267,17 @@ class Licencia(models.Model):
                     es_aprobacion_nueva = True
             except Licencia.DoesNotExist:
                 pass
-        
+
         super().save(*args, **kwargs)
-        
+
         # Procesar asistencia de forma asíncrona después de guardar
+        # (Celery ejecutará después, pero también procesa de forma síncrona para visibilidad)
         if es_aprobacion_nueva:
             from .tasks import procesar_licencia_aprobada
-            procesar_licencia_aprobada.delay(self.pk)
+            # Ejecutar de forma síncrona para que el usuario vea los cambios inmediatamente
+            procesar_licencia_aprobada(self.pk)
+            # Alternativamente, descomentar para ejecutar de forma asíncrona (más performante):
+            # procesar_licencia_aprobada.delay(self.pk)
 
     def actualizar_asistencia(self):
         """

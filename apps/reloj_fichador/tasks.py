@@ -76,6 +76,11 @@ def procesar_licencia_aprobada(licencia_id):
 
     También acumula las horas de enfermedad en el modelo HorasEnfermedad
     para que se sumen a Horas_totales.
+
+    CASO DE USO REAL:
+    - Persona falta el día X (se crea RegistroAsistencia sin justificación)
+    - Persona presenta certificado médico el día Y (se carga y aprueba licencia)
+    - Sistema retroactivamente justifica todos los días de la ausencia
     """
     try:
         from .models import HorasEnfermedad, Horas_totales
@@ -91,6 +96,28 @@ def procesar_licencia_aprobada(licencia_id):
         # Calcular duración en días y convertir a horas (8h por día)
         duracion_dias = (licencia.fecha_fin - licencia.fecha_inicio).days + 1
         horas_enfermedad_total = timedelta(hours=duracion_dias * 8)
+
+        # ✅ PASO CRÍTICO: Buscar registros SIN justificación ANTERIORES a la licencia
+        # (Caso real: persona falta, luego presenta certificado)
+        registros_sin_justificacion_previos = RegistroAsistencia.objects.filter(
+            operario=licencia.operario,
+            fecha__lt=licencia.fecha_inicio,  # Fechas ANTES de la licencia
+            estado_asistencia=RegistroAsistencia.ausente,
+            estado_justificacion=False,
+            licencia_relacionada__isnull=True
+        ).order_by('-fecha')[:30]  # Últimos 30 días sin justificación
+
+        registros_justificados_previos = 0
+        for registro_previo in registros_sin_justificacion_previos:
+            # Solo justificar si está "cerca" de la fecha de inicio (máximo 30 días antes)
+            dias_diferencia = (licencia.fecha_inicio - registro_previo.fecha).days
+            if 0 < dias_diferencia <= 30:  # Solo si está entre 1 y 30 días antes
+                registro_previo.estado_justificacion = True
+                registro_previo.licencia_relacionada = licencia
+                registro_previo.descripcion = f'Ausencia justificada retroactivamente por licencia (ID: {licencia.pk})'
+                registro_previo.save()
+                registros_justificados_previos += 1
+                logger.info(f'Justificado retroactivamente registro anterior: {licencia.operario} en {registro_previo.fecha}')
 
         # Procesar día por día
         fecha_actual = licencia.fecha_inicio
@@ -164,7 +191,7 @@ def procesar_licencia_aprobada(licencia_id):
         except Exception as e:
             logger.error(f'Error registrando horas de enfermedad para licencia {licencia_id}: {e}')
 
-        resultado = f'Licencia {licencia_id} procesada: {dias_justificados}/{dias_procesados} días justificados, {int(horas_enfermedad_total.total_seconds() / 3600)}h enfermedad'
+        resultado = f'Licencia {licencia_id} procesada: {dias_justificados}/{dias_procesados} días justificados, {registros_justificados_previos} días retroactivos justificados, {int(horas_enfermedad_total.total_seconds() / 3600)}h enfermedad'
         logger.info(resultado)
         return resultado
 
