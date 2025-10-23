@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reloj_fichador', '0031_fix_licencia_missing_columns'),
+        ('reloj_fichador', '0030_hacer_archivo_licencia_opcional'),
     ]
 
     operations = [
