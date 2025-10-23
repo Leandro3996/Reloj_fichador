@@ -22,40 +22,13 @@ services:
       timeout: 5s
       retries: 10
 
-  db_postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: "${POSTGRES_DATABASE}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      PGDATA: /var/lib/postgresql/data/pgdata
-      TZ: America/Argentina/Buenos_Aires
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "54321:5432"
-    networks:
-      - app_network_fichador
-    command: >
-      postgres
-      -c timezone=America/Argentina/Buenos_Aires
-      -c log_timezone=America/Argentina/Buenos_Aires
-      -c max_connections=200
-      -c shared_buffers=256MB
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DATABASE" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   web:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db_postgres:5432 -t 120 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --workers 3 --bind 0.0.0.0:58000 mantenedor.wsgi:application"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -64,7 +37,7 @@ services:
     ports:
       - "58000:58000"
     depends_on:
-      db_postgres:
+      db:
         condition: service_healthy
     environment:
       - DB_NAME=${MYSQL_DATABASE}
@@ -72,11 +45,6 @@ services:
       - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_HOST=db
       - DB_PORT=3306
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=db_postgres
-      - POSTGRES_PORT=5432
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
@@ -91,14 +59,14 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db_postgres:5432 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
       - ./logs:/app/logs
     depends_on:
-      db_postgres:
+      db:
         condition: service_healthy
       redis:
         condition: service_started
@@ -108,11 +76,6 @@ services:
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_HOST=db
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=db_postgres
-      - POSTGRES_PORT=5432
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
@@ -127,14 +90,14 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db_postgres:5432 -t 120 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "python manage.py migrate && celery -A mantenedor beat --loglevel=info"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
       - ./logs:/app/logs
     depends_on:
-      db_postgres:
+      db:
         condition: service_healthy
       redis:
         condition: service_started
@@ -144,11 +107,6 @@ services:
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_HOST=db
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=db_postgres
-      - POSTGRES_PORT=5432
       - LANG=${LANG}
       - LANGUAGE=${LANGUAGE}
       - LC_ALL=${LC_ALL}
@@ -210,7 +168,6 @@ volumes:
   static_volume:
   media_volume:
   mysql_data:
-  postgres_data:
   redis_data:
 
 
