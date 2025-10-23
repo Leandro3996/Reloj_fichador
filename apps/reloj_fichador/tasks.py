@@ -73,21 +73,30 @@ def procesar_licencia_aprobada(licencia_id):
     """
     Procesa una licencia aprobada, creando/actualizando registros de asistencia
     de forma asíncrona para evitar bloqueos en el admin.
+
+    También acumula las horas de enfermedad en el modelo HorasEnfermedad
+    para que se sumen a Horas_totales.
     """
     try:
+        from .models import HorasEnfermedad, Horas_totales
+
         licencia = Licencia.objects.get(pk=licencia_id)
         logger.info(f'Iniciando procesamiento asíncrono de licencia {licencia_id} para {licencia.operario}')
-        
-        if not (licencia.estado == 'aprobada' and licencia.aplicar_a_asistencia and 
+
+        if not (licencia.estado == 'aprobada' and licencia.aplicar_a_asistencia and
                 licencia.fecha_inicio and licencia.fecha_fin):
             logger.warning(f'Licencia {licencia_id} no cumple criterios para procesamiento automático')
             return f'Licencia {licencia_id} no procesada - no cumple criterios'
-        
+
+        # Calcular duración en días y convertir a horas (8h por día)
+        duracion_dias = (licencia.fecha_fin - licencia.fecha_inicio).days + 1
+        horas_enfermedad_total = timedelta(hours=duracion_dias * 8)
+
         # Procesar día por día
         fecha_actual = licencia.fecha_inicio
         dias_procesados = 0
         dias_justificados = 0
-        
+
         while fecha_actual <= licencia.fecha_fin:
             try:
                 registro_asistencia, created = RegistroAsistencia.objects.get_or_create(
@@ -100,7 +109,7 @@ def procesar_licencia_aprobada(licencia_id):
                         'licencia_relacionada': licencia
                     }
                 )
-                
+
                 if created:
                     dias_justificados += 1
                     logger.debug(f'Creado registro de ausencia justificada para {licencia.operario} en {fecha_actual}')
@@ -116,23 +125,49 @@ def procesar_licencia_aprobada(licencia_id):
                     if 'licencia' not in (registro_asistencia.descripcion or '').lower():
                         registro_asistencia.descripcion = f'Ausencia justificada por licencia (ID: {licencia.pk})'
                         actualizado = True
-                    
+
                     if actualizado:
                         registro_asistencia.save()
                         dias_justificados += 1
                         logger.debug(f'Actualizado registro existente para {licencia.operario} en {fecha_actual}')
-                
+
                 dias_procesados += 1
-                
+
             except Exception as e:
                 logger.error(f'Error procesando fecha {fecha_actual} para licencia {licencia_id}: {e}')
-            
+
             fecha_actual += timedelta(days=1)
-        
-        resultado = f'Licencia {licencia_id} procesada: {dias_justificados}/{dias_procesados} días justificados'
+
+        # ✅ CREAR REGISTRO DE HORAS DE ENFERMEDAD
+        try:
+            mes_periodo = licencia.fecha_inicio.strftime('%Y-%m')
+            horas_enfermedad_obj, created = HorasEnfermedad.objects.get_or_create(
+                operario=licencia.operario,
+                licencia=licencia,
+                mes_periodo=mes_periodo,
+                defaults={
+                    'horas_enfermedad': horas_enfermedad_total
+                }
+            )
+
+            if not created:
+                # Si ya existe, actualizar las horas
+                horas_enfermedad_obj.horas_enfermedad = horas_enfermedad_total
+                horas_enfermedad_obj.save()
+
+            logger.info(f'Horas de enfermedad registradas: {int(horas_enfermedad_total.total_seconds() / 3600)}h para {licencia.operario}')
+
+            # ✅ RECALCULAR HORAS_TOTALES DEL MES
+            Horas_totales.calcular_horas_totales(licencia.operario, mes_periodo)
+            logger.info(f'Horas_totales recalculadas para {licencia.operario} en {mes_periodo}')
+
+        except Exception as e:
+            logger.error(f'Error registrando horas de enfermedad para licencia {licencia_id}: {e}')
+
+        resultado = f'Licencia {licencia_id} procesada: {dias_justificados}/{dias_procesados} días justificados, {int(horas_enfermedad_total.total_seconds() / 3600)}h enfermedad'
         logger.info(resultado)
         return resultado
-        
+
     except Licencia.DoesNotExist:
         error_msg = f'Licencia {licencia_id} no existe'
         logger.error(error_msg)

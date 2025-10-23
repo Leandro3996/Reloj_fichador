@@ -17,7 +17,7 @@ from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras,
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia,
     Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida, Reporte,
-    CalendarioLaboral, GrupoSabado, SugerenciaFeriado
+    CalendarioLaboral, GrupoSabado, SugerenciaFeriado, HorasEnfermedad
 )
 
 # Importar el modelo histórico de Licencia
@@ -1048,7 +1048,7 @@ class HorasExtrasAdmin(ExportMixin, UnfoldModelAdmin):
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
-    list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado')
+    list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado', 'get_horas_enfermedad')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
@@ -1102,12 +1102,19 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
         return f"{hours}h {minutes}m"
     get_horas_feriado.short_description = 'Horas Feriado'
 
+    def get_horas_enfermedad(self, obj):
+        total_seconds = obj.horas_enfermedad.total_seconds()
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+    get_horas_enfermedad.short_description = 'Horas Enfermedad'
+
     def generar_reporte(self, request, queryset):
         registros = list(queryset)
         total_registros = Horas_totales.objects.count()
         items_por_pagina = 30
 
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado']
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado', 'Horas Enfermedad']
         filas = []
         for registro in registros:
             fila = [
@@ -1118,6 +1125,7 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
                 self.get_horas_nocturnas(registro),
                 self.get_horas_extras(registro),
                 self.get_horas_feriado(registro),
+                self.get_horas_enfermedad(registro),
             ]
             filas.append(fila)
 
@@ -1147,13 +1155,13 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
         from django.http import HttpResponse
 
         registros = list(queryset)
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado']
-        
+        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado', 'Horas Enfermedad']
+
         workbook = openpyxl.Workbook()
         sheet = workbook.active
         sheet.title = "Reporte de Horas Totales"
         sheet.append(encabezados)
-        
+
         for registro in registros:
             fila = [
                 registro.operario.dni,
@@ -1163,13 +1171,14 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
                 self.get_horas_nocturnas(registro),
                 self.get_horas_extras(registro),
                 self.get_horas_feriado(registro),
+                self.get_horas_enfermedad(registro),
             ]
             sheet.append(fila)
-        
+
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_Totales.xlsx"'
         workbook.save(response)
-        
+
         return response
 
     exportar_excel.short_description = "Exportar a Excel"
@@ -1625,6 +1634,60 @@ class ConfiguracionRedondeoSalidaAdmin(UnfoldModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # No permitir eliminación
         return False
+
+
+# =============================================================================
+# ADMIN PARA HORAS DE ENFERMEDAD
+# =============================================================================
+
+@admin.register(HorasEnfermedad)
+class HorasEnfermedadAdmin(UnfoldModelAdmin):
+    """
+    Admin para visualizar y gestionar las horas de enfermedad acumuladas
+    por licencias médicas aprobadas.
+    """
+    list_display = ['operario', 'horas_enfermedad_display', 'mes_periodo', 'fecha_creacion', 'licencia_link']
+    list_filter = ['mes_periodo', 'operario', 'fecha_creacion']
+    readonly_fields = ['operario', 'licencia', 'horas_enfermedad', 'fecha_creacion', 'mes_periodo']
+    search_fields = ['operario__nombre', 'operario__apellido', 'mes_periodo']
+    date_hierarchy = 'fecha_creacion'
+
+    fieldsets = (
+        ('Información de Enfermedad', {
+            'fields': ('operario', 'licencia', 'mes_periodo'),
+        }),
+        ('Horas', {
+            'fields': ('horas_enfermedad',),
+            'description': 'Total de horas acumuladas por licencias médicas',
+        }),
+        ('Auditoría', {
+            'fields': ('fecha_creacion',),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def has_add_permission(self, request):
+        # No permitir agregar manualmente, se crean automáticamente desde licencias
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # No permitir eliminación
+        return False
+
+    def horas_enfermedad_display(self, obj):
+        """Mostrar horas en formato legible"""
+        horas = int(obj.horas_enfermedad.total_seconds() / 3600)
+        minutos = int((obj.horas_enfermedad.total_seconds() % 3600) / 60)
+        return format_html(f'<strong>{horas}h {minutos}m</strong>')
+    horas_enfermedad_display.short_description = 'Horas de Enfermedad'
+
+    def licencia_link(self, obj):
+        """Mostrar enlace a la licencia relacionada"""
+        if obj.licencia:
+            url = reverse('admin:reloj_fichador_licencia_change', args=[obj.licencia.pk])
+            return format_html('<a href="{}">{}</a>', url, f'Licencia #{obj.licencia.pk}')
+        return '-'
+    licencia_link.short_description = 'Licencia'
 
 
 # Desregistrar los modelos predeterminados y registrar con Unfold

@@ -686,6 +686,34 @@ class Horas_feriado(models.Model):
         return timedelta()
 
 
+class HorasEnfermedad(models.Model):
+    """
+    Modelo para registrar horas de enfermedad acumuladas por licencias médicas.
+    Cada vez que se aprueba una licencia médica, se crea un registro aquí
+    para auditoría y tracking.
+    """
+    operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
+    licencia = models.ForeignKey('Licencia', on_delete=models.SET_NULL, null=True, blank=True)
+    horas_enfermedad = models.DurationField(default=timedelta,
+                                           help_text="Horas de enfermedad de esta licencia (duracion × 8h)")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    mes_periodo = models.CharField(max_length=20,
+                                   help_text="Mes al que corresponden estas horas (YYYY-MM)")
+
+    class Meta:
+        app_label = 'reloj_fichador'
+        verbose_name = "Horas enfermedad"
+        verbose_name_plural = "Horas enfermedad"
+        indexes = [
+            models.Index(fields=['operario', 'mes_periodo']),
+            models.Index(fields=['licencia']),
+        ]
+
+    def __str__(self):
+        horas = int(self.horas_enfermedad.total_seconds() / 3600)
+        return f"{self.operario} - {horas}h enfermedad - {self.mes_periodo}"
+
+
 class Horas_extras(models.Model):
     operario = models.ForeignKey(Operario, on_delete=models.CASCADE)
     fecha = models.DateField(default=timezone.now)
@@ -720,6 +748,8 @@ class Horas_totales(models.Model):
     horas_nocturnas = models.DurationField(default=timedelta)
     horas_extras = models.DurationField(default=timedelta)
     horas_feriado = models.DurationField(default=timedelta)
+    horas_enfermedad = models.DurationField(default=timedelta,
+                                           help_text="Horas acumuladas por licencias médicas aprobadas")
 
     class Meta:
         app_label = 'reloj_fichador'
@@ -728,7 +758,7 @@ class Horas_totales(models.Model):
 
     @classmethod
     def calcular_horas_totales(cls, operario, mes):
-        from .models import Horas_trabajadas, Horas_extras, Horas_feriado
+        from .models import Horas_trabajadas, Horas_extras, Horas_feriado, HorasEnfermedad
 
         mes_inicio = datetime.strptime(mes, '%Y-%m').date().replace(day=1)
 
@@ -753,11 +783,18 @@ class Horas_totales(models.Model):
             fecha__month=mes_inicio.month
         ).aggregate(total=Sum('horas_feriado'))['total'] or timedelta()
 
+        # Sumar horas de enfermedad acumuladas por licencias médicas
+        horas_enfermedad = HorasEnfermedad.objects.filter(
+            operario=operario,
+            mes_periodo=mes
+        ).aggregate(total=Sum('horas_enfermedad'))['total'] or timedelta()
+
         obj, _ = cls.objects.get_or_create(operario=operario, mes_actual=mes)
         obj.horas_normales = horas_trabajadas['total_normales'] or timedelta()
         obj.horas_nocturnas = horas_trabajadas['total_nocturnas'] or timedelta()
         obj.horas_extras = horas_extras
         obj.horas_feriado = horas_feriado
+        obj.horas_enfermedad = horas_enfermedad
         obj.save()
         return obj
 
