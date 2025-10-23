@@ -39,12 +39,12 @@ This is a Django-based time tracking system ("Reloj Fichador") deployed with Doc
 ### Core Application
 - **Django Project**: `mantenedor/` (main settings and configuration)
 - **Main App**: `apps/reloj_fichador/` (contains all business logic)
-- **Database**: PostgreSQL 15 (primary), MySQL 8.4.0 (legacy/secondary)
+- **Database**: MySQL 8.4.0 (primary)
 - **Task Queue**: Celery with Redis as broker
 - **Web Server**: Nginx with Gunicorn
 - **Deployment**: Docker Compose
 - **Admin Interface**: Django Unfold 0.42.0 (modern admin theme)
-- **MCP Server**: Enhanced PostgreSQL MCP for Claude Code integration
+- **MCP Servers**: Context7, BrowserMCP, Chrome DevTools (PostgreSQL MCP obsoleto)
 
 ### Key Models (apps/reloj_fichador/models.py)
 
@@ -101,22 +101,7 @@ docker compose exec web python manage.py test
 
 ### Database Operations
 
-#### PostgreSQL (Primary Database)
-```bash
-# Backup database
-docker compose exec db_postgres pg_dump -U sistemas docker_horesdb_pg > backup.sql
-
-# Restore database
-docker compose exec -T db_postgres psql -U sistemas docker_horesdb_pg < backup.sql
-
-# Access PostgreSQL shell
-docker compose exec db_postgres psql -U sistemas docker_horesdb_pg
-
-# Check database status
-docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT version();"
-```
-
-#### MySQL (Legacy/Secondary Database)
+#### MySQL (Primary Database)
 ```bash
 # Backup MySQL database
 docker compose exec db mysqldump -u root -p docker_horesdb > backup_mysql.sql
@@ -150,7 +135,7 @@ No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles gl
 
 | MCP | Base de Datos | Ubicación | Estado |
 |-----|---------------|-----------|--------|
-| `postgres-reloj-fichador` | docker_horesdb_pg | localhost:54321 | ✅ Activo |
+| `postgres-reloj-fichador` | docker_horesdb_pg | localhost:54321 | ⚠️ Obsoleto (PostgreSQL eliminado) |
 | `context7` | (documentación) | - | ✅ Activo |
 | `browsermcp` | (navegador) | - | ✅ Activo |
 | `chrome-devtools` | (Chrome) | - | ✅ Activo |
@@ -162,126 +147,9 @@ No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles gl
 
 ---
 
-The project includes MCP configuration for direct database queries from Claude Code using natural language. This allows Claude to execute SQL queries directly against PostgreSQL without manual command execution.
+**⚠️ NOTA IMPORTANTE - PostgreSQL Obsoleto:**
+PostgreSQL ha sido eliminado como base de datos del proyecto. El MCP `postgres-reloj-fichador` se mantiene configurado para futuros proyectos que utilicen PostgreSQL, pero **NO ES UTILIZADO** en este proyecto. Para consultas a la base de datos en este proyecto, usar **MySQL directamente** con comandos Docker o herramientas SQL estándar.
 
-#### Prerequisites
-- **Node.js v18+**: Required for npx to run the MCP server
-- **PostgreSQL running**: Database must be accessible on port 54321
-- **Claude Desktop**: MCP servers are configured through Claude Desktop (Global configuration)
-
-Verify prerequisites:
-```bash
-# Check Node.js version (should be v18 or higher)
-node --version
-
-# Ensure PostgreSQL is running
-docker compose up -d db_postgres
-docker compose ps db_postgres
-
-# Test database connection
-docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT 1;"
-```
-
-#### Configuration File Location
-MCP servers are configured in Claude Desktop's configuration file:
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-#### Current Configuration
-The MCP server is already configured in the Claude Desktop config file with the following settings:
-
-```json
-{
-  "mcpServers": {
-    "postgres-reloj-fichador": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "enhanced-postgres-mcp-server",
-        "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg"
-      ],
-      "disabled": false,
-      "alwaysAllow": [
-        "list-tables",
-        "describe-table",
-        "query"
-      ],
-      "env": {
-        "PGTZ": "America/Argentina/Buenos_Aires"
-      }
-    }
-  }
-}
-```
-
-**Configuration Details:**
-- **Server Name**: `postgres-reloj-fichador`
-- **Command**: `npx -y enhanced-postgres-mcp-server`
-- **Database**: `docker_horesdb_pg` on `localhost:54321`
-- **User**: `sistemas` (password: `S1st3mas2024`)
-- **Permissions**: `list-tables`, `describe-table`, `query` (read-only)
-- **Timezone**: `America/Argentina/Buenos_Aires`
-- **Auto-allow**: All three operations are pre-approved for seamless usage
-
-#### How to Use MCP with Claude Code
-
-Once configured (and after restarting Claude Desktop), you can ask Claude Code natural language questions about the database:
-
-**Example queries:**
-- "Show me the last 10 employee entries"
-- "How many daily records are there in October 2025?"
-- "Describe the structure of the horas_trabajadas table"
-- "What are all the tables in the database?"
-- "Show me operators with more than 40 overtime hours this month"
-- "List all areas and their assigned schedules"
-- "Summarize total worked hours by employee for last week"
-
-Claude will automatically translate these requests into SQL queries and execute them via MCP.
-
-#### Activating MCP
-1. **Restart Claude Desktop** after modifying the configuration file
-2. **Start PostgreSQL**: `docker compose up -d db_postgres`
-3. **Open Claude Code** and start asking database questions
-4. MCP tools should appear with the `mcp__` prefix in the tool list
-
-#### Verifying MCP Connection
-
-To verify MCP is working correctly:
-
-1. **Check available MCP tools** in Claude Code (they start with `mcp__`)
-2. **Ask a simple query**: "List all tables in the database"
-3. **Expected response**: Claude should list all Django tables without using `docker compose exec`
-
-If MCP is not working:
-```bash
-# 1. Test MCP server manually (should start without errors)
-npx -y enhanced-postgres-mcp-server \
-  "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg"
-
-# 2. Verify PostgreSQL is accessible from localhost
-psql "postgresql://sistemas:S1st3mas2024@localhost:54321/docker_horesdb_pg" -c "SELECT version();"
-
-# 3. Check Claude Desktop logs (Linux)
-journalctl --user -u claude-desktop -n 50
-
-# 4. Restart Claude Desktop completely (close all windows)
-```
-
-#### Security Notes
-- **Read-only access**: MCP is configured with SELECT permissions only
-- **Local access only**: Database accessible only from localhost:54321
-- **No DDL operations**: Cannot create, modify, or delete database objects
-- **Password in config**: The config file contains database credentials, ensure proper file permissions:
-  ```bash
-  chmod 600 ~/.config/Claude/claude_desktop_config.json
-  ```
-
-#### Reference Documentation
-For detailed setup instructions and advanced configuration, see:
-- `CONFIGURACION_MCP_POSTGRESQL.md` - Complete MCP setup guide
-- `mcp_postgres_config.json` - Reference configuration file (not used directly, integrated into Claude Desktop config)
-- MCP Official Docs: https://modelcontextprotocol.io/
 
 ## Important Files and Locations
 
@@ -297,8 +165,6 @@ For detailed setup instructions and advanced configuration, see:
 - `documentacion/` - Comprehensive project documentation
 - `documentacion/analista/` - System analysis, design guides, and technical documentation
 - `documentacion/django-unfold-manual.md` - Complete guide for Django Unfold implementation
-- `CONFIGURACION_MCP_POSTGRESQL.md` - Complete MCP setup guide
-- `POSTGRESQL_SETUP.md` - PostgreSQL migration and setup guide
 
 ### Business Logic
 - `apps/reloj_fichador/models.py` - Core data models and time calculations (LINE 61-140: redondear_entrada/salida functions, LINE 504-562: Horas_trabajadas.calcular_horas_trabajadas)
@@ -390,24 +256,22 @@ local_time = now.astimezone(argentina_tz)
 
 **Key points:**
 - Database stores datetimes in UTC
-- PostgreSQL connection uses `timezone=America/Argentina/Buenos_Aires` in connection options
+- MySQL connection uses timezone configured in Django settings (America/Argentina/Buenos_Aires)
 - All calculations in models.py handle timezone conversion automatically
 - When creating datetime objects, always make them timezone-aware
 
 ### Database Connection Issues
-Check environment variables in docker-compose.yml and ensure PostgreSQL container is healthy:
+Check environment variables in docker-compose.yml and ensure MySQL container is healthy:
 ```bash
-# Check PostgreSQL status
-docker compose ps db_postgres
+# Check MySQL status
+docker compose ps db
 
-# View PostgreSQL logs
-docker compose logs db_postgres
+# View MySQL logs
+docker compose logs db
 
 # Test connection
-docker compose exec db_postgres psql -U sistemas -d docker_horesdb_pg -c "SELECT 1;"
+docker compose exec db mysql -u root -p -e "SELECT 1;"
 ```
-
-For MySQL (legacy) connection issues, check the `db` container instead.
 
 ### Celery Not Processing Tasks
 Verify Redis connection and check celery logs:
