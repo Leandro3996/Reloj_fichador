@@ -827,6 +827,7 @@ def obtener_feriados_api(año):
     logger = logging.getLogger('reloj_fichador')
 
     posibles_endpoints = [
+        f"https://api.argentinadatos.com/v1/feriados/{año}",  # URL correcta según docs
         f"https://argentinadatos.com/api/v2/feriados/{año}",
         f"https://argentinadatos.com/api/v1/feriados/{año}",
         f"https://argentinadatos.com/v1/feriados/{año}",

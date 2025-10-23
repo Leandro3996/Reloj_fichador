@@ -35,6 +35,13 @@ app.conf.beat_schedule = {
         'task': 'apps.reloj_fichador.tasks.verificar_licencias_activas',  # Nueva tarea para licencias
         'schedule': crontab(hour=2, minute=0),  # Se ejecuta todos los días a las 2:00 AM (Argentina)
     },
+    'sincronizar-feriados-api': {
+        'task': 'apps.reloj_fichador.tasks.sincronizar_feriados_api',
+        'schedule': crontab(hour=3, minute=0),  # Se ejecuta todos los días a las 3:00 AM (Argentina)
+        # Nota: Se ejecuta diariamente. Si prefieres que sea semanal o mensual, modifica:
+        # - crontab(day_of_week=0, hour=3, minute=0)  # Lunes a las 3 AM
+        # - crontab(day_of_month=1, hour=3, minute=0)  # Primer día del mes a las 3 AM
+    },
 }
 
 

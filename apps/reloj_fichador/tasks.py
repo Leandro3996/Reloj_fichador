@@ -261,6 +261,80 @@ def sincronizar_licencia_historica(licencia_id, fecha_desde=None, fecha_hasta=No
         return error_msg
 
 @shared_task
+def sincronizar_feriados_api():
+    """
+    Tarea programada que sincroniza los feriados desde la API ArgentinaDatos.
+    Se ejecuta automáticamente (por defecto, cada 1º de enero para el año actual y próximo).
+    Esta tarea no elimina sugerencias existentes, solo añade nuevas.
+    """
+    from .utils import obtener_feriados_api
+    from .models import SugerenciaFeriado, CalendarioLaboral
+
+    año_actual = timezone.now().year
+
+    try:
+        logger.info(f"Iniciando sincronización automática de feriados para {año_actual}")
+
+        # Obtener feriados de la API
+        feriados_api = obtener_feriados_api(año_actual)
+
+        if not feriados_api:
+            logger.warning(f"No se pudieron obtener feriados de la API para {año_actual}")
+            return f"Error: No se obtuvieron feriados para {año_actual}"
+
+        nuevas_sugerencias = 0
+        ya_existentes = 0
+        ya_aceptadas = 0
+
+        for feriado_dict in feriados_api:
+            try:
+                fecha = feriado_dict['fecha']
+                nombre = feriado_dict['nombre']
+                tipo = feriado_dict['tipo_sugerencia']
+
+                # Verificar si ya existe en CalendarioLaboral
+                if CalendarioLaboral.objects.filter(
+                    fecha=fecha,
+                    tipo_dia__in=['feriado', 'feriado_movible']
+                ).exists():
+                    ya_aceptadas += 1
+                    continue
+
+                # Crear o actualizar sugerencia
+                sugerencia, creada = SugerenciaFeriado.objects.get_or_create(
+                    fecha=fecha,
+                    fuente='api_argentina',
+                    defaults={
+                        'nombre': nombre,
+                        'tipo_sugerencia': tipo,
+                        'estado': 'pendiente',
+                    }
+                )
+
+                if creada:
+                    nuevas_sugerencias += 1
+                    logger.info(f"Nueva sugerencia de feriado creada: {fecha} - {nombre}")
+                else:
+                    ya_existentes += 1
+
+            except Exception as e:
+                logger.error(f"Error procesando feriado en sincronización automática: {str(e)}")
+
+        resultado = (
+            f"Sincronización completada: "
+            f"{nuevas_sugerencias} nuevas sugerencias, "
+            f"{ya_existentes} ya existentes, "
+            f"{ya_aceptadas} ya aceptadas en calendario"
+        )
+        logger.info(resultado)
+        return resultado
+
+    except Exception as e:
+        error_msg = f"Error en sincronización automática de feriados: {str(e)}"
+        logger.error(error_msg)
+        return error_msg
+
+@shared_task
 def prueba_tarea():
     """
     Esta es una tarea de prueba simple para asegurarse de que Celery esté funcionando correctamente.

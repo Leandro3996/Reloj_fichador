@@ -1,139 +1,153 @@
-from __future__ import annotations
+"""
+Comando Django para sincronizar feriados desde la API ArgentinaDatos.
 
-from datetime import date
+Uso:
+    python manage.py sincronizar_feriados              # Usa año actual
+    python manage.py sincronizar_feriados 2025
+    python manage.py sincronizar_feriados 2025 --aceptar-todos
+"""
 
-from django.core.management.base import BaseCommand
-from django.db import transaction
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
-
-from apps.reloj_fichador.models import CalendarioLaboral, SugerenciaFeriado
+from datetime import datetime
+from apps.reloj_fichador.models import SugerenciaFeriado, CalendarioLaboral
 from apps.reloj_fichador.utils import obtener_feriados_api
+import logging
+
+logger = logging.getLogger('reloj_fichador')
 
 
 class Command(BaseCommand):
-    help = "Sincroniza feriados desde la API ArgentinaDatos y crea sugerencias para ser revisadas."
+    help = 'Sincroniza feriados desde la API ArgentinaDatos y crea sugerencias'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--year",
-            "--año",
-            dest="years",
+            'año',
             type=int,
-            nargs="+",
-            help="Año(s) a sincronizar. Por defecto se sincroniza el año actual y el siguiente.",
+            nargs='?',  # Argumento opcional
+            default=None,
+            help='Año para el cual obtener feriados (default: año actual)'
         )
         parser.add_argument(
-            "--force",
-            action="store_true",
-            help="Actualiza información de sugerencias ya existentes.",
+            '--aceptar-todos',
+            action='store_true',
+            help='Acepta automáticamente todas las sugerencias'
         )
         parser.add_argument(
-            "--solo-pendientes",
-            action="store_true",
-            help="Solo muestra resumen de sugerencias pendientes sin consultar la API.",
+            '--limpiar-pendientes',
+            action='store_true',
+            help='Elimina sugerencias pendientes antes de sincronizar'
         )
 
     def handle(self, *args, **options):
-        if options.get("solo_pendientes"):
-            return self._mostrar_pendientes()
+        año = options['año'] or timezone.now().year
+        aceptar_todos = options.get('aceptar_todos', False)
+        limpiar_pendientes = options.get('limpiar_pendientes', False)
 
-        years = options.get("years")
-        if not years:
-            año_actual = timezone.now().year
-            years = [año_actual, año_actual + 1]
+        self.stdout.write(f"\n📅 Sincronizando feriados para {año}...\n")
 
-        force_update = options.get("force", False)
+        try:
+            # Limpiar pendientes si se solicita
+            if limpiar_pendientes:
+                pendientes = SugerenciaFeriado.objects.filter(estado='pendiente')
+                count = pendientes.count()
+                pendientes.delete()
+                self.stdout.write(self.style.WARNING(f"⚠️  Eliminadas {count} sugerencias pendientes\n"))
 
-        total_creadas = 0
-        total_actualizadas = 0
-        total_existentes = 0
+            # Obtener feriados de la API
+            feriados_api = obtener_feriados_api(año)
 
-        for año in years:
-            self.stdout.write(self.style.MIGRATE_HEADING(f"Sincronizando feriados para {año}"))
-            feriados = obtener_feriados_api(año)
-
-            if not feriados:
-                self.stderr.write(self.style.WARNING(f"No se obtuvieron feriados para {año}."))
-                continue
-
-            fechas_calendario = set(
-                CalendarioLaboral.objects.filter(fecha__year=año).values_list("fecha", flat=True)
-            )
-            sugerencias_existentes = {
-                (s.fecha, s.fuente): s
-                for s in SugerenciaFeriado.objects.filter(fecha__year=año)
-            }
-
-            for feriado in feriados:
-                fecha = feriado.get("fecha")
-                nombre = feriado.get("nombre")
-                tipo = feriado.get("tipo_sugerencia")
-
-                if not isinstance(fecha, date):
-                    self.stderr.write(self.style.WARNING(f"Fecha inválida recibida: {fecha!r}"))
-                    continue
-
-                if fecha in fechas_calendario:
-                    total_existentes += 1
-                    self.stdout.write(
-                        self.style.NOTICE(
-                            f"- {fecha} ya está registrado en CalendarioLaboral como día especial."
-                        )
+            if not feriados_api:
+                self.stdout.write(
+                    self.style.ERROR(
+                        "❌ No se pudieron obtener feriados de la API. "
+                        "Verifica tu conexión a internet.\n"
                     )
-                    continue
+                )
+                return
 
-                clave = (fecha, "api_argentina")
-                sugerencia = sugerencias_existentes.get(clave)
+            self.stdout.write(f"✅ Se obtuvieron {len(feriados_api)} feriados de la API\n")
 
-                if sugerencia:
-                    if force_update:
-                        sugerencia.nombre = nombre
-                        sugerencia.tipo_sugerencia = tipo
-                        sugerencia.datos_fuente = feriado.get("datos_originales")
-                        sugerencia.fuente_url = feriado.get("fuente_url")
-                        sugerencia.estado = "pendiente" if sugerencia.estado == "pendiente" else sugerencia.estado
-                        sugerencia.save(update_fields=["nombre", "tipo_sugerencia", "datos_fuente", "fuente_url", "estado"])
-                        total_actualizadas += 1
+            # Procesar cada feriado
+            nuevas_sugerencias = 0
+            ya_existentes = 0
+            ya_aceptadas = 0
+
+            for feriado_dict in feriados_api:
+                try:
+                    fecha = feriado_dict['fecha']
+                    nombre = feriado_dict['nombre']
+                    tipo = feriado_dict['tipo_sugerencia']
+
+                    # Verificar si ya existe en CalendarioLaboral
+                    if CalendarioLaboral.objects.filter(
+                        fecha=fecha,
+                        tipo_dia__in=['feriado', 'feriado_movible']
+                    ).exists():
+                        ya_aceptadas += 1
+                        self.stdout.write(
+                            f"  ⏭️  {fecha} - {nombre} (ya aceptado en calendario)"
+                        )
+                        continue
+
+                    # Crear o actualizar sugerencia
+                    sugerencia, creada = SugerenciaFeriado.objects.get_or_create(
+                        fecha=fecha,
+                        fuente='api_argentina',
+                        defaults={
+                            'nombre': nombre,
+                            'tipo_sugerencia': tipo,
+                            'estado': 'pendiente' if not aceptar_todos else 'aceptado',
+                        }
+                    )
+
+                    if creada:
+                        nuevas_sugerencias += 1
+                        self.stdout.write(
+                            self.style.SUCCESS(f"  ✨ {fecha} - {nombre} (nueva)")
+                        )
+
+                        # Si --aceptar-todos, acepta automáticamente
+                        if aceptar_todos:
+                            sugerencia.aceptar()
+                            self.stdout.write(
+                                self.style.SUCCESS(f"     ✅ Aceptada automáticamente")
+                            )
                     else:
                         self.stdout.write(
-                            self.style.NOTICE(
-                                f"- {fecha} ya tiene una sugerencia registrada (estado: {sugerencia.get_estado_display()})."
-                            )
+                            f"  ℹ️  {fecha} - {nombre} (ya existía como sugerencia)"
                         )
-                    continue
 
-                with transaction.atomic():
-                    SugerenciaFeriado.objects.create(
-                        fecha=fecha,
-                        nombre=nombre,
-                        tipo_sugerencia=tipo,
-                        fuente="api_argentina",
-                        datos_fuente=feriado.get("datos_originales"),
-                        fuente_url=feriado.get("fuente_url"),
+                except Exception as e:
+                    self.stdout.write(
+                        self.style.ERROR(f"  ❌ Error procesando feriado: {str(e)}")
                     )
-                total_creadas += 1
-                self.stdout.write(self.style.SUCCESS(f"+ Sugerencia creada para {fecha}: {nombre}"))
+                    logger.error(f"Error en sincronizar_feriados: {str(e)}")
 
-        self.stdout.write("")
-        self.stdout.write(self.style.SUCCESS("Sincronización completada"))
-        self.stdout.write(self.style.SUCCESS(f"  ➕ Sugerencias nuevas: {total_creadas}"))
-        if force_update:
-            self.stdout.write(self.style.SUCCESS(f"  🔄 Sugerencias actualizadas: {total_actualizadas}"))
-        self.stdout.write(self.style.SUCCESS(f"  ✅ Ya existentes en calendario: {total_existentes}"))
+            # Resumen
+            self.stdout.write("\n" + "=" * 70)
+            self.stdout.write("📊 RESUMEN DE SINCRONIZACIÓN:\n")
+            self.stdout.write(f"  ✨ Nuevas sugerencias creadas: {nuevas_sugerencias}")
+            self.stdout.write(f"  ✅ Ya aceptadas en calendario: {ya_aceptadas}")
+            self.stdout.write(f"  ℹ️  Ya existían como sugerencias: {len(feriados_api) - nuevas_sugerencias - ya_aceptadas}")
 
-        return 0
+            if aceptar_todos and nuevas_sugerencias > 0:
+                self.stdout.write(
+                    self.style.SUCCESS(f"\n  🎉 {nuevas_sugerencias} feriados aceptados automáticamente")
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(f"\n  ⏳ {nuevas_sugerencias} sugerencias pendientes de revisión")
+                )
 
-    def _mostrar_pendientes(self):
-        pendientes = SugerenciaFeriado.objects.filter(estado="pendiente").order_by("fecha")
-        if not pendientes.exists():
-            self.stdout.write(self.style.SUCCESS("No hay sugerencias de feriados pendientes."))
-            return 0
-
-        self.stdout.write(self.style.MIGRATE_LABEL("Sugerencias de feriados pendientes:"))
-        for sug in pendientes:
-            estado_calendario = "✅ ya registrado" if sug.ya_existe_en_calendario else "⏳ pendiente"
+            self.stdout.write("=" * 70 + "\n")
             self.stdout.write(
-                f"- {sug.fecha:%d/%m/%Y} · {sug.nombre} · {sug.get_tipo_sugerencia_display()} ({estado_calendario})"
+                self.style.SUCCESS("✅ Sincronización completada exitosamente\n")
             )
-        self.stdout.write(self.style.NOTICE(f"Total pendientes: {pendientes.count()}"))
-        return 0
+
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f"❌ Error durante la sincronización: {str(e)}\n")
+            )
+            logger.error(f"Error en sincronizar_feriados: {str(e)}")
+            raise CommandError(f"Error al sincronizar feriados: {str(e)}")

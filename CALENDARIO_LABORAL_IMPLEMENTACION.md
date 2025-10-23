@@ -329,12 +329,165 @@ python manage.py migrate reloj_fichador
 
 ---
 
+## 🔄 SINCRONIZACIÓN AUTOMÁTICA DE FERIADOS
+
+### Sistema de Actualización Periódica
+
+La sincronización de feriados desde la API ArgentinaDatos ahora funciona de dos formas:
+
+#### 1️⃣ **Manual (Bajo Demanda)**
+
+Ejecutar el comando Django manualmente cuando sea necesario:
+
+```bash
+# Sincronizar feriados del año actual
+docker compose exec web python manage.py sincronizar_feriados
+
+# Sincronizar feriados de un año específico
+docker compose exec web python manage.py sincronizar_feriados 2026
+
+# Aceptar automáticamente todas las sugerencias (sin revisión manual)
+docker compose exec web python manage.py sincronizar_feriados --aceptar-todos
+
+# Limpiar sugerencias pendientes antes de sincronizar
+docker compose exec web python manage.py sincronizar_feriados --limpiar-pendientes
+```
+
+#### 2️⃣ **Automática (Celery Beat)**
+
+La tarea Celery `sincronizar_feriados_api` se ejecuta automáticamente según la programación configurada:
+
+**Configuración actual:**
+- **Horario:** Todos los días a las 3:00 AM (Argentina)
+- **Ubicación:** `mantenedor/celery.py` línea 38-44
+- **Tarea:** `apps.reloj_fichador.tasks.sincronizar_feriados_api`
+
+**Comportamiento:**
+- ✅ Se conecta a ArgentinaDatos API
+- ✅ Descarga feriados del año actual
+- ✅ Crea sugerencias con estado "pendiente" (no auto-acepta)
+- ✅ NO modifica sugerencias ya existentes
+- ✅ Verifica si el feriado ya está aceptado en CalendarioLaboral
+- ✅ Registra todo en logs (`logs/reloj_fichador.log`)
+
+**Ejemplo de ejecución:**
+```
+2025-01-15 03:00:00 - Iniciando sincronización automática de feriados para 2025
+2025-01-15 03:00:05 - Nueva sugerencia de feriado creada: 2025-02-17 - Carnaval
+2025-01-15 03:00:06 - Sincronización completada: 5 nuevas sugerencias, 0 ya existentes, 15 ya aceptadas en calendario
+```
+
+### Personalización de la Programación
+
+Para cambiar la frecuencia de sincronización, edita `mantenedor/celery.py`:
+
+**Opciones comunes:**
+
+```python
+# Diariamente a las 3 AM (ACTUAL)
+'schedule': crontab(hour=3, minute=0)
+
+# Lunes a las 3 AM (una vez por semana)
+'schedule': crontab(day_of_week=0, hour=3, minute=0)
+
+# Primer día del mes a las 3 AM (mensual)
+'schedule': crontab(day_of_month=1, hour=3, minute=0)
+
+# Primer día de año a las 3 AM (anual)
+'schedule': crontab(month=1, day=1, hour=3, minute=0)
+
+# Cada 6 horas
+'schedule': crontab(minute=0, hour='*/6')
+```
+
+### Flujo de Trabajo Recomendado
+
+1. **Sincronización automática** (diaria) → Crea sugerencias pendientes
+2. **Admin revisa** sugerencias en `/admin/reloj_fichador/sugerenciaferiado/`
+3. **Admin acepta/rechaza** cada sugerencia según criterios de la empresa
+4. Si se acepta → Se crea automáticamente en CalendarioLaboral
+5. Si se rechaza → Se marca como rechazada con observaciones (opcional)
+
+### Monitoreo de Sincronización
+
+**Ver logs de Celery:**
+```bash
+docker compose logs -f celery
+```
+
+**Ver logs de la aplicación:**
+```bash
+docker compose exec web tail -f logs/reloj_fichador.log
+```
+
+**Buscar errores de sincronización:**
+```bash
+docker compose logs celery | grep -i "sincronizar"
+```
+
+**Verificar estado de Celery Beat:**
+```bash
+docker compose exec celery-beat celery -A mantenedor inspect active
+```
+
+### Requisitos para que Funcione
+
+1. ✅ **Celery y Redis en funcionamiento**
+   ```bash
+   docker compose up -d celery celery-beat redis
+   ```
+
+2. ✅ **Conexión a Internet** (para la API ArgentinaDatos)
+   ```bash
+   curl https://api.argentinadatos.com/v1/feriados/2025
+   ```
+
+3. ✅ **Base de datos disponible**
+   ```bash
+   docker compose up -d db
+   ```
+
+### Troubleshooting
+
+**La sincronización no se ejecuta:**
+```bash
+# Verificar que celery-beat está corriendo
+docker compose ps celery-beat
+
+# Reiniciar celery-beat
+docker compose restart celery-beat
+
+# Ver logs de celery-beat
+docker compose logs celery-beat
+```
+
+**API no disponible:**
+```bash
+# Probando conectividad a la API
+curl -I https://api.argentinadatos.com/v1/feriados/2025
+
+# Si falla, revisar logs
+docker compose logs web | grep -i "obtener_feriados_api"
+```
+
+**Sugerencias no aparecen en admin:**
+```bash
+# Verificar que la tarea se ejecutó
+docker compose logs celery | grep "sincronizar_feriados_api"
+
+# Contar sugerencias en la BD
+docker compose exec db mysql -u root -p docker_horesdb -e "SELECT COUNT(*) FROM reloj_fichador_sugerenciaferiado;"
+```
+
+---
+
 ## ✅ CHECKLIST FINAL
 
 - [x] Modelos creados y migrados
 - [x] Funciones de validación implementadas
 - [x] Admin customizado creado
 - [x] Tarea Celery actualizada
+- [x] Sincronización automática configurada
 - [x] Tests pasados
 - [x] Documentación completada
 - [x] Sintaxis verificada
