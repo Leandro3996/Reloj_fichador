@@ -1,5 +1,7 @@
+import json
+
 from rangefilter.filters import DateRangeFilter
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import models
 from django.contrib.admin.widgets import AdminSplitDateTime
@@ -12,9 +14,10 @@ from django.utils.html import format_html
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from .models import (
-    Operario, RegistroDiario, Horas_trabajadas, Horas_extras, 
-    Horas_totales, Area, Horario, Licencia, RegistroAsistencia, 
-    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida, Reporte
+    Operario, RegistroDiario, Horas_trabajadas, Horas_extras,
+    Horas_totales, Area, Horario, Licencia, RegistroAsistencia,
+    Horas_feriado, HistoricalOperario, HistoricalRegistroDiario, ConfiguracionRedondeo, ConfiguracionRedondeoSalida, Reporte,
+    CalendarioLaboral, GrupoSabado, SugerenciaFeriado
 )
 
 # Importar el modelo histórico de Licencia
@@ -3064,3 +3067,270 @@ class LicenciaAdmin(SimpleHistoryAdmin, UnfoldModelAdmin):
         wb.save(response)
         return response
     exportar_excel_licencias.short_description = "📊 Exportar a Excel"
+
+
+# ------------------------------------------------------------------------------------
+# ADMINS PARA CALENDARIO LABORAL Y GRUPOS DE SÁBADO
+# ------------------------------------------------------------------------------------
+
+@admin.register(CalendarioLaboral)
+class CalendarioLaboralAdmin(UnfoldModelAdmin):
+    """Admin customizado para definir días especiales (feriados, paros, etc.)"""
+
+    list_display = ('fecha', 'tipo_dia_display', 'nombre', 'aplica_a_todas_areas', 'creado_el')
+    list_filter = ('tipo_dia', 'fecha', 'aplica_a_todas_areas')
+    search_fields = ('nombre', 'descripcion')
+    date_hierarchy = 'fecha'
+
+    fieldsets = (
+        ('Información del Día', {
+            'fields': ('fecha', 'tipo_dia', 'nombre'),
+            'classes': ('wide',),
+        }),
+        ('Detalles', {
+            'fields': ('descripcion', 'aplica_a_todas_areas', 'areas'),
+            'classes': ('collapse',),
+        }),
+        ('Auditoría', {
+            'fields': ('creado_el', 'actualizado_el'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    readonly_fields = ('creado_el', 'actualizado_el')
+
+    filter_horizontal = ('areas',)
+
+    def tipo_dia_display(self, obj):
+        """Muestra el tipo de día con color según tipo"""
+        color_map = {
+            'laboral': '#10b981',      # Verde
+            'feriado': '#f59e0b',      # Naranja
+            'feriado_movible': '#3b82f6',  # Azul
+            'paro': '#ef4444',         # Rojo
+            'mantenimiento': '#8b5cf6',  # Púrpura
+            'otro': '#6b7280',         # Gris
+        }
+        color = color_map.get(obj.tipo_dia, '#6b7280')
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; border-radius: 3px; font-weight: bold;">{}</span>',
+            color,
+            obj.get_tipo_dia_display()
+        )
+    tipo_dia_display.short_description = 'Tipo de Día'
+
+    actions = ['marcar_como_laboral', 'marcar_como_feriado', 'marcar_como_paro']
+
+    def marcar_como_laboral(self, request, queryset):
+        updated = queryset.update(tipo_dia='laboral')
+        self.message_user(request, f"✅ {updated} día(s) marcado(s) como laborales")
+    marcar_como_laboral.short_description = "✅ Marcar como Laborales"
+
+    def marcar_como_feriado(self, request, queryset):
+        updated = queryset.update(tipo_dia='feriado')
+        self.message_user(request, f"🎉 {updated} día(s) marcado(s) como feriados")
+    marcar_como_feriado.short_description = "🎉 Marcar como Feriados"
+
+    def marcar_como_paro(self, request, queryset):
+        updated = queryset.update(tipo_dia='paro')
+        self.message_user(request, f"✊ {updated} día(s) marcado(s) como paros")
+    marcar_como_paro.short_description = "✊ Marcar como Paros"
+
+
+@admin.register(GrupoSabado)
+class GrupoSabadoAdmin(UnfoldModelAdmin):
+    """Admin para asignar operarios a grupos de sábado (A/B)"""
+
+    list_display = ('operario', 'grupo_display', 'fecha_inicio', 'fecha_fin_display', 'es_activo')
+    list_filter = ('grupo', 'fecha_inicio', 'operario')
+    search_fields = ('operario__apellido', 'operario__nombre')
+
+    fieldsets = (
+        ('Asignación', {
+            'fields': ('operario', 'grupo'),
+            'classes': ('wide',),
+        }),
+        ('Vigencia', {
+            'fields': ('fecha_inicio', 'fecha_fin'),
+            'classes': ('wide',),
+        }),
+        ('Notas', {
+            'fields': ('descripcion',),
+            'classes': ('collapse',),
+        }),
+        ('Auditoría', {
+            'fields': ('creado_el', 'actualizado_el'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    readonly_fields = ('creado_el', 'actualizado_el')
+
+    def grupo_display(self, obj):
+        """Muestra el grupo con color"""
+        color = '#8b5cf6' if obj.grupo == 'A' else '#06b6d4'  # Púrpura para A, Cyan para B
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 3px 8px; border-radius: 3px; font-weight: bold;">{}</span>',
+            color,
+            obj.get_grupo_display()
+        )
+    grupo_display.short_description = 'Grupo'
+
+    def fecha_fin_display(self, obj):
+        """Muestra la fecha fin o 'Indefinido'"""
+        if obj.fecha_fin:
+            return obj.fecha_fin.strftime('%d/%m/%Y')
+        return format_html(
+            '<span style="color: #10b981; font-weight: bold;">∞ Indefinido</span>'
+        )
+    fecha_fin_display.short_description = 'Fecha Fin'
+
+    def es_activo(self, obj):
+        """Muestra si la asignación está activa"""
+        from django.utils import timezone
+        activo = obj.is_active(timezone.now().date())
+        icon = '✅' if activo else '❌'
+        return format_html(
+            '<span style="color: {};">{} {}</span>',
+            '#10b981' if activo else '#ef4444',
+            icon,
+            'Activo' if activo else 'Inactivo'
+        )
+    es_activo.short_description = 'Estado'
+
+    ordering = ('-fecha_inicio',)
+
+
+@admin.register(SugerenciaFeriado)
+class SugerenciaFeriadoAdmin(UnfoldModelAdmin):
+    """Admin para revisar y procesar sugerencias de feriados."""
+
+    list_display = (
+        'fecha',
+        'nombre',
+        'mostrar_tipo',
+        'mostrar_estado',
+        'fuente',
+        'ya_existe_en_calendario',
+        'fecha_creada',
+    )
+    list_filter = (
+        ('fecha', DateRangeFilter),
+        'estado',
+        'tipo_sugerencia',
+        'fuente',
+    )
+    search_fields = ('nombre', 'fecha')
+    ordering = ('estado', 'fecha')
+    list_per_page = 30
+    readonly_fields = (
+        'fecha_creada',
+        'fecha_procesada',
+        'procesado_por',
+        'fuente',
+        'fuente_url',
+        'mostrar_datos_fuente',
+    )
+    fieldsets = (
+        ('Información del feriado', {
+            'fields': ('fecha', 'nombre', 'tipo_sugerencia', 'estado', 'nota_admin'),
+        }),
+        ('Fuente', {
+            'fields': ('fuente', 'fuente_url', 'mostrar_datos_fuente'),
+        }),
+        ('Auditoría', {
+            'fields': ('fecha_creada', 'fecha_procesada', 'procesado_por'),
+        }),
+    )
+    actions = ('accion_aceptar', 'accion_rechazar', 'accion_revisar_despues')
+
+    def mostrar_tipo(self, obj):
+        colores = {
+            'feriado_nacional': '#1b5e20',
+            'feriado_movible': '#1a237e',
+            'otro': '#6d4c41',
+        }
+        color = colores.get(obj.tipo_sugerencia, '#424242')
+        return format_html(
+            '<span style="color:{}; font-weight:600;">{}</span>',
+            color,
+            obj.get_tipo_sugerencia_display()
+        )
+
+    mostrar_tipo.short_description = 'Tipo'
+
+    def mostrar_estado(self, obj):
+        colores = {
+            'pendiente': '#ff6f00',
+            'aceptado': '#2e7d32',
+            'rechazado': '#c62828',
+            'revisado_despues': '#0277bd',
+        }
+        color = colores.get(obj.estado, '#424242')
+        return format_html(
+            '<span style="color:{}; font-weight:600;">{}</span>',
+            color,
+            obj.get_estado_display()
+        )
+
+    mostrar_estado.short_description = 'Estado'
+
+    def mostrar_datos_fuente(self, obj):
+        if not obj.datos_fuente:
+            return format_html('<span style="color:#757575;">Sin datos</span>')
+        pretty = json.dumps(obj.datos_fuente, indent=2, ensure_ascii=False)
+        return format_html('<pre style="white-space:pre-wrap;">{}</pre>', pretty)
+
+    mostrar_datos_fuente.short_description = 'Datos originales'
+
+    def ya_existe_en_calendario(self, obj):
+        return obj.ya_existe_en_calendario
+
+    ya_existe_en_calendario.boolean = True
+    ya_existe_en_calendario.short_description = "En calendario"
+
+    def accion_aceptar(self, request, queryset):
+        aceptadas = 0
+        for sugerencia in queryset:
+            if sugerencia.estado == 'aceptado':
+                continue
+            sugerencia.aceptar(usuario=request.user)
+            aceptadas += 1
+        if aceptadas:
+            messages.success(
+                request,
+                f"✅ {aceptadas} sugerencia(s) aceptadas y añadidas al calendario."
+            )
+        else:
+            messages.info(request, "No había sugerencias pendientes para aceptar.")
+
+    accion_aceptar.short_description = "✅ Aceptar sugerencias seleccionadas"
+
+    def accion_rechazar(self, request, queryset):
+        rechazadas = 0
+        for sugerencia in queryset:
+            if sugerencia.estado == 'rechazado':
+                continue
+            sugerencia.rechazar(usuario=request.user)
+            rechazadas += 1
+        if rechazadas:
+            messages.success(
+                request,
+                f"❌ {rechazadas} sugerencia(s) marcadas como rechazadas."
+            )
+        else:
+            messages.info(request, "No había sugerencias pendientes para rechazar.")
+
+    accion_rechazar.short_description = "❌ Rechazar sugerencias seleccionadas"
+
+    def accion_revisar_despues(self, request, queryset):
+        actualizadas = queryset.exclude(estado='revisado_despues').update(estado='revisado_despues')
+        if actualizadas:
+            messages.success(
+                request,
+                f"🔄 {actualizadas} sugerencia(s) marcadas para revisar después."
+            )
+        else:
+            messages.info(request, "No se actualizó ninguna sugerencia.")
+
+    accion_revisar_despues.short_description = "🔄 Marcar para revisar después"

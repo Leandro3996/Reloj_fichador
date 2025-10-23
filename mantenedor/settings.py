@@ -284,6 +284,28 @@ UNFOLD = {
                 ],
             },
             {
+                "title": "Calendario Laboral",
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": "Calendarios Laborales",
+                        "icon": "calendar_month",
+                        "link": "/admin/reloj_fichador/calendariolaboral/",
+                    },
+                    {
+                        "title": "Grupos de Sábado",
+                        "icon": "group",
+                        "link": "/admin/reloj_fichador/gruposabado/",
+                    },
+                    {
+                        "title": "Sugerencias de Feriados",
+                        "icon": "event_available",
+                        "link": "/admin/reloj_fichador/sugerenciaferiado/",
+                    },
+                ],
+            },
+            {
                 "title": "Configuración",
                 "separator": True,
                 "collapsible": True,

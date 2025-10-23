@@ -588,3 +588,307 @@ def generar_excel(modeladmin, request, queryset, campos, encabezados, titulo):
     response['Content-Disposition'] = f'attachment; filename="{titulo}.xlsx"'
     workbook.save(response)
     return response
+
+
+# ------------------------------------------------------------------------------------
+# FUNCIONES PARA VALIDACIÓN DE DÍAS LABORALES Y GRUPOS DE SÁBADO
+# ------------------------------------------------------------------------------------
+
+def es_dia_laboral(fecha, operario=None):
+    """
+    Determina si una fecha es día laboral considerando:
+    1. CalendarioLaboral (feriados, paros, mantenimiento, etc.)
+    2. Día de semana (domingos NUNCA son laborales)
+    3. Sábados (solo si operario está asignado a un grupo para ese fin de semana)
+    4. Lunes a viernes (siempre laborales, salvo calendario)
+
+    Args:
+        fecha: datetime.date o datetime.datetime
+        operario: Operario object (opcional, requerido para validar sábados)
+
+    Returns:
+        bool: True si es día laboral, False en caso contrario
+    """
+    from datetime import date
+    from django.utils import timezone
+
+    # Convertir a date si es datetime
+    if hasattr(fecha, 'date'):
+        fecha = fecha.date()
+
+    # 1. Verificar en CalendarioLaboral
+    from .models import CalendarioLaboral
+    try:
+        calendario = CalendarioLaboral.objects.get(fecha=fecha)
+        # Si existe un registro y NO es laborable, retornar False
+        if calendario.es_no_laboral():
+            return False
+        # Si existe un registro y es laborable, continuar con otras validaciones
+    except CalendarioLaboral.DoesNotExist:
+        # Por defecto, si no existe registro en calendario, es laboral
+        pass
+
+    # 2. Domingos (weekday() == 6) NUNCA son laborales
+    if fecha.weekday() == 6:
+        return False
+
+    # 3. Sábados (weekday() == 5) - validar grupo de operario
+    if fecha.weekday() == 5:
+        # Si no se proporciona operario, asumir que el sábado es laboral
+        # (usado en la generación inicial de registros)
+        if operario is None:
+            return True
+
+        # Buscar si operario está asignado a un grupo para esta fecha
+        from .models import GrupoSabado
+        grupo_activo = GrupoSabado.objects.filter(
+            operario=operario,
+            fecha_inicio__lte=fecha,
+            fecha_fin__isnull=True,
+        ).first() or GrupoSabado.objects.filter(
+            operario=operario,
+            fecha_inicio__lte=fecha,
+            fecha_fin__gte=fecha,
+        ).first()
+
+        if not grupo_activo:
+            # Operario no está asignado a grupo, no trabaja este sábado
+            return False
+
+        # Verificar lógica de semanas pares/impares
+        # semana_iso retorna (año, semana, día_semana)
+        numero_semana = fecha.isocalendar()[1]
+
+        # Grupo A trabaja semanas pares (2, 4, 6, 8, etc.)
+        # Grupo B trabaja semanas impares (1, 3, 5, 7, etc.)
+        if grupo_activo.grupo == 'A':
+            return numero_semana % 2 == 0
+        else:  # grupo == 'B'
+            return numero_semana % 2 == 1
+
+    # 4. Lunes a viernes (0-4) son siempre laborales (salvo calendario)
+    return True
+
+
+def obtener_sabados_operario(operario, mes, año):
+    """
+    Retorna lista de sábados que un operario debe trabajar en un mes y año determinados.
+
+    Args:
+        operario: Operario object
+        mes: int (1-12)
+        año: int (ej: 2025)
+
+    Returns:
+        list: Lista de dates (sábados a trabajar)
+    """
+    from datetime import date, timedelta
+    from calendar import monthcalendar
+
+    sabados_a_trabajar = []
+
+    # Obtener todos los sábados del mes
+    cal = monthcalendar(año, mes)
+    sabados_del_mes = []
+
+    for semana in cal:
+        sabado_dia = semana[5]  # Sábado es índice 5 (lunes=0, domingo=6)
+        if sabado_dia != 0:  # 0 significa que no está en este mes
+            fecha_sabado = date(año, mes, sabado_dia)
+            sabados_del_mes.append(fecha_sabado)
+
+    # Verificar cuáles debe trabajar este operario
+    for fecha_sabado in sabados_del_mes:
+        if es_dia_laboral(fecha_sabado, operario):
+            sabados_a_trabajar.append(fecha_sabado)
+
+    return sabados_a_trabajar
+
+
+def obtener_dias_laborales_mes(operario=None, mes=None, año=None):
+    """
+    Retorna lista de todas las fechas laborales de un mes.
+
+    Args:
+        operario: Operario object (opcional, afecta solo a sábados)
+        mes: int (1-12), default = mes actual
+        año: int, default = año actual
+
+    Returns:
+        list: Lista de dates (días laborales)
+    """
+    from datetime import date
+    from calendar import monthrange
+    from django.utils import timezone
+
+    if mes is None:
+        mes = timezone.now().month
+    if año is None:
+        año = timezone.now().year
+
+    dias_laborales = []
+
+    # Obtener último día del mes
+    _, ultimo_dia = monthrange(año, mes)
+
+    # Iterar cada día del mes
+    for dia in range(1, ultimo_dia + 1):
+        fecha = date(año, mes, dia)
+        if es_dia_laboral(fecha, operario):
+            dias_laborales.append(fecha)
+
+    return dias_laborales
+
+
+def obtener_feriados_mes(mes=None, año=None):
+    """
+    Retorna lista de todos los feriados/días no laborales de un mes.
+
+    Args:
+        mes: int (1-12), default = mes actual
+        año: int, default = año actual
+
+    Returns:
+        list: Lista de tuplas (fecha, nombre, tipo_dia)
+    """
+    from datetime import date
+    from calendar import monthrange
+    from django.utils import timezone
+    from .models import CalendarioLaboral
+
+    if mes is None:
+        mes = timezone.now().month
+    if año is None:
+        año = timezone.now().year
+
+    # Obtener último día del mes
+    _, ultimo_dia = monthrange(año, mes)
+
+    # Obtener registros en calendario para este mes
+    feriados = CalendarioLaboral.objects.filter(
+        fecha__year=año,
+        fecha__month=mes
+    ).exclude(
+        tipo_dia='laboral'
+    ).order_by('fecha')
+
+    return [(f.fecha, f.nombre, f.get_tipo_dia_display()) for f in feriados]
+
+
+def horas_feriado_por_operario(operario, mes, año):
+    """
+    Calcula las horas de feriado que un operario dejó de trabajar en un mes.
+
+    Args:
+        operario: Operario object
+        mes: int (1-12)
+        año: int
+
+    Returns:
+        float: Horas de feriado (asumiendo 8 horas/día para lunes-viernes, 4 horas para sábado)
+    """
+    from .models import CalendarioLaboral
+    from calendar import monthrange
+
+    horas_total = 0
+    _, ultimo_dia = monthrange(año, mes)
+
+    # Verificar cada día del mes
+    for dia in range(1, ultimo_dia + 1):
+        from datetime import date
+        fecha = date(año, mes, dia)
+
+        # Verificar si es no-laboral en calendario
+        try:
+            cal = CalendarioLaboral.objects.get(fecha=fecha)
+            if cal.es_no_laboral():
+                # Contar como horas perdidas
+                if fecha.weekday() == 5:  # Sábado
+                    horas_total += 4  # Medio día
+                else:  # Lunes-viernes
+                    horas_total += 8  # Día completo
+        except CalendarioLaboral.DoesNotExist:
+            pass
+
+    return horas_total
+
+
+# ------------------------------------------------------------------------------------
+# INTEGRACIÓN CON API DE FERIADOS ARGENTINA
+# ------------------------------------------------------------------------------------
+
+def obtener_feriados_api(año):
+    """Consulta la API ArgentinaDatos y devuelve una lista normalizada de feriados."""
+    import logging
+    from datetime import date
+
+    import requests
+
+    logger = logging.getLogger('reloj_fichador')
+
+    posibles_endpoints = [
+        f"https://argentinadatos.com/api/v2/feriados/{año}",
+        f"https://argentinadatos.com/api/v1/feriados/{año}",
+        f"https://argentinadatos.com/v1/feriados/{año}",
+        f"https://argentinadatos.com/feriados/{año}",
+    ]
+
+    for url in posibles_endpoints:
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+        except requests.exceptions.RequestException as exc:
+            logger.warning(f"⚠️ No se pudo obtener feriados desde {url}: {exc}")
+            continue
+        except ValueError:
+            logger.warning(f"⚠️ Respuesta inválida de la API de feriados ({url})")
+            continue
+
+        feriados = []
+
+        def normalizar_tipo(tipo_raw):
+            tipo_norm = (tipo_raw or '').lower()
+            if tipo_norm in {'inamovible', 'nacional'}:
+                return 'feriado_nacional'
+            if tipo_norm in {'trasladable', 'móvil', 'movible', 'movil'}:
+                return 'feriado_movible'
+            return 'otro'
+
+        registros = []
+        if isinstance(data, dict):
+            registros = data.get('feriados') or data.get('data') or []
+        elif isinstance(data, list):
+            registros = data
+
+        for item in registros:
+            if not isinstance(item, dict):
+                continue
+
+            fecha_str = item.get('fecha') or item.get('dia')
+            if not fecha_str:
+                continue
+
+            try:
+                fecha = date.fromisoformat(str(fecha_str))
+            except ValueError:
+                logger.warning(f"⚠️ Fecha de feriado inválida: {fecha_str}")
+                continue
+
+            nombre = item.get('motivo') or item.get('nombre') or 'Feriado sin nombre'
+            tipo_sugerencia = normalizar_tipo(item.get('tipo'))
+
+            feriados.append({
+                'fecha': fecha,
+                'nombre': nombre.strip(),
+                'tipo_sugerencia': tipo_sugerencia,
+                'datos_originales': item,
+                'fuente_url': url,
+            })
+
+        if feriados:
+            logger.info(f"✅ Se obtuvieron {len(feriados)} feriados de {url}")
+            return feriados
+
+    logger.error("❌ No se pudieron obtener feriados desde la API ArgentinaDatos")
+    return []

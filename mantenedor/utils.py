@@ -24,13 +24,24 @@ def dashboard_callback(request, context):
     Permite inyectar información adicional en el contexto del admin.
     """
     from apps.reloj_fichador.models import (
-        Operario, RegistroDiario, Horas_trabajadas,
-        RegistroAsistencia
+        Operario,
+        RegistroDiario,
+        Horas_trabajadas,
+        RegistroAsistencia,
+        CalendarioLaboral,
+        SugerenciaFeriado,
     )
     from django.utils import timezone
     from datetime import timedelta
 
     hoy = timezone.now().date()
+    rango_alerta = hoy + timedelta(days=30)
+
+    sugerencias_pendientes = SugerenciaFeriado.objects.filter(estado='pendiente').order_by('fecha')
+    feriados_proximos = CalendarioLaboral.objects.filter(
+        fecha__gte=hoy,
+        fecha__lte=rango_alerta
+    ).order_by('fecha')[:5]
 
     # Estadísticas básicas
     context.update({
@@ -40,6 +51,8 @@ def dashboard_callback(request, context):
             hora_fichada__date=hoy,
             tipo_movimiento='entrada'
         ).values('operario').distinct().count(),
+        'sugerencias_feriados_pendientes': sugerencias_pendientes,
+        'feriados_proximos': feriados_proximos,
     })
 
     return context

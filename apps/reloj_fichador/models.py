@@ -868,3 +868,316 @@ class RegistroAsistencia(models.Model):
             models.Index(fields=['estado_asistencia', 'estado_justificacion']),
         ]
 
+
+# ------------------------------------------------------------------------------------
+# MODELOS PARA CALENDARIO LABORAL Y GRUPOS DE SÁBADO
+# ------------------------------------------------------------------------------------
+
+class CalendarioLaboral(models.Model):
+    """
+    Modelo para definir días especiales (feriados, paros, mantenimiento, etc.)
+    Por defecto, cualquier fecha no registrada es día laboral normal.
+    """
+    TIPO_DIA_CHOICES = [
+        ('laboral', '✅ Día Laboral Normal'),
+        ('feriado', '🎉 Feriado Nacional'),
+        ('feriado_movible', '📅 Feriado Movible'),
+        ('paro', '✊ Paro/Conflicto Laboral'),
+        ('mantenimiento', '🔧 Mantenimiento/Clausura'),
+        ('otro', '❓ Otro'),
+    ]
+
+    fecha = models.DateField(unique=True, help_text="Fecha del día especial")
+    tipo_dia = models.CharField(
+        max_length=20,
+        choices=TIPO_DIA_CHOICES,
+        default='laboral',
+        help_text="Tipo de día especial"
+    )
+    nombre = models.CharField(
+        max_length=100,
+        help_text="Nombre del evento (ej: Día de la Independencia, Paro General)"
+    )
+    descripcion = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Descripción detallada del evento"
+    )
+    aplica_a_todas_areas = models.BooleanField(
+        default=True,
+        help_text="Si está desmarcado, solo aplica a las áreas seleccionadas"
+    )
+    areas = models.ManyToManyField(
+        Area,
+        blank=True,
+        help_text="Áreas afectadas (si no aplica a todas)"
+    )
+    creado_el = models.DateTimeField(auto_now_add=True)
+    actualizado_el = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Calendario Laboral"
+        verbose_name_plural = "Calendarios Laborales"
+        ordering = ['fecha']
+        indexes = [
+            models.Index(fields=['fecha']),
+            models.Index(fields=['tipo_dia']),
+        ]
+
+    def __str__(self):
+        return f"{self.fecha} - {self.get_tipo_dia_display()} - {self.nombre}"
+
+    def es_no_laboral(self):
+        """Retorna True si el día NO es laboral (es feriado, paro, etc.)"""
+        return self.tipo_dia != 'laboral'
+
+
+class GrupoSabado(models.Model):
+    """
+    Modelo para asignar operarios a grupos de sábado (A/B).
+    Grupo A: trabaja semanas pares de sábado
+    Grupo B: trabaja semanas impares de sábado
+    """
+    GRUPO_CHOICES = [
+        ('A', 'Grupo A - Semanas Pares'),
+        ('B', 'Grupo B - Semanas Impares'),
+    ]
+
+    operario = models.ForeignKey(
+        Operario,
+        on_delete=models.CASCADE,
+        related_name='grupos_sabado',
+        help_text="Operario asignado"
+    )
+    grupo = models.CharField(
+        max_length=1,
+        choices=GRUPO_CHOICES,
+        help_text="Grupo de sábado del operario"
+    )
+    fecha_inicio = models.DateField(
+        help_text="Fecha desde la que tiene efecto esta asignación"
+    )
+    fecha_fin = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Fecha hasta la que tiene efecto (NULL = indefinido)"
+    )
+    descripcion = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Motivo del cambio de grupo (opcional)"
+    )
+    creado_el = models.DateTimeField(auto_now_add=True)
+    actualizado_el = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Grupo de Sábado"
+        verbose_name_plural = "Grupos de Sábado"
+        ordering = ['operario', '-fecha_inicio']
+        indexes = [
+            models.Index(fields=['operario', 'fecha_inicio']),
+            models.Index(fields=['grupo']),
+        ]
+
+    def __str__(self):
+        fecha_fin_str = self.fecha_fin.strftime('%Y-%m-%d') if self.fecha_fin else "Indefinido"
+        return f"{self.operario} - {self.get_grupo_display()} ({self.fecha_inicio} a {fecha_fin_str})"
+
+    def is_active(self, fecha=None):
+        """Verifica si esta asignación está activa en una fecha determinada"""
+        if fecha is None:
+            fecha = timezone.now().date()
+
+        if self.fecha_fin:
+            return self.fecha_inicio <= fecha <= self.fecha_fin
+        else:
+            return fecha >= self.fecha_inicio
+
+    def clean(self):
+        """Validación: no puede haber dos grupos activos simultáneamente para el mismo operario"""
+        from django.core.exceptions import ValidationError
+
+        if self.fecha_fin and self.fecha_inicio > self.fecha_fin:
+            raise ValidationError("La fecha de inicio no puede ser posterior a la de fin.")
+
+        # Verificar solapamientos con otros grupos
+        overlapping = GrupoSabado.objects.filter(
+            operario=self.operario
+        ).exclude(pk=self.pk)
+
+        for otro in overlapping:
+            # Caso 1: Este grupo es indefinido
+            if not self.fecha_fin:
+                if not otro.fecha_fin and otro.fecha_inicio <= self.fecha_inicio:
+                    raise ValidationError(
+                        f"Ya existe un grupo asignado indefinidamente desde {otro.fecha_inicio}. "
+                        f"Finaliza primero ese grupo."
+                    )
+                elif otro.fecha_fin and otro.fecha_fin >= self.fecha_inicio:
+                    raise ValidationError(
+                        f"Hay solapamiento con grupo existente ({otro.fecha_inicio} a {otro.fecha_fin})"
+                    )
+            # Caso 2: Ambos tienen fecha fin
+            elif otro.fecha_fin:
+                if not (self.fecha_fin < otro.fecha_inicio or self.fecha_inicio > otro.fecha_fin):
+                    raise ValidationError(
+                        f"Hay solapamiento con grupo existente ({otro.fecha_inicio} a {otro.fecha_fin})"
+                    )
+            # Caso 3: El otro es indefinido
+            else:
+                if otro.fecha_inicio <= self.fecha_fin:
+                    raise ValidationError(
+                        f"Hay solapamiento con grupo indefinido desde {otro.fecha_inicio}"
+                    )
+
+
+# ------------------------------------------------------------------------------------
+# MODELO PARA SUGERENCIAS DE FERIADOS DESDE API
+# ------------------------------------------------------------------------------------
+
+class SugerenciaFeriado(models.Model):
+    """
+    Modelo para almacenar sugerencias de feriados obtenidas de la API ArgentinaDatos.
+    El administrador puede aceptar o rechazar cada sugerencia.
+    """
+    TIPO_SUGERENCIA_CHOICES = [
+        ('feriado_nacional', '🎉 Feriado Nacional'),
+        ('feriado_movible', '📅 Feriado Movible'),
+        ('otro', '❓ Otro'),
+    ]
+
+    FUENTE_CHOICES = [
+        ('api_argentina', 'API ArgentinaDatos'),
+        ('manual', 'Ingresado Manualmente'),
+        ('sistema', 'Sistema Automático'),
+    ]
+
+    ESTADO_CHOICES = [
+        ('pendiente', '⏳ Pendiente'),
+        ('aceptado', '✅ Aceptado'),
+        ('rechazado', '❌ Rechazado'),
+        ('revisado_despues', '🔄 Revisar Después'),
+    ]
+
+    fecha = models.DateField(help_text="Fecha sugerida del feriado")
+    nombre = models.CharField(
+        max_length=200,
+        help_text="Nombre del feriado (ej: Año Nuevo, Carnaval)"
+    )
+    tipo_sugerencia = models.CharField(
+        max_length=20,
+        choices=TIPO_SUGERENCIA_CHOICES,
+        default='otro',
+        help_text="Tipo de feriado"
+    )
+    fuente = models.CharField(
+        max_length=20,
+        choices=FUENTE_CHOICES,
+        default='api_argentina',
+        help_text="De dónde proviene la sugerencia"
+    )
+    fuente_url = models.URLField(
+        null=True,
+        blank=True,
+        help_text="URL desde donde se obtuvo la sugerencia"
+    )
+    datos_fuente = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Datos originales provistos por la fuente (JSON completo)"
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='pendiente',
+        help_text="Estado actual de la sugerencia"
+    )
+    nota_admin = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Notas del administrador (ej: por qué se rechazó)"
+    )
+
+    # Auditoría
+    fecha_creada = models.DateTimeField(auto_now_add=True)
+    fecha_procesada = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Fecha en que se procesó la sugerencia"
+    )
+    procesado_por = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Usuario que procesó la sugerencia"
+    )
+
+    class Meta:
+        verbose_name = "Sugerencia de Feriado"
+        verbose_name_plural = "Sugerencias de Feriados"
+        ordering = ['estado', '-fecha_creada']
+        indexes = [
+            models.Index(fields=['fecha']),
+            models.Index(fields=['estado']),
+            models.Index(fields=['fuente']),
+        ]
+        unique_together = ('fecha', 'fuente')  # No duplicados de la misma fuente
+
+    def __str__(self):
+        return f"{self.fecha} - {self.nombre} ({self.get_estado_display()})"
+
+    def aceptar(self, usuario=None):
+        """Acepta la sugerencia y crea CalendarioLaboral"""
+        from django.utils import timezone
+
+        self.estado = 'aceptado'
+        self.fecha_procesada = timezone.now()
+        self.procesado_por = usuario
+        self.save()
+
+        # Crear entrada en CalendarioLaboral si no existe
+        tipo_dia_map = {
+            'feriado_nacional': 'feriado',
+            'feriado_movible': 'feriado_movible',
+            'otro': 'otro',
+        }
+
+        CalendarioLaboral.objects.get_or_create(
+            fecha=self.fecha,
+            defaults={
+                'tipo_dia': tipo_dia_map.get(self.tipo_sugerencia, 'otro'),
+                'nombre': self.nombre,
+                'descripcion': f'Importado de {self.get_fuente_display()}',
+            }
+        )
+
+        logger.info(f'Sugerencia de feriado aceptada: {self.fecha} - {self.nombre}')
+
+    def rechazar(self, usuario=None, nota=''):
+        """Rechaza la sugerencia"""
+        from django.utils import timezone
+
+        self.estado = 'rechazado'
+        self.fecha_procesada = timezone.now()
+        self.procesado_por = usuario
+        if nota:
+            self.nota_admin = nota
+        self.save()
+
+        logger.info(f'Sugerencia de feriado rechazada: {self.fecha} - {self.nombre}')
+
+    @property
+    def ya_existe_en_calendario(self):
+        """Verifica si ya existe en CalendarioLaboral"""
+        return CalendarioLaboral.objects.filter(fecha=self.fecha).exists()
+
+    @property
+    def es_proximo(self):
+        """Verifica si el feriado es próximo (próximos 30 días)"""
+        from datetime import timedelta
+        from django.utils import timezone
+
+        hoy = timezone.now().date()
+        fecha_limite = hoy + timedelta(days=30)
+        return hoy <= self.fecha <= fecha_limite

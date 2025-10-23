@@ -1,6 +1,7 @@
 from celery import shared_task
 from django.utils import timezone
 from .models import Operario, RegistroAsistencia, Licencia
+from .utils import es_dia_laboral
 from datetime import timedelta
 import logging
 
@@ -10,24 +11,43 @@ logger = logging.getLogger('reloj_fichador')
 def generar_registros_asistencia():
     """
     Esta tarea genera registros de asistencia para todos los operarios activos en la fecha actual.
+    SOLO genera registros para días laborales (lunes-viernes, sábados programados, excluye domingos y feriados).
     Si el registro ya existe, verifica la asistencia.
     """
     hoy = timezone.now().date()
     operarios_activos = Operario.objects.filter(activo=True)
 
+    # Validar si hoy es día laboral
+    if not es_dia_laboral(hoy):
+        logger.info(f"Hoy ({hoy}) no es día laboral. No se generan registros de asistencia.")
+        return f"Hoy no es día laboral. Registros no generados."
+
+    registros_creados = 0
+    registros_verificados = 0
+
     for operario in operarios_activos:
+        # Validar si para este operario hoy es día laboral
+        # (importante para sábados donde no todos trabajan)
+        if not es_dia_laboral(hoy, operario):
+            logger.debug(f"{operario} no trabaja hoy ({hoy}, {hoy.strftime('%A')}). Registro no creado.")
+            continue
+
         # Utiliza get_or_create para evitar duplicados y manejar la lógica de verificación de asistencia
         registro, created = RegistroAsistencia.objects.get_or_create(
             operario=operario,
             fecha=hoy
         )
         if created:
-            print(f"Registro de asistencia creado para {operario} en {hoy}.")
+            registros_creados += 1
+            logger.info(f"Registro de asistencia creado para {operario} en {hoy}.")
         else:
-            print(f"Registro de asistencia ya existente para {operario} en {hoy}.")
+            registros_verificados += 1
+            logger.debug(f"Registro de asistencia ya existente para {operario} en {hoy}.")
 
         # Verifica la asistencia del operario
         registro.verificar_asistencia()
+
+    return f"Procesamiento completado. Creados: {registros_creados}, Verificados: {registros_verificados}"
 
 @shared_task
 def crear_asistencia_prueba(operario_id):
