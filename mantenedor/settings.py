@@ -173,7 +173,7 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": False,
     "ENVIRONMENT": "mantenedor.utils.environment_callback",
     "DASHBOARD_CALLBACK": "mantenedor.utils.dashboard_callback",
-    "THEME": "dark",  # "light", "dark" o "auto"
+    # Selector de tema Light/Dark automático (sin forzar un tema específico)
     "COLORS": {
         "primary": {
             "50": "250 245 255",
