@@ -1313,7 +1313,7 @@ class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
         else:
             form = LicenciaForm()
 
-        return render(request, 'admin/cargar_licencia.html', {'form': form, 'registro_asistencia': registro_asistencia})
+        return render(request, 'admin/cargar_licencia_v2.html', {'form': form, 'registro_asistencia': registro_asistencia})
 
     def generar_reporte(self, request, queryset):
         registros = list(queryset)

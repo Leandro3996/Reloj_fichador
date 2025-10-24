@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'mantenedor',
 
     # Aplicaciones de terceros
+    'crispy_forms',  # django-crispy-forms para mejora de formularios
+    'crispy_bootstrap5',  # Template pack para crispy_forms
     'axes',  # django-axes para protección contra brute force
     'simple_history',
     'rangefilter',
@@ -573,3 +575,10 @@ LOGOUT_REDIRECT_URL = '/admin/login/'
 
 # URL de login (usado por @login_required decorator)
 LOGIN_URL = '/admin/login/'
+
+# ============================================================================
+# CONFIGURACIÓN DE DJANGO-CRISPY-FORMS
+# ============================================================================
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
