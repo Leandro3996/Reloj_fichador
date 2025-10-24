@@ -3238,19 +3238,33 @@ class CalendarioLaboralAdmin(UnfoldModelAdmin):
 
 @admin.register(GrupoSabado)
 class GrupoSabadoAdmin(UnfoldModelAdmin):
-    """Admin para asignar operarios a grupos de sábado (A/B)"""
+    """
+    Admin para asignar operarios a grupos de sábado (A/B).
 
-    list_display = ('operario', 'grupo_display', 'fecha_inicio', 'fecha_fin_display', 'es_activo')
+    Incluye:
+    - Visualización de grupo asignado con colores
+    - Indicador de estado (activo/inactivo)
+    - Información sobre intercambios detectados
+    - Acciones para detectar grupo automáticamente
+    - Visualización de próximos sábados asignados
+    """
+
+    list_display = ('operario', 'grupo_display', 'fecha_inicio', 'fecha_fin_display', 'es_activo', 'tiene_intercambios')
     list_filter = ('grupo', 'fecha_inicio', 'operario')
     search_fields = ('operario__apellido', 'operario__nombre')
+    actions = ['detectar_grupo_automaticamente']
 
     fieldsets = (
         ('Asignación', {
-            'fields': ('operario', 'grupo'),
+            'fields': ('operario', 'grupo', 'info_auto_deteccion'),
             'classes': ('wide',),
         }),
         ('Vigencia', {
             'fields': ('fecha_inicio', 'fecha_fin'),
+            'classes': ('wide',),
+        }),
+        ('Información Adicional', {
+            'fields': ('proximos_sabados_info',),
             'classes': ('wide',),
         }),
         ('Notas', {
@@ -3263,7 +3277,7 @@ class GrupoSabadoAdmin(UnfoldModelAdmin):
         }),
     )
 
-    readonly_fields = ('creado_el', 'actualizado_el')
+    readonly_fields = ('creado_el', 'actualizado_el', 'info_auto_deteccion', 'proximos_sabados_info')
 
     def grupo_display(self, obj):
         """Muestra el grupo con color"""
@@ -3296,6 +3310,117 @@ class GrupoSabadoAdmin(UnfoldModelAdmin):
             'Activo' if activo else 'Inactivo'
         )
     es_activo.short_description = 'Estado'
+
+    def tiene_intercambios(self, obj):
+        """Muestra si el operario ha hecho intercambios (trabajó sábados fuera de su grupo)"""
+        from django.utils import timezone
+        from datetime import timedelta
+        from .models import RegistroDiario
+        from .utils import obtener_grupo_sabado_esperado
+
+        # Buscar sábados trabajados en los últimos 3 meses
+        hace_tres_meses = timezone.now().date() - timedelta(days=90)
+        sabados_trabajados = set()
+
+        for registro in RegistroDiario.objects.filter(
+            operario=obj.operario,
+            hora_fichada__date__gte=hace_tres_meses,
+            valido=True
+        ):
+            fecha = registro.hora_fichada.date()
+            if fecha.weekday() == 5:  # Sábado
+                sabados_trabajados.add(fecha)
+
+        # Verificar si alguno está fuera de su grupo
+        intercambios = 0
+        for sabado in sabados_trabajados:
+            grupo_esperado = obtener_grupo_sabado_esperado(sabado)
+            if grupo_esperado != obj.grupo:
+                intercambios += 1
+
+        if intercambios > 0:
+            return format_html(
+                '<span style="color: #f59e0b; font-weight: bold;">⚠️ {} intercambios</span>',
+                intercambios
+            )
+        return format_html('<span style="color: #10b981;">✓ Ninguno</span>')
+
+    tiene_intercambios.short_description = 'Intercambios (90 días)'
+
+    def info_auto_deteccion(self, obj):
+        """Muestra información sobre cómo fue detectado el grupo"""
+        if 'Auto-detectado' in (obj.descripcion or ''):
+            return format_html(
+                '<div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 8px; margin: 5px 0;">'
+                '<strong>Auto-detectado:</strong> Este grupo fue asignado automáticamente basándose en los registros históricos de sábados trabajados.'
+                '</div>'
+            )
+        return format_html(
+            '<div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 8px; margin: 5px 0;">'
+            '<strong>Asignación Manual:</strong> Este grupo fue asignado manualmente por el administrador.'
+            '</div>'
+        )
+    info_auto_deteccion.short_description = 'Información de Asignación'
+
+    def proximos_sabados_info(self, obj):
+        """Muestra los próximos 8 sábados y cuál le corresponde a este operario"""
+        from django.utils import timezone
+        from datetime import timedelta
+        from .utils import obtener_grupo_sabado_esperado
+
+        hoy = timezone.now().date()
+        # Mover al próximo sábado
+        dias_hasta_sabado = (5 - hoy.weekday()) % 7
+        if dias_hasta_sabado == 0 and hoy.weekday() != 5:
+            dias_hasta_sabado = 7
+        proximo_sabado = hoy + timedelta(days=dias_hasta_sabado)
+
+        sabados_html = '<table style="width: 100%; border-collapse: collapse;"><tr><th style="border: 1px solid #ccc; padding: 5px;">Fecha</th><th style="border: 1px solid #ccc; padding: 5px;">Grupo</th><th style="border: 1px solid #ccc; padding: 5px;">¿Trabaja?</th></tr>'
+
+        for i in range(8):
+            sabado = proximo_sabado + timedelta(weeks=i)
+            grupo_esperado = obtener_grupo_sabado_esperado(sabado)
+            trabaja = obj.grupo == grupo_esperado
+            color = '#10b981' if trabaja else '#ef4444'
+            icon = '✓' if trabaja else '✗'
+
+            sabados_html += f'<tr><td style="border: 1px solid #ccc; padding: 5px;">{sabado.strftime("%d/%m/%Y")}</td>'
+            sabados_html += f'<td style="border: 1px solid #ccc; padding: 5px;">Grupo {grupo_esperado}</td>'
+            sabados_html += f'<td style="border: 1px solid #ccc; padding: 5px; color: {color}; font-weight: bold;">{icon}</td></tr>'
+
+        sabados_html += '</table>'
+        return format_html(sabados_html)
+
+    proximos_sabados_info.short_description = 'Próximos 8 Sábados'
+
+    def detectar_grupo_automaticamente(self, request, queryset):
+        """Acción para detectar grupo automáticamente desde RegistroDiario"""
+        from .utils import detectar_grupo_sabado_operario
+        from django.contrib import messages
+
+        actualizados = 0
+        sin_registros = 0
+
+        for grupo_sabado in queryset:
+            grupo_auto, primer_sabado = detectar_grupo_sabado_operario(grupo_sabado.operario)
+
+            if not grupo_auto:
+                sin_registros += 1
+                continue
+
+            if grupo_sabado.grupo != grupo_auto:
+                grupo_sabado.grupo = grupo_auto
+                grupo_sabado.descripcion = f'Auto-detectado desde primer sábado trabajado ({primer_sabado})'
+                grupo_sabado.save()
+                actualizados += 1
+
+        mensaje = f'✅ {actualizados} grupos actualizados automáticamente'
+        if sin_registros > 0:
+            mensaje += f' (⚠️ {sin_registros} sin registros de sábados)'
+
+        messages.success(request, mensaje)
+
+    detectar_grupo_automaticamente.short_description = '🔍 Detectar grupo automáticamente desde RegistroDiario'
 
     ordering = ('-fecha_inicio',)
 

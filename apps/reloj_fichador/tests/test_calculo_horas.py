@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 from datetime import datetime, timedelta, time
 from ..models import (
-    Operario, Area, RegistroDiario, Horas_trabajadas, 
+    Operario, Area, RegistroDiario, Horas_trabajadas, GrupoSabado,
     redondear_entrada, redondear_salida, calcular_horas_por_franjas
 )
 
@@ -316,4 +316,161 @@ class CalculoHorasEnfermedadTest(TestCase):
         # Sin operario asignado, sábado se considera laboral
         # Domingo 26 siempre es no laboral
         self.assertEqual(dias_laborales, 1)
-        self.assertEqual(horas, timedelta(hours=8)) 
+        self.assertEqual(horas, timedelta(hours=8))
+
+
+class SaturdayGroupDetectionTest(TestCase):
+    """Tests para la detección automática de grupos de sábado desde RegistroDiario"""
+
+    @classmethod
+    def setUpTestData(cls):
+        from datetime import datetime, timedelta
+        import pytz
+
+        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
+
+        # Crear área de prueba
+        area = Area.objects.create(nombre='Test Area')
+
+        # Crear operarios de prueba
+        cls.operario1 = Operario.objects.create(
+            nombre='Juan',
+            apellido='Pérez',
+            dni=10000001
+        )
+        cls.operario1.areas.add(area)
+
+        cls.operario2 = Operario.objects.create(
+            nombre='María',
+            apellido='García',
+            dni=10000002
+        )
+        cls.operario2.areas.add(area)
+
+        # Operario sin registros de sábados
+        cls.operario3 = Operario.objects.create(
+            nombre='Carlos',
+            apellido='López',
+            dni=10000003
+        )
+        cls.operario3.areas.add(area)
+
+        # Crear registros de sábados para operario1
+        # Primer sábado del sistema (2025-04-05, índice 0, Grupo A)
+        from apps.reloj_fichador.utils import suppress_signal
+
+        cls.primer_sabado = datetime(2025, 4, 5, 8, 0, tzinfo=argentina_tz)
+        with suppress_signal():
+            RegistroDiario.objects.create(
+                operario=cls.operario1,
+                hora_fichada=cls.primer_sabado,
+                tipo_movimiento='entrada',
+                valido=True
+            )
+            RegistroDiario.objects.create(
+                operario=cls.operario1,
+                hora_fichada=cls.primer_sabado.replace(hour=17),
+                tipo_movimiento='salida',
+                valido=True
+            )
+
+            # Segundo sábado del sistema (2025-04-12, índice 1, Grupo B)
+            cls.segundo_sabado = datetime(2025, 4, 12, 8, 0, tzinfo=argentina_tz)
+            RegistroDiario.objects.create(
+                operario=cls.operario2,
+                hora_fichada=cls.segundo_sabado,
+                tipo_movimiento='entrada',
+                valido=True
+            )
+            RegistroDiario.objects.create(
+                operario=cls.operario2,
+                hora_fichada=cls.segundo_sabado.replace(hour=17),
+                tipo_movimiento='salida',
+                valido=True
+            )
+
+    def test_detectar_grupo_sabado_operario_grupo_a(self):
+        """Verifica que operario1 sea detectado como Grupo A"""
+        from apps.reloj_fichador.utils import detectar_grupo_sabado_operario
+
+        grupo, primer_sabado = detectar_grupo_sabado_operario(self.operario1)
+
+        self.assertEqual(grupo, 'A')
+        self.assertEqual(primer_sabado, self.primer_sabado.date())
+
+    def test_detectar_grupo_sabado_operario_grupo_b(self):
+        """Verifica que operario2 sea detectado como Grupo B"""
+        from apps.reloj_fichador.utils import detectar_grupo_sabado_operario
+
+        grupo, primer_sabado = detectar_grupo_sabado_operario(self.operario2)
+
+        self.assertEqual(grupo, 'B')
+        self.assertEqual(primer_sabado, self.segundo_sabado.date())
+
+    def test_detectar_grupo_sin_registros(self):
+        """Verifica que operario3 (sin registros de sábados) retorne None"""
+        from apps.reloj_fichador.utils import detectar_grupo_sabado_operario
+
+        grupo, primer_sabado = detectar_grupo_sabado_operario(self.operario3)
+
+        self.assertIsNone(grupo)
+        self.assertIsNone(primer_sabado)
+
+    def test_obtener_grupo_sabado_esperado_grupo_a(self):
+        """Verifica que el primer sábado sea Grupo A"""
+        from apps.reloj_fichador.utils import obtener_grupo_sabado_esperado
+
+        grupo = obtener_grupo_sabado_esperado(self.primer_sabado.date())
+        self.assertEqual(grupo, 'A')
+
+    def test_obtener_grupo_sabado_esperado_grupo_b(self):
+        """Verifica que el segundo sábado sea Grupo B"""
+        from apps.reloj_fichador.utils import obtener_grupo_sabado_esperado
+
+        grupo = obtener_grupo_sabado_esperado(self.segundo_sabado.date())
+        self.assertEqual(grupo, 'B')
+
+    def test_obtener_grupo_sabado_esperado_alternancia(self):
+        """Verifica la alternancia correcta de grupos en sábados consecutivos"""
+        from apps.reloj_fichador.utils import obtener_grupo_sabado_esperado
+        from datetime import timedelta
+
+        # Testear 8 sábados consecutivos
+        sabado_actual = self.primer_sabado.date()
+        grupos_esperados = ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'B']
+
+        for i, grupo_esperado in enumerate(grupos_esperados):
+            grupo = obtener_grupo_sabado_esperado(sabado_actual)
+            self.assertEqual(
+                grupo, grupo_esperado,
+                f'Sábado {i+1} ({sabado_actual}) debería ser Grupo {grupo_esperado}, pero se detectó Grupo {grupo}'
+            )
+            sabado_actual = sabado_actual + timedelta(weeks=1)
+
+    def test_obtener_grupo_sabado_operario_con_asignacion_manual(self):
+        """Verifica que se prioriza la asignación manual sobre auto-detección"""
+        from apps.reloj_fichador.utils import obtener_grupo_sabado_operario
+
+        # Crear asignación manual como Grupo B para operario1 (aunque auto-detecte A)
+        grupo_sabado = GrupoSabado.objects.create(
+            operario=self.operario1,
+            grupo='B',
+            fecha_inicio=datetime.now().date(),
+            descripcion='Asignación manual de prueba'
+        )
+
+        # Debe retornar el grupo manual (B) en lugar del auto-detectado (A)
+        grupo = obtener_grupo_sabado_operario(self.operario1)
+        self.assertEqual(grupo, 'B')
+
+    def test_hay_intercambio_sabado(self):
+        """Verifica detección de intercambios de sábado"""
+        from apps.reloj_fichador.utils import hay_intercambio_sabado
+
+        # operario1 tiene registro el primer sábado
+        tiene_intercambio = hay_intercambio_sabado(self.operario1, self.primer_sabado.date())
+        self.assertTrue(tiene_intercambio)
+
+        # operario1 no tiene registro el segundo sábado
+        tiene_intercambio = hay_intercambio_sabado(self.operario1, self.segundo_sabado.date())
+        self.assertFalse(tiene_intercambio) 

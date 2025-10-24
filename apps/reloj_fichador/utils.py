@@ -594,13 +594,61 @@ def generar_excel(modeladmin, request, queryset, campos, encabezados, titulo):
 # FUNCIONES PARA VALIDACIÓN DE DÍAS LABORALES Y GRUPOS DE SÁBADO
 # ------------------------------------------------------------------------------------
 
+def obtener_grupo_sabado_esperado(fecha_sabado):
+    """
+    Calcula el grupo que debe trabajar en un sábado específico siguiendo el patrón
+    de alternancia global: 1er sábado del sistema = A, 2do = B, 3er = A, etc.
+
+    Args:
+        fecha_sabado: date (debe ser sábado)
+
+    Returns:
+        'A' o 'B'
+    """
+    from .models import RegistroDiario
+
+    if fecha_sabado.weekday() != 5:  # No es sábado
+        raise ValueError(f"{fecha_sabado} no es un sábado")
+
+    # Obtener el primer sábado registrado en el sistema
+    registro_mas_antiguo = RegistroDiario.objects.filter(
+        valido=True,
+        hora_fichada__isnull=False
+    ).order_by('hora_fichada').first()
+
+    if not registro_mas_antiguo:
+        # Si no hay registros, asumir que es el primer sábado (grupo A)
+        return 'A'
+
+    fecha_inicio_sistema = registro_mas_antiguo.hora_fichada.date()
+
+    # Mover a primer sábado del sistema
+    dias_hasta_sabado = (5 - fecha_inicio_sistema.weekday()) % 7
+    if dias_hasta_sabado == 0 and fecha_inicio_sistema.weekday() != 5:
+        dias_hasta_sabado = 7
+    primer_sabado_sistema = fecha_inicio_sistema + timedelta(days=dias_hasta_sabado)
+
+    # Calcular número ordinal del sábado especificado
+    semanas_desde_inicio = (fecha_sabado - primer_sabado_sistema).days // 7
+
+    # Grupo A si es par, grupo B si es impar
+    return 'A' if semanas_desde_inicio % 2 == 0 else 'B'
+
+
 def es_dia_laboral(fecha, operario=None):
     """
     Determina si una fecha es día laboral considerando:
     1. CalendarioLaboral (feriados, paros, mantenimiento, etc.)
     2. Día de semana (domingos NUNCA son laborales)
-    3. Sábados (solo si operario está asignado a un grupo para ese fin de semana)
+    3. Sábados:
+       - Primero verifica si el operario trabajó ese día (RegistroDiario - prioridad máxima)
+       - Si trabajó, es laboral (intercambio o día asignado)
+       - Si no hay registro pero está asignado a grupo, usa la lógica de alternancia
+       - Si no está asignado, no es laboral
     4. Lunes a viernes (siempre laborales, salvo calendario)
+
+    IMPORTANTE: Para sábados, siempre da prioridad a RegistroDiario (registros reales de trabajo)
+    sobre GrupoSabado (asignaciones estándar). Esto permite capturar intercambios.
 
     Args:
         fecha: datetime.date o datetime.datetime
@@ -632,13 +680,19 @@ def es_dia_laboral(fecha, operario=None):
     if fecha.weekday() == 6:
         return False
 
-    # 3. Sábados (weekday() == 5) - validar grupo de operario
+    # 3. Sábados (weekday() == 5) - validar con prioridad a registros reales
     if fecha.weekday() == 5:
         # Si no se proporciona operario, asumir que el sábado es laboral
         # (usado en la generación inicial de registros)
         if operario is None:
             return True
 
+        # **PRIORIDAD 1: Verificar si operario trabajó ese sábado (RegistroDiario)**
+        # Esto captura tanto asignaciones normales como intercambios
+        if hay_intercambio_sabado(operario, fecha):
+            return True
+
+        # **PRIORIDAD 2: Verificar asignación de grupo (GrupoSabado)**
         # Buscar si operario está asignado a un grupo para esta fecha
         from .models import GrupoSabado
         grupo_activo = GrupoSabado.objects.filter(
@@ -655,16 +709,11 @@ def es_dia_laboral(fecha, operario=None):
             # Operario no está asignado a grupo, no trabaja este sábado
             return False
 
-        # Verificar lógica de semanas pares/impares
-        # semana_iso retorna (año, semana, día_semana)
-        numero_semana = fecha.isocalendar()[1]
+        # Verificar lógica de alternancia de sábados
+        # Cada sábado progresivo alterna: A, B, A, B, A, B...
+        grupo_esperado = obtener_grupo_sabado_esperado(fecha)
 
-        # Grupo A trabaja semanas pares (2, 4, 6, 8, etc.)
-        # Grupo B trabaja semanas impares (1, 3, 5, 7, etc.)
-        if grupo_activo.grupo == 'A':
-            return numero_semana % 2 == 0
-        else:  # grupo == 'B'
-            return numero_semana % 2 == 1
+        return grupo_activo.grupo == grupo_esperado
 
     # 4. Lunes a viernes (0-4) son siempre laborales (salvo calendario)
     return True
@@ -939,3 +988,155 @@ def obtener_feriados_api(año):
 
     logger.error("❌ No se pudieron obtener feriados desde la API ArgentinaDatos")
     return []
+
+
+# ------------------------------------------------------------------------------------
+# DETECCIÓN DE GRUPOS DE SÁBADO
+# ------------------------------------------------------------------------------------
+
+def detectar_grupo_sabado_operario(operario, fecha_inicio_busqueda=None):
+    """
+    Detecta automáticamente el grupo (A o B) de un operario basándose en sus registros
+    de trabajo en sábados del sistema RegistroDiario.
+
+    Algoritmo:
+    1. Busca todos los sábados donde el operario trabajó (tiene registros en RegistroDiario)
+    2. Ordena estos sábados cronológicamente
+    3. Asigna grupos alternando: 1er sábado = A, 2do = B, 3er = A, 4to = B, etc.
+    4. El grupo del operario es el que corresponde al PRIMER sábado donde trabajó
+    5. Si no hay registros de sábados, retorna None
+
+    Args:
+        operario: Instancia de Operario
+        fecha_inicio_busqueda: (Opcional) Date para limitar búsqueda desde esta fecha
+
+    Returns:
+        Tupla (grupo, primer_sabado_trabajado) donde:
+        - grupo: 'A', 'B' o None si no hay registros de sábados
+        - primer_sabado_trabajado: Date del primer sábado donde trabajó, o None
+    """
+    from .models import RegistroDiario
+    from django.db.models import Q
+
+    # Buscar todos los registros del operario
+    registros = RegistroDiario.objects.filter(
+        operario=operario,
+        valido=True,
+        hora_fichada__isnull=False
+    )
+
+    if fecha_inicio_busqueda:
+        registros = registros.filter(hora_fichada__date__gte=fecha_inicio_busqueda)
+
+    # Extraer fechas únicas de sábados (weekday=5 en Python, 0=Monday)
+    sabados_trabajados = set()
+    for registro in registros:
+        fecha = registro.hora_fichada.date()
+        if fecha.weekday() == 5:  # Saturday
+            sabados_trabajados.add(fecha)
+
+    if not sabados_trabajados:
+        return None, None
+
+    # Ordenar sábados cronológicamente
+    sabados_ordenados = sorted(sabados_trabajados)
+    primer_sabado = sabados_ordenados[0]
+
+    # Buscar el índice ordinal del primer sábado en la secuencia de todos los sábados
+    # desde el inicio de los registros (o desde fecha_inicio_busqueda)
+    fecha_inicio_sistema = fecha_inicio_busqueda
+    if not fecha_inicio_sistema:
+        # Obtener la fecha más antigua de cualquier registro en el sistema
+        registro_mas_antiguo = RegistroDiario.objects.filter(
+            valido=True,
+            hora_fichada__isnull=False
+        ).order_by('hora_fichada').first()
+
+        if registro_mas_antiguo:
+            fecha_inicio_sistema = registro_mas_antiguo.hora_fichada.date()
+        else:
+            # No hay registros en el sistema, asignar como primer sábado
+            return 'A', primer_sabado
+
+    # Calcular el número ordinal del primer sábado del operario
+    # en la secuencia global de sábados del sistema
+    fecha_actual = fecha_inicio_sistema
+    # Mover a primer sábado del sistema
+    dias_hasta_sabado = (5 - fecha_actual.weekday()) % 7
+    if dias_hasta_sabado == 0 and fecha_actual.weekday() != 5:
+        dias_hasta_sabado = 7
+    fecha_actual = fecha_actual + timedelta(days=dias_hasta_sabado)
+
+    indice_sabado = 0
+    while fecha_actual < primer_sabado:
+        indice_sabado += 1
+        fecha_actual = fecha_actual + timedelta(weeks=1)
+
+    # Asignar grupo: índice par = A, índice impar = B
+    grupo = 'A' if indice_sabado % 2 == 0 else 'B'
+
+    return grupo, primer_sabado
+
+
+def obtener_grupo_sabado_operario(operario, fecha=None):
+    """
+    Obtiene el grupo de sábado para un operario en una fecha específica.
+
+    Prioridad:
+    1. Primero intenta obtener el grupo desde GrupoSabado (asignación manual)
+    2. Si no existe asignación manual, detecta automáticamente desde RegistroDiario
+    3. Si no hay registros históricos, retorna None
+
+    Args:
+        operario: Instancia de Operario
+        fecha: (Opcional) Date para la cual obtener el grupo. Si es None, usa hoy.
+
+    Returns:
+        'A', 'B' o None
+    """
+    from .models import GrupoSabado
+    from django.utils import timezone
+
+    if fecha is None:
+        fecha = timezone.now().date()
+
+    # Buscar asignación manual activa
+    grupo_sabado = GrupoSabado.objects.filter(
+        operario=operario,
+        fecha_inicio__lte=fecha
+    ).exclude(
+        fecha_fin__isnull=False,
+        fecha_fin__lt=fecha
+    ).order_by('-fecha_inicio').first()
+
+    if grupo_sabado:
+        return grupo_sabado.grupo
+
+    # Si no hay asignación manual, detectar automáticamente
+    grupo_auto, _ = detectar_grupo_sabado_operario(operario)
+    return grupo_auto
+
+
+def hay_intercambio_sabado(operario, fecha_sabado):
+    """
+    Verifica si hay un intercambio de sábado registrado en RegistroDiario.
+    Un intercambio es cuando un operario trabaja un sábado que NO le corresponde
+    a su grupo normal.
+
+    Args:
+        operario: Instancia de Operario
+        fecha_sabado: Date del sábado a verificar
+
+    Returns:
+        True si hay registro de trabajo ese sábado, False en otro caso
+    """
+    from .models import RegistroDiario
+
+    if fecha_sabado.weekday() != 5:  # No es sábado
+        return False
+
+    return RegistroDiario.objects.filter(
+        operario=operario,
+        hora_fichada__date=fecha_sabado,
+        valido=True
+    ).exists()

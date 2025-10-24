@@ -976,12 +976,30 @@ class CalendarioLaboral(models.Model):
 class GrupoSabado(models.Model):
     """
     Modelo para asignar operarios a grupos de sábado (A/B).
-    Grupo A: trabaja semanas pares de sábado
-    Grupo B: trabaja semanas impares de sábado
+
+    SISTEMA DE ALTERNANCIA:
+    Los sábados se numeran secuencialmente desde el primer sábado del sistema:
+    - 1er sábado (global) = Grupo A
+    - 2do sábado (global) = Grupo B
+    - 3er sábado (global) = Grupo A
+    - 4to sábado (global) = Grupo B
+    - Y así sucesivamente...
+
+    Cada operario tiene un grupo asignado (A o B). En su sábado correspondiente,
+    el operario es laborable si su grupo coincide con el grupo que toca ese sábado.
+
+    NOTA: Los registros reales en RegistroDiario tienen PRIORIDAD sobre esta asignación.
+    Si un operario trabajó un sábado (incluso fuera de su grupo), se considera laborable
+    (esto permite capturar intercambios).
+
+    AUTO-DETECCIÓN:
+    Los grupos se pueden detectar automáticamente analizando RegistroDiario:
+    - El primer sábado que trabajó el operario determina su grupo
+    - Ejemplo: Si trabajó el sábado 5 de abril (1er sábado global) = Grupo A
     """
     GRUPO_CHOICES = [
-        ('A', 'Grupo A - Semanas Pares'),
-        ('B', 'Grupo B - Semanas Impares'),
+        ('A', 'Grupo A'),
+        ('B', 'Grupo B'),
     ]
 
     operario = models.ForeignKey(
