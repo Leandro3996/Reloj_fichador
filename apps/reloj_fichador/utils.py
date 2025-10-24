@@ -817,6 +817,52 @@ def horas_feriado_por_operario(operario, mes, año):
 # INTEGRACIÓN CON API DE FERIADOS ARGENTINA
 # ------------------------------------------------------------------------------------
 
+def calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin):
+    """
+    Calcula horas de enfermedad contando SOLO días laborales.
+
+    Usa la función es_dia_laboral() para determinar si un día es laboral.
+    Esto excluye:
+    - Domingos (siempre no laborales)
+    - Sábados (excepto si operario tiene grupo de sábado, pero aquí no aplica)
+    - Feriados y días especiales del CalendarioLaboral
+
+    Args:
+        fecha_inicio (date): Primer día de licencia
+        fecha_fin (date): Último día de licencia
+
+    Returns:
+        tuple: (dias_laborales_count, timedelta_horas_enfermedad)
+               Retorna la cantidad de días contados y las horas totales
+
+    Ejemplo:
+        >>> from datetime import date
+        >>> dias, horas = calcular_horas_enfermedad_laborales(
+        ...     date(2025, 10, 27),  # Lunes
+        ...     date(2025, 10, 31)   # Viernes
+        ... )
+        >>> print(dias, horas)
+        5, timedelta(hours=40)
+    """
+    from datetime import timedelta
+
+    dias_laborales = 0
+    fecha_actual = fecha_inicio
+
+    while fecha_actual <= fecha_fin:
+        # Usar la función es_dia_laboral() que ya tiene toda la lógica implementada
+        # Sin pasar operario, solo verifica: calendario, domingos, y luego asume el resto como laboral
+        if es_dia_laboral(fecha_actual, operario=None):
+            dias_laborales += 1
+
+        fecha_actual += timedelta(days=1)
+
+    # Convertir días a horas (8 horas por día laboral)
+    horas_enfermedad_total = timedelta(hours=dias_laborales * 8)
+
+    return dias_laborales, horas_enfermedad_total
+
+
 def obtener_feriados_api(año):
     """Consulta la API ArgentinaDatos y devuelve una lista normalizada de feriados."""
     import logging

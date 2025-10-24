@@ -4,10 +4,13 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import (
     RegistroDiario, RegistroAsistencia,
-    Horas_trabajadas, Horas_extras, Horas_totales
+    Horas_trabajadas, Horas_extras, Horas_totales, Licencia
 )
 from .utils import suppress_signal, _thread_locals
 from datetime import timedelta
+import logging
+
+logger = logging.getLogger('reloj_fichador')
 
 
 @receiver(post_save, sender=RegistroDiario)
@@ -101,3 +104,51 @@ def actualizar_horas_extras(sender, instance, **kwargs):
 
     with suppress_signal():
         Horas_extras.calcular_horas_extras(operario, fecha)
+
+
+@receiver(post_save, sender=Licencia)
+def recalcular_horas_al_aprobar_licencia(sender, instance, created, **kwargs):
+    """
+    Cuando se aprueba una licencia, recalcula automáticamente Horas_totales
+    para todos los meses afectados por la licencia (fecha_inicio a fecha_fin).
+
+    Esto es especialmente importante cuando hay cambios en la lógica de cálculo
+    de horas de enfermedad, como excluir domingos o feriados.
+    """
+    # Solo procesar si la licencia fue aprobada
+    if not (instance.estado == 'aprobada' and instance.aplicar_a_asistencia):
+        return
+
+    if not (instance.fecha_inicio and instance.fecha_fin):
+        return
+
+    try:
+        from datetime import date
+        from dateutil.relativedelta import relativedelta
+
+        operario = instance.operario
+        fecha_actual = instance.fecha_inicio
+
+        # Iterar sobre todos los meses que abarca la licencia
+        meses_procesados = set()
+        while fecha_actual <= instance.fecha_fin:
+            mes_str = fecha_actual.strftime('%Y-%m')
+
+            # Evitar procesar el mismo mes múltiples veces
+            if mes_str not in meses_procesados:
+                try:
+                    Horas_totales.calcular_horas_totales(operario, mes_str)
+                    meses_procesados.add(mes_str)
+                    logger.info(
+                        f'Recalculadas Horas_totales para {operario} en {mes_str} '
+                        f'(licencia {instance.id} aprobada)'
+                    )
+                except Exception as e:
+                    logger.error(
+                        f'Error recalculando Horas_totales para {operario} {mes_str}: {str(e)}'
+                    )
+
+            fecha_actual += timedelta(days=1)
+
+    except Exception as e:
+        logger.error(f'Error en signal de recalcular licencia {instance.id}: {str(e)}')

@@ -1,7 +1,7 @@
 from celery import shared_task
 from django.utils import timezone
 from .models import Operario, RegistroAsistencia, Licencia
-from .utils import es_dia_laboral
+from .utils import es_dia_laboral, calcular_horas_enfermedad_laborales
 from datetime import timedelta
 import logging
 
@@ -93,9 +93,13 @@ def procesar_licencia_aprobada(licencia_id):
             logger.warning(f'Licencia {licencia_id} no cumple criterios para procesamiento automático')
             return f'Licencia {licencia_id} no procesada - no cumple criterios'
 
-        # Calcular duración en días y convertir a horas (8h por día)
-        duracion_dias = (licencia.fecha_fin - licencia.fecha_inicio).days + 1
-        horas_enfermedad_total = timedelta(hours=duracion_dias * 8)
+        # ✅ CALCULAR HORAS ENFERMEDAD SOLO EN DÍAS LABORALES
+        # Excluye domingos y feriados del CalendarioLaboral
+        dias_laborales, horas_enfermedad_total = calcular_horas_enfermedad_laborales(
+            licencia.fecha_inicio,
+            licencia.fecha_fin
+        )
+        logger.info(f'Cálculo de horas enfermedad: {dias_laborales} días laborales = {int(horas_enfermedad_total.total_seconds() / 3600)}h para {licencia.operario}')
 
         # ✅ PASO CRÍTICO: Buscar registros SIN justificación ANTERIORES a la licencia
         # (Caso real: persona falta, luego presenta certificado)

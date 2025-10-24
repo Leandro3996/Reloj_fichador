@@ -150,7 +150,7 @@ class CalculoHorasTest(TestCase):
     def test_calculo_horas_registros_desequilibrados(self):
         """Prueba el cálculo con registros desequilibrados (ej. solo entrada sin salida)"""
         fecha = datetime(2023, 1, 1).date()
-        
+
         # Solo crear registro de entrada
         entrada = RegistroDiario.objects.create(
             operario=self.operario,
@@ -158,13 +158,162 @@ class CalculoHorasTest(TestCase):
             hora_fichada=timezone.make_aware(datetime(2023, 1, 1, 8, 0, 0)),
             origen_fichada='Auto'
         )
-        
-        # Calcular horas trabajadas 
+
+        # Calcular horas trabajadas
         horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
             self.operario, fecha
         )
-        
+
         # No debería haber horas registradas ya que no hay par entrada-salida
         self.assertEqual(horas_normales, timedelta(hours=0))
         self.assertEqual(horas_nocturnas, timedelta(hours=0))
-        self.assertEqual(horas_extras, timedelta(hours=0)) 
+        self.assertEqual(horas_extras, timedelta(hours=0))
+
+
+class CalculoHorasEnfermedadTest(TestCase):
+    """Tests para la función calcular_horas_enfermedad_laborales()"""
+
+    @classmethod
+    def setUpTestData(cls):
+        from ..models import CalendarioLaboral
+        # Crear feriado para pruebas (31 de Octubre 2025 - Día de Difuntos)
+        cls.feriado_octubre = CalendarioLaboral.objects.create(
+            fecha=datetime(2025, 10, 31).date(),
+            tipo_dia='feriado',
+            nombre='Día de Difuntos'
+        )
+
+        # Crear feriado para pruebas (1 de Mayo 2025 - Día del Trabajo)
+        cls.feriado_mayo = CalendarioLaboral.objects.create(
+            fecha=datetime(2025, 5, 1).date(),
+            tipo_dia='feriado',
+            nombre='Día del Trabajo'
+        )
+
+    def test_horas_enfermedad_licencia_lunes_viernes(self):
+        """
+        Licencia de 5 días (Lun-Vie) sin domingos ni feriados.
+        Debe contar 5 días × 8h = 40 horas.
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        # Licencia: Oct 27-31, 2025 (Lun-Vie)
+        # Oct 31 está marcado como feriado en setUpTestData
+        fecha_inicio = datetime(2025, 10, 27).date()  # Lunes
+        fecha_fin = datetime(2025, 10, 31).date()      # Viernes (es feriado)
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin)
+
+        # Oct 31 es feriado, así que solo contar Lun 27, Mar 28, Mié 29, Jue 30 = 4 días
+        self.assertEqual(dias_laborales, 4)
+        self.assertEqual(horas, timedelta(hours=32))
+
+    def test_horas_enfermedad_excluye_domingos(self):
+        """
+        Licencia que incluye domingo.
+        Debe excluir domingos (no contar como día laboral).
+
+        Caso: Oct 25-31, 2025 (Sab-Vie)
+        - Sábado 25: laboral (sin operario, se considera laboral)
+        - Domingo 26: no laboral
+        - Lun 27: laboral
+        - Mar 28: laboral
+        - Mié 29: laboral
+        - Jue 30: laboral
+        - Vie 31: feriado (no laboral)
+        Resultado: 5 días laborales (Sab 25, Lun 27, Mar 28, Mié 29, Jue 30) = 40 horas
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        fecha_inicio = datetime(2025, 10, 25).date()  # Sábado
+        fecha_fin = datetime(2025, 10, 31).date()     # Viernes (es feriado)
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin)
+
+        # Contar: Sab 25, Lun 27, Mar 28, Mié 29, Jue 30 (5 días)
+        # Excluir: Domingo 26, Feriado 31
+        self.assertEqual(dias_laborales, 5)
+        self.assertEqual(horas, timedelta(hours=40))
+
+    def test_horas_enfermedad_excluye_feriados(self):
+        """
+        Licencia que incluye feriado nacional (Día del Trabajo).
+        Debe excluir el feriado del cálculo.
+
+        Caso: Apr 30 - May 5, 2025
+        - Mié 30 Abr: laboral
+        - Jue 1 May: FERIADO (Día del Trabajo)
+        - Vie 2 May: laboral
+        - Sáb 3 May: laboral (sin operario, se considera laboral)
+        - Dom 4 May: no laboral
+        - Lun 5 May: laboral
+        Resultado: 4 días laborales (Mié 30, Vie 2, Sáb 3, Lun 5) = 32 horas
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        fecha_inicio = datetime(2025, 4, 30).date()
+        fecha_fin = datetime(2025, 5, 5).date()
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin)
+
+        # Contar: Mié 30, Vie 2, Sáb 3, Lun 5 (4 días)
+        # Excluir: Feriado 1, Domingo 4
+        self.assertEqual(dias_laborales, 4)
+        self.assertEqual(horas, timedelta(hours=32))
+
+    def test_horas_enfermedad_licencia_larga(self):
+        """
+        Licencia de 30 días que incluye múltiples domingos y feriados.
+        Debe contar solo días laborales de lunes a viernes.
+
+        Caso: Octubre 2025 completo (31 días)
+        - Domingos: 5, 12, 19, 26 (4 domingos)
+        - Feriado: 31 (Día de Difuntos)
+        - Días laborales esperados: 31 - 4 domingos - 1 feriado = 26 días
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        fecha_inicio = datetime(2025, 10, 1).date()
+        fecha_fin = datetime(2025, 10, 31).date()
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin)
+
+        # Octubre 2025: 31 días totales
+        # Domingos: 5, 12, 19, 26 (4 días)
+        # Feriado (31): 1 día
+        # Laborales: 31 - 4 - 1 = 26 días
+        self.assertEqual(dias_laborales, 26)
+        self.assertEqual(horas, timedelta(hours=208))
+
+    def test_horas_enfermedad_un_solo_dia(self):
+        """
+        Licencia de un solo día (laboral).
+        Debe contar 1 día = 8 horas.
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        # Lunes 27 de Octubre 2025
+        fecha = datetime(2025, 10, 27).date()
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha, fecha)
+
+        self.assertEqual(dias_laborales, 1)
+        self.assertEqual(horas, timedelta(hours=8))
+
+    def test_horas_enfermedad_solo_domingos(self):
+        """
+        Licencia que abarca sábado y domingo.
+        Debe contar 1 día laboral (sábado, sin operario asignado se considera laboral).
+        """
+        from ..utils import calcular_horas_enfermedad_laborales
+
+        # Sábado 25 - Domingo 26 de Octubre 2025
+        fecha_inicio = datetime(2025, 10, 25).date()
+        fecha_fin = datetime(2025, 10, 26).date()
+
+        dias_laborales, horas = calcular_horas_enfermedad_laborales(fecha_inicio, fecha_fin)
+
+        # Sin operario asignado, sábado se considera laboral
+        # Domingo 26 siempre es no laboral
+        self.assertEqual(dias_laborales, 1)
+        self.assertEqual(horas, timedelta(hours=8)) 

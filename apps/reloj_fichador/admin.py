@@ -1051,7 +1051,7 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
     list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado', 'get_horas_enfermedad')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['recalcular_registros_seleccionados', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
     change_list_template = 'admin/reloj_fichador/horas_totales/change_list.html'
 
     def get_queryset(self, request):
@@ -1187,11 +1187,47 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
         # Usar la función generar_pdf con cálculo automático de totales de horas
         return exportar_pdf(self, request, queryset, calculate_hours_total=True)
 
+    def recalcular_registros_seleccionados(self, request, queryset):
+        """
+        Acción para recalcular Horas_totales de los registros seleccionados.
+        Útil cuando hay cambios en la lógica de cálculo que requieren actualizar registros.
+        """
+        import logging
+        from django.contrib import messages
+
+        logger = logging.getLogger('reloj_fichador')
+        contador = 0
+        errores = 0
+
+        for horas_total in queryset:
+            try:
+                # Recalcular este registro específico
+                Horas_totales.calcular_horas_totales(horas_total.operario, horas_total.mes_actual)
+                contador += 1
+                logger.info(f'Recalculadas horas totales para {horas_total.operario} en {horas_total.mes_actual}')
+            except Exception as e:
+                errores += 1
+                logger.error(f'Error recalculando horas para {horas_total.operario} {horas_total.mes_actual}: {str(e)}')
+
+        # Mostrar mensaje al usuario
+        if errores == 0:
+            messages.success(
+                request,
+                f'✅ Recalculadas {contador} registros de Horas_totales correctamente.'
+            )
+        else:
+            messages.warning(
+                request,
+                f'⚠️ Recalculados {contador} registros, pero {errores} tuvieron errores.'
+            )
+
+    recalcular_registros_seleccionados.short_description = "♻️ Recalcular Horas_totales seleccionadas"
+
     def get_urls(self):
         from django.urls import path
         urls = super().get_urls()
         custom_urls = [
-            path('recalcular-todas/', self.admin_site.admin_view(self.recalcular_todas_horas), 
+            path('recalcular-todas/', self.admin_site.admin_view(self.recalcular_todas_horas),
                 name='reloj_fichador_horas_totales_recalcular_todas'),
         ]
         return custom_urls + urls
