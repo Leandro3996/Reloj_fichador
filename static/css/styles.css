@@ -279,3 +279,227 @@ footer {
     background-color: rgba(244, 67, 54, 0.9); /* Fondo rojo más oscuro al pasar el cursor */
     transform: translateY(-2px); /* Efecto de elevación en hover */
 }
+
+/* ===================================
+   CUSTOMIZACIÓN DE DJANGO UNFOLD
+   Bordes sutiles para mayor claridad visual
+   =================================== */
+
+/* Contenedores principales */
+.field-box,
+.form-row,
+.fieldset,
+.module {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 6px;
+    transition: border-color 0.2s ease;
+}
+
+/* Campos de formulario */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+textarea,
+select {
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-radius: 4px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Campos con focus */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus {
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1) !important;
+}
+
+/* Tablas en listado */
+table,
+tbody,
+thead {
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+table thead th {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Filas alternadas en tabla */
+tbody tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Paneles y cajas */
+.panel,
+.dashboard-item,
+.card,
+.card-body {
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 6px;
+}
+
+/* Botones */
+button,
+input[type="submit"],
+input[type="button"],
+.button {
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.button:hover {
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Alerts y mensajes */
+.alert,
+.message,
+.errornote,
+.messagelist li {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-left: 4px solid currentColor !important;
+    border-radius: 4px;
+}
+
+/* Sidebar en Unfold */
+.sidebar,
+.sidebar-section {
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Items del sidebar */
+.sidebar-item,
+.nav-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Headers */
+.header,
+h1, h2, h3, h4 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 10px;
+}
+
+/* Filtros */
+.fieldset-collapse,
+.collapse-toggle,
+fieldset {
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 4px;
+}
+
+/* Input search */
+input.search-field {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 4px;
+}
+
+/* Dropdown y selects */
+.select2-container--default .select2-selection--single {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 4px;
+}
+
+/* Inline elements */
+.inline-related,
+.inline-group {
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .field-box,
+    .form-row,
+    .fieldset,
+    .module {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    textarea,
+    select {
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    table th,
+    table td {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    table thead th {
+        border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .panel,
+    .dashboard-item,
+    .card,
+    .card-body {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .sidebar,
+    .sidebar-section {
+        border-right-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .sidebar-item,
+    .nav-item {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .fieldset-collapse,
+    .collapse-toggle,
+    fieldset {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    input.search-field {
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .select2-container--default .select2-selection--single {
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .inline-related,
+    .inline-group {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+}
