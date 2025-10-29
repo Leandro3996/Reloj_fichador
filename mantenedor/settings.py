@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'unfold',
     'unfold.contrib.import_export',
     'unfold.contrib.simple_history',
+    'unfold.contrib.forms',
 
     # Django core apps
     'django.contrib.admin',
@@ -175,6 +176,9 @@ UNFOLD = {
     "SHOW_VIEW_ON_SITE": False,
     "ENVIRONMENT": "mantenedor.utils.environment_callback",
     "DASHBOARD_CALLBACK": "mantenedor.utils.dashboard_callback",
+    "STYLES": [
+        lambda request: static("css/admin-forms.css"),
+    ],
     # Selector de tema Light/Dark automático (sin forzar un tema específico)
     "COLORS": {
         "primary": {
@@ -580,5 +584,5 @@ LOGIN_URL = '/admin/login/'
 # CONFIGURACIÓN DE DJANGO-CRISPY-FORMS
 # ============================================================================
 
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
+CRISPY_TEMPLATE_PACK = "unfold_crispy"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]

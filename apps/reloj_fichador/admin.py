@@ -13,6 +13,7 @@ from django.utils.html import format_html
 # Imports de Unfold
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+from unfold.contrib.forms.widgets import WysiwygWidget
 from .models import (
     Operario, RegistroDiario, Horas_trabajadas, Horas_extras,
     Horas_totales, Area, Horario, Licencia, RegistroAsistencia,
@@ -145,17 +146,34 @@ class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
     filter_horizontal = ('areas',)
     actions = ['asignar_area', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
 
-    readonly_fields = ('foto_tag', 'get_areas')
+    fieldsets = (
+        (_("Información Personal"), {
+            "fields": ("dni", "nombre", "apellido", "fecha_nacimiento", "foto"),
+            "description": "Datos básicos del operario"
+        }),
+        (_("Información Laboral"), {
+            "fields": ("areas", "horario", "fecha_ingreso_empresa", "titulo_tecnico"),
+        }),
+        (_("Descripción"), {
+            "fields": ("descripcion",),
+            "classes": ("collapse",),
+        }),
+        (_("Estado"), {
+            "fields": ("activo",),
+            "classes": ("collapse",),
+        }),
+    )
+
+    formfield_overrides = {
+        models.TextField: {"widget": WysiwygWidget},
+    }
+
+    readonly_fields = ('get_areas',)
 
     def get_areas(self, obj):
         return ", ".join([area.nombre for area in obj.areas.all()])
     get_areas.short_description = 'Áreas'
 
-    def foto_tag(self, obj):
-        if obj.foto:
-            return format_html(f'<img src="{obj.foto.url}" style="max-width: 150px; height: auto;" />')
-        return "(Sin foto)"
-    foto_tag.short_description = 'Foto del operario'
 
     def view_history_button(self, obj):
         """Mostrar un botón para ver el historial del operario"""
@@ -537,8 +555,19 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, UnfoldModelAdmi
                     'origen_fichada', 'mostrar_inconsistencia', 'mostrar_valido', 'view_history_button')
     list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    fields = ('operario', 'tipo_movimiento', 'hora_fichada', 'valido','descripcion_inconsistencia',)
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas']
+
+    fieldsets = (
+        (_("Información del Registro"), {
+            "fields": ("operario", "tipo_movimiento", "hora_fichada", "origen_fichada"),
+            "description": "Datos principales del registro de asistencia."
+        }),
+        (_("Estado y Detalles"), {
+            "fields": ("valido", "inconsistencia", "descripcion_inconsistencia"),
+            "classes": ("collapse",),
+            "description": "Información sobre la validez y posibles inconsistencias del registro."
+        }),
+    )
 
     HEADER_MAP = {
         'get_dni': 'DNI',
@@ -790,6 +819,17 @@ class HorasTrabajadasAdmin(ExportMixin, UnfoldModelAdmin):
     list_filter = ('fecha', ('fecha', DateRangeFilter))
     actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas']
     change_list_template = 'admin/reloj_fichador/horas_trabajadas/change_list.html'
+
+    fieldsets = (
+        (_("Información General"), {
+            "fields": ("operario", "fecha"),
+            "description": "Datos básicos de las horas trabajadas."
+        }),
+        (_("Detalle de Horas"), {
+            "fields": ("horas_normales", "horas_nocturnas", "horas_extras"),
+            "description": "Distribución de las horas trabajadas por tipo."
+        }),
+    )
 
     def get_queryset(self, request):
         """
@@ -1054,6 +1094,17 @@ class HorasTotalesAdmin(ExportMixin, UnfoldModelAdmin):
     actions = ['recalcular_registros_seleccionados', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
     change_list_template = 'admin/reloj_fichador/horas_totales/change_list.html'
 
+    fieldsets = (
+        (_("Información General"), {
+            "fields": ("operario", "mes_actual"),
+            "description": "Datos básicos de las horas totales."
+        }),
+        (_("Detalle de Horas"), {
+            "fields": ("horas_normales", "horas_nocturnas", "horas_extras", "horas_feriado", "horas_enfermedad"),
+            "description": "Distribución de las horas totales por tipo."
+        }),
+    )
+
     def get_queryset(self, request):
         """
         Optimiza la consulta con select_related.
@@ -1269,6 +1320,18 @@ class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     actions = ['marcar_justificado', 'marcar_no_justificado', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
+
+    fieldsets = (
+        (_("Información de Asistencia"), {
+            "fields": ("operario", "fecha", "estado_asistencia"),
+            "description": "Datos principales de la asistencia del operario."
+        }),
+        (_("Justificación"), {
+            "fields": ("estado_justificacion", "descripcion", "licencia_relacionada"),
+            "classes": ("collapse",),
+            "description": "Información sobre la justificación de la ausencia."
+        }),
+    )
 
     def estado_justificacion_selector(self, obj):
         return '✅' if obj.estado_justificacion else '❌'

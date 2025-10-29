@@ -1,0 +1,367 @@
+:root {
+    --rf-surface: #ffffff;
+    --rf-surface-muted: #f8f9ff;
+    --rf-border: rgba(148, 163, 184, 0.35);
+    --rf-heading: #111827;
+    --rf-text: #1f2937;
+    --rf-muted: #475569;
+    --rf-primary: #a855f7;
+    --rf-primary-strong: #7c3aed;
+    --rf-shadow-soft: 0 26px 48px -32px rgba(15, 23, 42, 0.45);
+}
+
+html.dark {
+    --rf-surface: #111827;
+    --rf-surface-muted: rgba(148, 163, 184, 0.08);
+    --rf-border: rgba(148, 163, 184, 0.22);
+    --rf-heading: #f8fafc;
+    --rf-text: #e2e8f0;
+    --rf-muted: #94a3b8;
+    --rf-primary: #c084fc;
+    --rf-primary-strong: #a855f7;
+    --rf-shadow-soft: 0 30px 65px -35px rgba(2, 6, 23, 0.82);
+}
+
+body.change-form,
+body.add-form {
+    background: radial-gradient(120% 120% at 50% 0%, rgba(124, 58, 237, 0.18) 0%, rgba(15, 23, 42, 0) 55%) var(--rf-surface-muted);
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--rf-text);
+}
+
+body.change-form #content,
+body.add-form #content {
+    max-width: min(1180px, calc(100vw - 3rem));
+    margin-inline: auto;
+    padding-block: clamp(1.75rem, 5vw, 3.5rem);
+    padding-inline: clamp(1.25rem, 4vw, 2.75rem);
+}
+
+body.change-form #content > *,
+body.add-form #content > * {
+    width: 100%;
+}
+
+body.change-form form,
+body.add-form form {
+    background: var(--rf-surface);
+    border-radius: 22px;
+    border: 1px solid var(--rf-border);
+    box-shadow: var(--rf-shadow-soft);
+    padding: clamp(1.75rem, 4vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 2.75rem);
+    overflow: hidden;
+}
+
+body.change-form form h2,
+body.add-form form h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--rf-heading);
+    margin: 0 0 1.25rem;
+    text-transform: none;
+}
+
+body.change-form fieldset,
+body.add-form fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+body.change-form fieldset + fieldset,
+body.add-form fieldset + fieldset {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    padding-top: clamp(1.65rem, 4vw, 2.5rem);
+}
+
+body.change-form fieldset.collapse + fieldset,
+body.add-form fieldset.collapse + fieldset {
+    border-top: none;
+    padding-top: 0;
+}
+
+body.change-form fieldset .form-row,
+body.add-form fieldset .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.1rem, 3vw, 1.75rem);
+    margin: 0;
+}
+
+body.change-form fieldset .form-row > div,
+body.add-form fieldset .form-row > div {
+    background: var(--rf-surface-muted);
+    border: 1px solid var(--rf-border);
+    border-radius: 18px;
+    padding: 1.25rem clamp(1rem, 3vw, 1.35rem) 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.change-form fieldset .form-row > div:focus-within,
+body.add-form fieldset .form-row > div:focus-within {
+    border-color: var(--rf-primary);
+    box-shadow: 0 18px 35px -24px rgba(124, 58, 237, 0.6);
+}
+
+body.change-form fieldset label,
+body.add-form fieldset label {
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--rf-muted);
+}
+
+body.change-form form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+body.add-form form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+body.change-form form select,
+body.add-form form select,
+body.change-form form textarea,
+body.add-form form textarea {
+    font-size: 0.95rem;
+    color: var(--rf-text);
+    background: var(--rf-surface);
+    border: 1px solid var(--rf-border);
+    border-radius: 13px;
+    padding: 0.65rem 0.9rem;
+    min-height: 2.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+body.change-form form textarea,
+body.add-form form textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+body.change-form form input:focus:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+body.add-form form input:focus:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+body.change-form form select:focus,
+body.add-form form select:focus,
+body.change-form form textarea:focus,
+body.add-form form textarea:focus {
+    outline: none;
+    border-color: var(--rf-primary);
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
+}
+
+body.change-form form input[disabled],
+body.add-form form input[disabled],
+body.change-form form select[disabled],
+body.add-form form select[disabled],
+body.change-form form textarea[disabled],
+body.add-form form textarea[disabled] {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+body.change-form form .help,
+body.add-form form .help {
+    font-size: 0.82rem;
+    color: var(--rf-muted);
+    line-height: 1.45;
+}
+
+body.change-form form .help a,
+body.add-form form .help a {
+    color: var(--rf-primary-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-decoration-color: rgba(168, 85, 247, 0.35);
+}
+
+body.change-form form .errornote,
+body.add-form form .errornote {
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(254, 226, 226, 0.8);
+    color: #991b1b;
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    font-weight: 600;
+}
+
+html.dark body.change-form form .errornote,
+html.dark body.add-form form .errornote {
+    background: rgba(239, 68, 68, 0.08);
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.4);
+}
+
+body.change-form .messagelist,
+body.add-form .messagelist {
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: var(--rf-shadow-soft);
+    overflow: hidden;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+body.change-form .messagelist li,
+body.add-form .messagelist li {
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+}
+
+body.change-form .object-tools,
+body.add-form .object-tools {
+    margin-bottom: clamp(1.2rem, 3vw, 1.8rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+body.change-form .object-tools a,
+body.add-form .object-tools a {
+    border-radius: 999px;
+    padding: 0.55rem 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: linear-gradient(135deg, var(--rf-primary) 0%, var(--rf-primary-strong) 100%);
+    color: white;
+    box-shadow: 0 14px 30px -20px rgba(124, 58, 237, 0.75);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.change-form .object-tools a:hover,
+body.add-form .object-tools a:hover {
+    transform: translateY(-1px);
+}
+
+body.change-form .submit-row,
+body.add-form .submit-row {
+    position: sticky;
+    bottom: -1px;
+    margin: 0 calc(-1 * clamp(1.75rem, 4vw, 3rem)) calc(-1 * clamp(1.75rem, 4vw, 3rem));
+    padding: clamp(1.25rem, 3vw, 1.85rem) clamp(1.75rem, 4vw, 2.75rem);
+    background: var(--rf-surface);
+    border-top: 1px solid var(--rf-border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    box-shadow: 0 -26px 65px -45px rgba(15, 23, 42, 0.45);
+}
+
+body.change-form .submit-row input,
+body.add-form .submit-row input {
+    border: none;
+    border-radius: 999px;
+    padding: 0.65rem 1.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--rf-primary) 0%, var(--rf-primary-strong) 100%);
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 16px 40px -24px rgba(124, 58, 237, 0.75);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+body.change-form .submit-row input.default,
+body.add-form .submit-row input.default {
+    order: 1;
+}
+
+body.change-form .submit-row input:hover,
+body.add-form .submit-row input:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+body.change-form .submit-row a.cancel-link,
+body.add-form .submit-row a.cancel-link {
+    border-radius: 999px;
+    padding: 0.6rem 1.7rem;
+    font-weight: 600;
+    color: var(--rf-muted);
+    background: transparent;
+    border: 1px solid var(--rf-border);
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+body.change-form .submit-row a.cancel-link:hover,
+body.add-form .submit-row a.cancel-link:hover {
+    color: var(--rf-primary-strong);
+    border-color: var(--rf-primary);
+    transform: translateY(-1px);
+}
+
+body.change-form .inline-group,
+body.add-form .inline-group {
+    background: var(--rf-surface);
+    border: 1px solid var(--rf-border);
+    border-radius: 22px;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    box-shadow: var(--rf-shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+}
+
+body.change-form .inline-group table,
+body.add-form .inline-group table {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--rf-border);
+}
+
+body.change-form .inline-group thead th,
+body.add-form .inline-group thead th {
+    background: var(--rf-surface-muted);
+    color: var(--rf-muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+body.change-form .inline-group td,
+body.add-form .inline-group td {
+    border-color: rgba(148, 163, 184, 0.14);
+    padding-block: 0.75rem;
+}
+
+body.change-form .inline-group .add-row a,
+body.add-form .inline-group .add-row a {
+    font-weight: 600;
+    color: var(--rf-primary-strong);
+}
+
+@media (max-width: 960px) {
+    body.change-form #content,
+    body.add-form #content {
+        padding-inline: 1.25rem;
+    }
+
+    body.change-form .submit-row,
+    body.add-form .submit-row {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    body.change-form form,
+    body.add-form form {
+        border-radius: 16px;
+    }
+
+    body.change-form fieldset .form-row,
+    body.add-form fieldset .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    body.change-form .submit-row,
+    body.add-form .submit-row {
+        position: static;
+        margin: 0;
+        padding: 1.35rem 0 0;
+        box-shadow: none;
+        border-top: none;
+    }
+}
