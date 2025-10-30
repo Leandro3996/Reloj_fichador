@@ -7,7 +7,7 @@ from .models import Licencia
 class LicenciaForm(forms.ModelForm):
     """
     Formulario profesional para carga de licencias de ausencia.
-    Utiliza Django Crispy Forms con el template pack unfold_crispy para integración con Django Unfold.
+    Utiliza Django Crispy Forms con Bootstrap5 para mejor presentación.
     """
 
     class Meta:
@@ -48,7 +48,7 @@ class LicenciaForm(forms.ModelForm):
         self.fields['archivo'].required = False
         self.fields['descripcion'].required = False
 
-        # Configurar FormHelper para Crispy Forms con template pack unfold_crispy
+        # Configurar FormHelper para Crispy Forms con Bootstrap5
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_tag = False  # La etiqueta form está en la plantilla

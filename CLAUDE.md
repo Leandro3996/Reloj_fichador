@@ -135,7 +135,7 @@ No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles gl
 
 | MCP | Base de Datos | Ubicación | Estado |
 |-----|---------------|-----------|--------|
-| `postgres-reloj-fichador` | docker_horesdb_pg | localhost:54321 | ⚠️ Obsoleto (PostgreSQL eliminado) |
+| `mysql-reloj-fichador` | docker_horesdb | localhost:53306 | ✅ Activo |
 | `context7` | (documentación) | - | ✅ Activo |
 | `browsermcp` | (navegador) | - | ✅ Activo |
 | `chrome-devtools` | (Chrome) | - | ✅ Activo |
@@ -147,8 +147,29 @@ No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles gl
 
 ---
 
-**⚠️ NOTA IMPORTANTE - PostgreSQL Obsoleto:**
-PostgreSQL ha sido eliminado como base de datos del proyecto. El MCP `postgres-reloj-fichador` se mantiene configurado para futuros proyectos que utilicen PostgreSQL, pero **NO ES UTILIZADO** en este proyecto. Para consultas a la base de datos en este proyecto, usar **MySQL directamente** con comandos Docker o herramientas SQL estándar.
+### 🎯 MySQL MCP - Reloj Fichador
+
+**Credenciales de Conexión:**
+```
+Host: localhost
+Puerto: 53306
+Usuario: root
+Password: S1st3mas.1999
+Database: docker_horesdb
+```
+
+**Herramientas Disponibles:**
+- `list-tables` - Listar todas las tablas de la base de datos
+- `describe-table` - Ver estructura de una tabla específica
+- `query` - Ejecutar consultas SELECT
+- `execute` - Ejecutar consultas INSERT/UPDATE/DELETE
+
+**Ejemplo de Uso:**
+```
+"Muestra todas las tablas de la base de datos"
+"Describe la estructura de la tabla operario"
+"Obtén todos los registros de hoy en RegistroDiario"
+```
 
 
 ## Important Files and Locations

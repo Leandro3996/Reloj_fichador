@@ -1,5 +1,4 @@
 Django==5.1.4
-django-unfold==0.42.0
 amqp==5.2.0
 asgiref==3.8.1
 billiard==4.2.0

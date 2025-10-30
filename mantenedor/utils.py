@@ -1,5 +1,5 @@
 """
-Utilidades para la configuración de Django Unfold
+Utilidades para la configuración del admin de Django
 """
 
 import os
