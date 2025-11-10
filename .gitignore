@@ -34,11 +34,16 @@ media
 .env.prod
 .env.dev
 
+# Configuración local de MCP (contiene credenciales)
+.mcp.json
+
 # Datos de MySQL
 mysql_data/
 
 # Backups
 backups/
+backup_local_*.sql
+backup_produccion_*.sql
 
 # Archivos estáticos y media
 /staticfiles/

@@ -1,13 +1,15 @@
 # CLAUDE.md - Reloj Fichador
 
-> **📍 CONFIGURACIÓN GLOBAL:** Este proyecto usa MCPs centralizados en `~/.claude.json`
+> **📍 CONFIGURACIÓN DE MCPs:** Este proyecto usa configuración mixta
+> - **MCPs Globales:** `~/.claude.json` (Context7, BrowserMCP, Chrome DevTools)
+> - **MCP Local:** `.mcp.json` (MySQL del proyecto)
 >
 > **Instrucciones Globales:** `~/.claude/CLAUDE.md` (⭐ LEER PRIMERO)
 >
 > **Documentación de MCPs:** Ver archivos en `~/.claude/`:
-> - `CONFIGURACION_GLOBAL.md` - Guía completa de MCPs
+> - `CONFIGURACION_GLOBAL.md` - Guía completa de MCPs globales
 > - `ANADIR_NUEVOS_MCPS.md` - Cómo añadir nuevas BDs
-> - `MULTIPLES_CONFIGURACIONES.md` - Opciones avanzadas
+> - `.mcp.json` - Configuración local del proyecto (MySQL)
 
 ---
 
@@ -44,7 +46,7 @@ This is a Django-based time tracking system ("Reloj Fichador") deployed with Doc
 - **Web Server**: Nginx with Gunicorn
 - **Deployment**: Docker Compose
 - **Admin Interface**: Django Unfold 0.42.0 (modern admin theme)
-- **MCP Servers**: Context7, BrowserMCP, Chrome DevTools (PostgreSQL MCP obsoleto)
+- **MCP Servers**: MySQL (local), Context7, BrowserMCP, Chrome DevTools
 
 ### Key Models (apps/reloj_fichador/models.py)
 
@@ -127,27 +129,35 @@ docker compose restart celery celery-beat
 
 ### MCP (Model Context Protocol) for Claude Code
 
-#### 🔗 CONFIGURACIÓN GLOBAL DE MCPs
+#### 🔗 CONFIGURACIÓN DE MCPs
 
-**⭐ IMPORTANTE:** Todos los MCPs están configurados centralmente en `~/.claude.json`
+Este proyecto utiliza una **configuración mixta** de MCPs:
 
-No necesitas configurar nada en este proyecto. Los MCPs ya están disponibles globalmente:
+**MCPs Globales** (configurados en `~/.claude.json`):
+- `context7` - Documentación de bibliotecas
+- `browsermcp` - Automatización web
+- `chrome-devtools` - Análisis de rendimiento
+
+**MCPs Locales** (configurados en `.mcp.json` del proyecto):
+- `mysql-reloj-fichador` - Base de datos MySQL del proyecto
 
 | MCP | Base de Datos | Ubicación | Estado |
 |-----|---------------|-----------|--------|
-| `mysql-reloj-fichador` | docker_horesdb | localhost:53306 | ✅ Activo |
-| `context7` | (documentación) | - | ✅ Activo |
-| `browsermcp` | (navegador) | - | ✅ Activo |
-| `chrome-devtools` | (Chrome) | - | ✅ Activo |
+| `mysql-reloj-fichador` | docker_horesdb | localhost:53306 | ✅ Activo (Local) |
+| `context7` | (documentación) | - | ✅ Activo (Global) |
+| `browsermcp` | (navegador) | - | ✅ Activo (Global) |
+| `chrome-devtools` | (Chrome) | - | ✅ Activo (Global) |
 
 **Documentación Completa:**
 - Instrucciones globales: `~/.claude/CLAUDE.md`
-- Configuración: `~/.claude/CONFIGURACION_GLOBAL.md`
-- Cómo añadir nuevos MCPs: `~/.claude/ANADIR_NUEVOS_MCPS.md`
+- Configuración local: `.mcp.json` (en raíz del proyecto)
+- MCP MySQL: https://github.com/benborla/mcp-server-mysql
 
 ---
 
 ### 🎯 MySQL MCP - Reloj Fichador
+
+**Configuración Local:** Ver archivo `.mcp.json` en la raíz del proyecto
 
 **Credenciales de Conexión:**
 ```
@@ -158,18 +168,26 @@ Password: S1st3mas.1999
 Database: docker_horesdb
 ```
 
+**Paquete NPM:** `@benborla29/mcp-server-mysql`
+
 **Herramientas Disponibles:**
-- `list-tables` - Listar todas las tablas de la base de datos
-- `describe-table` - Ver estructura de una tabla específica
-- `query` - Ejecutar consultas SELECT
-- `execute` - Ejecutar consultas INSERT/UPDATE/DELETE
+- `mysql_query` - Ejecutar consultas SQL (solo SELECT, modo lectura)
+
+**Permisos (Configuración Actual):**
+- INSERT: ❌ Deshabilitado
+- UPDATE: ❌ Deshabilitado
+- DELETE: ❌ Deshabilitado
+- SELECT: ✅ Habilitado (solo lectura)
 
 **Ejemplo de Uso:**
 ```
 "Muestra todas las tablas de la base de datos"
-"Describe la estructura de la tabla operario"
-"Obtén todos los registros de hoy en RegistroDiario"
+"¿Cuántos operarios hay registrados?"
+"Obtén todos los registros de asistencia de hoy"
+"Muestra la estructura de la tabla Horas_trabajadas"
 ```
+
+**Nota de Seguridad:** Las operaciones de escritura están deshabilitadas para proteger los datos. Solo se permiten consultas de lectura (SELECT).
 
 
 ## Important Files and Locations
