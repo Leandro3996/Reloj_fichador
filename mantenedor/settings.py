@@ -27,6 +27,9 @@ DEBUG = env.bool('DEBUG', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '192.168.10.11', ])
 
 INSTALLED_APPS = [
+    # Django Simpleui - Tema moderno para admin
+    'simpleui',
+
     # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -337,3 +340,52 @@ LOGIN_URL = '/admin/login/'
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
+
+# ============================================================================
+# CONFIGURACIÓN DE DJANGO-SIMPLEUI - ICONOS
+# ============================================================================
+
+# Configuración de iconos para el menú del admin
+# Los iconos utilizan FontAwesome 6 (incluido en Simpleui)
+# Documentación: https://fontawesome.com/icons
+SIMPLEUI_ICON = {
+    # Modelos principales del sistema de fichaje
+    'operarios': 'fas fa-users',  # Empleados/Personal
+    'registro diarios': 'fas fa-clock',  # Registros de entrada/salida
+    'Horas trabajadas': 'fas fa-business-time',  # Horas de trabajo
+    'Horas extras': 'fas fa-clock-rotate-left',  # Horas extras
+    'Horas totales': 'fas fa-calculator',  # Cálculo de totales
+    'Horas feriado': 'fas fa-umbrella-beach',  # Días feriados
+    'Horas enfermedad': 'fas fa-notes-medical',  # Licencias médicas
+    'registro asistencias': 'fas fa-clipboard-check',  # Control de asistencia
+
+    # Configuración de horarios y áreas
+    'horarios': 'fas fa-calendar-alt',  # Horarios de trabajo
+    'areas': 'fas fa-building',  # Áreas/Departamentos
+    'licencias': 'fas fa-file-medical',  # Licencias y permisos
+    'Calendarios Laborales': 'fas fa-calendar',  # Calendario laboral
+    'Grupos de Sábado': 'fas fa-calendar-week',  # Grupos de sábado
+    'Sugerencias de Feriados': 'fas fa-lightbulb',  # Sugerencias
+
+    # Reportes y análisis
+    '📊 Reportes': 'fas fa-chart-line',  # Reportes estadísticos
+
+    # Configuración del sistema
+    'Configuración de Redondeo': 'fas fa-cog',  # Configuración entrada
+    'Configuración de Redondeo de Salida': 'fas fa-cogs',  # Configuración salida
+
+    # Usuarios y permisos (Django Auth)
+    'usuarios': 'fas fa-user',  # Usuarios del sistema
+    'grupos': 'fas fa-users-cog',  # Grupos y permisos
+
+    # Auditoría e historial
+    'Registros de auditoría': 'fas fa-history',  # Logs del sistema
+    'historical operarios': 'fas fa-history',  # Histórico de operarios
+    'historical registro diarios': 'fas fa-history',  # Histórico de registros
+    'historical licencias': 'fas fa-history',  # Histórico de licencias
+}
+
+# Configuración adicional de Simpleui
+SIMPLEUI_HOME_TITLE = 'Sistema de Control de Asistencia'  # Título de la página de inicio
+SIMPLEUI_HOME_ICON = 'fas fa-home'  # Icono de inicio
+SIMPLEUI_LOGO = '/static/images/logo_hores.png'  # Logo personalizado
