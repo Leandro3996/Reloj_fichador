@@ -60,5 +60,5 @@ django-environ
 django-axes==6.5.1
 django-crispy-forms==2.4
 crispy-bootstrap5==2025.6
-django-admin-interface==0.31.0
+django-jazzmin==3.0.1
 requests
