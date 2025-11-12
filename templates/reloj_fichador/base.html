@@ -345,11 +345,16 @@
 
             // Función para obtener el token CSRF
             function getCookie(name) {
-                // Si estamos buscando el token CSRF, usar el nombre personalizado de la cookie
+                // Primero intentar obtener del input del formulario
                 if (name === 'csrftoken') {
+                    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (csrfInput) {
+                        return csrfInput.value;
+                    }
+                    // Si no está en el formulario, buscar en cookie con nombre personalizado
                     name = 'fichador_csrf';
                 }
-                
+
                 let cookieValue = null;
                 if (document.cookie && document.cookie !== '') {
                     const cookies = document.cookie.split(';');

@@ -1,5 +1,9 @@
 from .test_models import OperarioModelTest
-from .test_registro_diario import RegistroDiarioModelTest
+from .test_registro_diario import (
+    RegistroDiarioValidacionesExitosasTest,
+    RegistroDiarioInconsistenciasTest,
+    RegistroDiarioFuncionesAuxiliaresTest
+)
 from .test_calculo_horas import CalculoHorasTest
 from .test_views import RegistroMovimientoViewTest, ReporteViewTest
 from .test_integracion import IntegracionTest

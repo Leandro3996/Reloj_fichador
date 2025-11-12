@@ -20,6 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
+# Personalizar textos del admin
+admin.site.site_header = 'Administración Hores'
+admin.site.site_title = 'Administración Hores'
+admin.site.index_title = 'Panel de Control'
+
 # Definir handlers para errores HTTP
 handler400 = 'apps.reloj_fichador.views.error_400'
 handler403 = 'apps.reloj_fichador.views.error_403'

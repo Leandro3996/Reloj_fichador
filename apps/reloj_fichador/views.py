@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
-@csrf_exempt
 @require_POST
 def registrar_movimiento_tipo(request, tipo_movimiento):
     if not is_ajax(request):

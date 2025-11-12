@@ -3085,31 +3085,49 @@ class LicenciaAdmin(SimpleHistoryAdmin, admin.ModelAdmin):
     historia_cambios.short_description = 'Historial'
 
     def acciones_licencia(self, obj):
-        """Acciones rápidas"""
+        """Acciones rápidas con botones compactos"""
         acciones = []
-        
+
+        # Estilo base para botones pequeños
+        btn_style = "display: inline-block; padding: 4px 8px; margin: 2px; border-radius: 4px; text-decoration: none; font-size: 16px; cursor: pointer; border: 1px solid #ddd;"
+
         if obj.estado == 'pendiente':
             # Botones de aprobación/rechazo
             aprobar_url = reverse('admin:reloj_fichador_licencia_change', args=[obj.pk])
-            acciones.append(f'<a class="button" href="{aprobar_url}" style="background: green; color: white; margin: 2px;">✅ Aprobar</a>')
-            acciones.append(f'<a class="button" href="{aprobar_url}" style="background: red; color: white; margin: 2px;">❌ Rechazar</a>')
-        
+            acciones.append(
+                f'<a href="{aprobar_url}" title="Aprobar licencia" '
+                f'style="{btn_style} background: #28a745; color: white;">✅</a>'
+            )
+            acciones.append(
+                f'<a href="{aprobar_url}" title="Rechazar licencia" '
+                f'style="{btn_style} background: #dc3545; color: white;">❌</a>'
+            )
+
         if obj.archivo:
             # Link para descargar archivo
-            acciones.append(f'<a class="button" href="{obj.archivo.url}" target="_blank">📄 Ver Archivo</a>')
+            acciones.append(
+                f'<a href="{obj.archivo.url}" target="_blank" title="Ver archivo adjunto" '
+                f'style="{btn_style} background: #17a2b8; color: white;">📄</a>'
+            )
         else:
             # Advertencia si no hay archivo
-            acciones.append('<span style="color: orange; font-weight: bold;">⚠️ Sin archivo adjunto</span>')
-        
+            acciones.append(
+                f'<span title="Sin archivo adjunto" '
+                f'style="{btn_style} background: #ffc107; color: #333;">⚠️</span>'
+            )
+
         # Link a asistencia del operario
         asistencia_url = reverse('admin:reloj_fichador_registroasistencia_changelist')
         asistencia_url += f'?operario__id__exact={obj.operario.pk}'
         if obj.fecha_inicio and obj.fecha_fin:
             asistencia_url += f'&fecha__gte={obj.fecha_inicio}&fecha__lte={obj.fecha_fin}'
-        
-        acciones.append(f'<a class="button" href="{asistencia_url}">👥 Ver Asistencia</a>')
-        
-        return format_html('<br>'.join(acciones))
+
+        acciones.append(
+            f'<a href="{asistencia_url}" title="Ver asistencia del operario" '
+            f'style="{btn_style} background: #6c757d; color: white;">👥</a>'
+        )
+
+        return format_html(' '.join(acciones))
     acciones_licencia.short_description = '🔧 Acciones'
 
     def save_model(self, request, obj, form, change):
