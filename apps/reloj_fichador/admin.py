@@ -149,7 +149,8 @@ class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
             "description": "Datos básicos del operario"
         }),
         (_("Información Laboral"), {
-            "fields": ("areas", "horario", "fecha_ingreso_empresa", "titulo_tecnico"),
+            # Horario se gestionaba cuando Operario tenía FK directa; ahora solo se combinan áreas
+            "fields": ("areas", "fecha_ingreso_empresa", "titulo_tecnico"),
         }),
         (_("Descripción"), {
             "fields": ("descripcion",),
