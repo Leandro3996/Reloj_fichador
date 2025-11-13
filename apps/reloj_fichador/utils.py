@@ -25,6 +25,36 @@ def suppress_signal():
         _thread_locals.in_save = False
 
 
+def formatear_timedelta_horas(valor):
+    """
+    Formatea un timedelta a formato de horas totales "XXh YYm"
+
+    Args:
+        valor: timedelta object
+
+    Returns:
+        str: Formato "XXh YYm" (ej: "40h 30m")
+
+    Ejemplos:
+        >>> formatear_timedelta_horas(timedelta(days=1, hours=16))
+        "40h 00m"
+        >>> formatear_timedelta_horas(timedelta(hours=2, minutes=30))
+        "02h 30m"
+    """
+    if valor is None:
+        return "00h 00m"
+
+    if not isinstance(valor, timedelta):
+        return str(valor)
+
+    # Convertir todo a segundos y luego calcular horas y minutos totales
+    total_segundos = int(valor.total_seconds())
+    horas = total_segundos // 3600
+    minutos = (total_segundos % 3600) // 60
+
+    return f"{horas:02d}h {minutos:02d}m"
+
+
 # Helper para calcular el ancho de columnas basado en el contenido
 def calcular_ancho_columnas(data, max_width):
     """
@@ -138,16 +168,20 @@ def generar_pdf(modeladmin, request, queryset, campos, encabezados, titulo,
     """
     # Respuesta HTTP para generar el PDF
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{titulo}.pdf"'
+    # Cambiar a 'inline' para que se muestre en el navegador en lugar de descargar
+    response['Content-Disposition'] = f'inline; filename="{titulo}.pdf"'
 
-    # Crear el documento PDF
+    # Crear el documento PDF con metadatos
     doc = SimpleDocTemplate(
-        response, 
+        response,
         pagesize=A4,
         leftMargin=30,
         rightMargin=30,
         topMargin=40,
-        bottomMargin=40
+        bottomMargin=40,
+        title=titulo,
+        author='Sistema Reloj Fichador',
+        subject=f'Reporte: {titulo}'
     )
     elements = []
     
@@ -578,10 +612,38 @@ def generar_excel(modeladmin, request, queryset, campos, encabezados, titulo):
     for obj in queryset:
         fila = []
         for campo in campos:
-            valor = getattr(obj, campo)
-            if callable(valor):
-                valor = valor()
-            fila.append(str(valor))
+            # Obtener valor (método del ModelAdmin, método del objeto o atributo)
+            if hasattr(modeladmin, campo) and callable(getattr(modeladmin, campo)):
+                metodo = getattr(modeladmin, campo)
+                valor = metodo(obj)
+            elif hasattr(obj, campo) and callable(getattr(obj, campo)):
+                metodo = getattr(obj, campo)
+                valor = metodo()
+            else:
+                try:
+                    valor = getattr(obj, campo)
+                except AttributeError:
+                    valor = None
+
+            # Formatear según tipo de dato
+            if valor is None:
+                valor = ""
+            elif isinstance(valor, datetime):
+                valor = valor.strftime('%d/%m/%Y %H:%M')
+            elif isinstance(valor, date):
+                valor = valor.strftime('%d/%m/%Y')
+            elif isinstance(valor, timedelta):
+                # Formatear timedelta a horas totales
+                valor = formatear_timedelta_horas(valor)
+            else:
+                # Limpiar HTML si existe
+                valor_str = str(valor)
+                if '<' in valor_str and '>' in valor_str:
+                    import re
+                    valor_str = re.sub(r'<[^>]+>', '', valor_str)
+                valor = valor_str
+
+            fila.append(valor)
         sheet.append(fila)
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

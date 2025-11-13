@@ -684,7 +684,7 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmi
 @admin.register(Horas_trabajadas)
 class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
     resource_class = HorasTrabajadasResource
-    list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
+    list_display = ('get_operario_sin_dni', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
     actions = ['exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas', 'exportar_seleccionados_excel']
@@ -707,6 +707,10 @@ class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
         Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
         return super().get_queryset(request).select_related('operario')
+
+    def get_operario_sin_dni(self, obj):
+        return obj.operario.nombre_completo_sin_dni()
+    get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_normales(self, obj):
         total_seconds = obj.horas_normales.total_seconds()
@@ -821,7 +825,7 @@ class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
 
 @admin.register(Horas_extras)
 class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('operario', 'fecha', 'get_horas_extras')
+    list_display = ('get_operario_sin_dni', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
     actions = ['exportar_excel', 'exportar_pdf']
@@ -834,6 +838,9 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
         queryset = super().get_queryset(request).select_related('operario')
         return queryset.exclude(horas_extras=timedelta(0))
 
+    def get_operario_sin_dni(self, obj):
+        return obj.operario.nombre_completo_sin_dni()
+    get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_extras(self, obj):
         total_seconds = obj.horas_extras.total_seconds()
@@ -881,7 +888,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
 
 @admin.register(Horas_totales)
 class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado', 'get_horas_enfermedad')
+    list_display = ('get_dni', 'get_operario_sin_dni','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado', 'get_horas_enfermedad')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
     actions = ['recalcular_registros_seleccionados', 'exportar_excel', 'exportar_pdf']
@@ -904,7 +911,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
         Ya no filtramos los registros con 0 horas para mostrar todos los operarios.
         """
         return super().get_queryset(request).select_related('operario')
-    
+
     def get_mes(self, obj):
         try:
             anio, mes = obj.mes_actual.split('-')
@@ -912,11 +919,15 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
         except Exception as e:
             return obj.mes_actual
     get_mes.short_description = 'Mes'
-        
+
 
     def get_dni(self, obj):
         return obj.operario.dni
     get_dni.short_description = 'DNI'
+
+    def get_operario_sin_dni(self, obj):
+        return obj.operario.nombre_completo_sin_dni()
+    get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_normales(self, obj):
         total_seconds = obj.horas_normales.total_seconds()
@@ -1067,7 +1078,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
 @admin.register(RegistroAsistencia)
 class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
     list_display = (
-        'operario', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones'
+        'get_operario_sin_dni', 'fecha', 'estado_asistencia', 'estado_justificacion_selector', 'descripcion', 'acciones'
     )
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
@@ -1084,6 +1095,10 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
             "description": "Información sobre la justificación de la ausencia."
         }),
     )
+
+    def get_operario_sin_dni(self, obj):
+        return obj.operario.nombre_completo_sin_dni()
+    get_operario_sin_dni.short_description = 'Operario'
 
     def estado_justificacion_selector(self, obj):
         return '✅' if obj.estado_justificacion else '❌'
@@ -1177,10 +1192,14 @@ class AreaAdmin(ExportarPDFMixin, admin.ModelAdmin):
 
 @admin.register(Horas_feriado)
 class HorasFeriadoAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('operario', 'fecha', 'horas_feriado')
+    list_display = ('get_operario_sin_dni', 'fecha', 'horas_feriado')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
     actions = ['exportar_pdf', 'exportar_excel']
+
+    def get_operario_sin_dni(self, obj):
+        return obj.operario.nombre_completo_sin_dni()
+    get_operario_sin_dni.short_description = 'Operario'
 
     def exportar_pdf(self, request, queryset):
         # Usar la función generar_pdf con cálculo automático de totales de horas
@@ -2338,10 +2357,10 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar PDF
         html = HTML(string=html_string)
         pdf = html.write_pdf()
-        
+
         # Respuesta HTTP
         response = HttpResponse(pdf, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="Reporte_Horas_{meses_es[mes]}_{año}.pdf"'
+        response['Content-Disposition'] = f'inline; filename="Reporte_Horas_{meses_es[mes]}_{año}.pdf"'
         return response
     
     def exportar_asistencia_excel(self, request):
@@ -2513,11 +2532,11 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar PDF
         html = HTML(string=html_string)
         pdf = html.write_pdf()
-        
+
         # Respuesta HTTP
         response = HttpResponse(pdf, content_type='application/pdf')
         fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
-        response['Content-Disposition'] = f'attachment; filename="Reporte_Asistencia_{fecha_str}.pdf"'
+        response['Content-Disposition'] = f'inline; filename="Reporte_Asistencia_{fecha_str}.pdf"'
         return response
     
     def exportar_inconsistencias_excel(self, request):
@@ -2626,11 +2645,11 @@ class ReporteAdmin(admin.ModelAdmin):
         # Generar PDF
         html = HTML(string=html_string)
         pdf = html.write_pdf()
-        
+
         # Respuesta HTTP
         response = HttpResponse(pdf, content_type='application/pdf')
         fecha_str = f"{fecha_inicio.strftime('%d-%m-%Y')}_al_{fecha_fin.strftime('%d-%m-%Y')}"
-        response['Content-Disposition'] = f'attachment; filename="Reporte_Inconsistencias_{fecha_str}.pdf"'
+        response['Content-Disposition'] = f'inline; filename="Reporte_Inconsistencias_{fecha_str}.pdf"'
         return response
 
 

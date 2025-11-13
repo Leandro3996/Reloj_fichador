@@ -112,6 +112,7 @@
     </style>
 </head>
 <body>
+    {% load reporte_filters %}
     <div class="header">
         <h1>👥 REPORTE DE ASISTENCIA</h1>
         <p><strong>Del {{ fecha_inicio|date:'d/m/Y' }} al {{ fecha_fin|date:'d/m/Y' }}</strong></p>
@@ -163,11 +164,7 @@
                                 {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
                                     {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
                                         {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
-                                            {% if horas_dia.total_trabajadas %}
-                                                <strong style="color: #28a745;">{% widthratio horas_dia.total_trabajadas.total_seconds 3600 1 %}h</strong>
-                                            {% else %}
-                                                0h
-                                            {% endif %}
+                                            <strong style="color: #28a745;">{{ horas_dia.total_trabajadas|horas_formato }}</strong>
                                         {% endwith %}
                                     {% else %}
                                         -
@@ -182,11 +179,7 @@
                                 {% with fecha_str=registro.hora_fichada|date:'Y-m-d' %}
                                     {% if data.horas_por_fecha and data.horas_por_fecha|lookup:fecha_str %}
                                         {% with horas_dia=data.horas_por_fecha|lookup:fecha_str %}
-                                            {% if horas_dia.horas_extras %}
-                                                <strong style="color: #fd7e14;">{% widthratio horas_dia.horas_extras.total_seconds 3600 1 %}h</strong>
-                                            {% else %}
-                                                0h
-                                            {% endif %}
+                                            <strong style="color: #fd7e14;">{{ horas_dia.horas_extras|horas_formato }}</strong>
                                         {% endwith %}
                                     {% else %}
                                         -
@@ -244,32 +237,24 @@
                             <td style="padding: 6px; border: 1px solid #ddd;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
                             <td style="padding: 6px; border: 1px solid #ddd;">{{ operario.dni }}</td>
                             <td style="padding: 6px; border: 1px solid #ddd; color: #28a745; font-weight: bold;">
-                                {% if data.resumen_horas.total_horas_normales %}
-                                    {% widthratio data.resumen_horas.total_horas_normales.total_seconds 3600 1 %}h
-                                {% else %}
-                                    0h
-                                {% endif %}
+                                {{ data.resumen_horas.total_horas_normales|horas_formato }}
                             </td>
                             <td style="padding: 6px; border: 1px solid #ddd; color: #17a2b8; font-weight: bold;">
-                                {% if data.resumen_horas.total_horas_nocturnas %}
-                                    {% widthratio data.resumen_horas.total_horas_nocturnas.total_seconds 3600 1 %}h
-                                {% else %}
-                                    0h
-                                {% endif %}
+                                {{ data.resumen_horas.total_horas_nocturnas|horas_formato }}
                             </td>
                             <td style="padding: 6px; border: 1px solid #ddd; color: #fd7e14; font-weight: bold;">
-                                {% if data.resumen_horas.total_horas_extras %}
-                                    {% widthratio data.resumen_horas.total_horas_extras.total_seconds 3600 1 %}h
-                                {% else %}
-                                    0h
-                                {% endif %}
+                                {{ data.resumen_horas.total_horas_extras|horas_formato }}
                             </td>
                             <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">
                                 {{ data.resumen_horas.dias_trabajados|default:"0" }}
                             </td>
                             <td style="padding: 6px; border: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">
-                                {% with horas_normales=data.resumen_horas.total_horas_normales.total_seconds|default:0 horas_nocturnas=data.resumen_horas.total_horas_nocturnas.total_seconds|default:0 horas_extras=data.resumen_horas.total_horas_extras.total_seconds|default:0 %}
-                                    {% widthratio horas_normales|add:horas_nocturnas|add:horas_extras 3600 1 %}h
+                                {% with total_horas=data.resumen_horas.total_horas_normales|default:0 %}
+                                    {% with total_horas=total_horas|add:data.resumen_horas.total_horas_nocturnas|default:0 %}
+                                        {% with total_horas=total_horas|add:data.resumen_horas.total_horas_extras|default:0 %}
+                                            {{ total_horas|horas_formato }}
+                                        {% endwith %}
+                                    {% endwith %}
                                 {% endwith %}
                             </td>
                         </tr>

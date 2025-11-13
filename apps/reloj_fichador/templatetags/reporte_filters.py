@@ -1,5 +1,5 @@
 from django import template
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 import pytz
 
@@ -45,14 +45,42 @@ def fecha_completa_es(fecha):
     """
     if not fecha:
         return "-"
-    
+
     # Convertir a timezone de Argentina si la fecha está en UTC
     if timezone.is_aware(fecha):
         argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
         fecha_local = fecha.astimezone(argentina_tz)
     else:
         fecha_local = fecha
-    
+
     dia = dia_es(fecha_local)
     fecha_str = fecha_local.strftime('%d/%m/%Y - %H:%M:%S')
     return f"{dia} - {fecha_str}"
+
+@register.filter
+def horas_formato(valor):
+    """
+    Formatea un timedelta a formato de horas totales "XXh YYm"
+    Uso: {{ mi_timedelta|horas_formato }}
+
+    Ejemplos:
+        timedelta(days=1, hours=16) → "40h 00m"
+        timedelta(hours=2, minutes=30) → "02h 30m"
+        timedelta(days=2) → "48h 00m"
+    """
+    if valor is None or valor == "":
+        return "00h 00m"
+
+    if not isinstance(valor, timedelta):
+        # Intentar convertir si es un número (segundos)
+        try:
+            valor = timedelta(seconds=float(valor))
+        except (ValueError, TypeError):
+            return str(valor)
+
+    # Convertir todo a segundos y luego calcular horas y minutos totales
+    total_segundos = int(valor.total_seconds())
+    horas = total_segundos // 3600
+    minutos = (total_segundos % 3600) // 60
+
+    return f"{horas:02d}h {minutos:02d}m"

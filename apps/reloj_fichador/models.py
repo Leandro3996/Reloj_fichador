@@ -187,6 +187,19 @@ class Operario(models.Model):
             full_name += f" {self.seg_nombre}"
         return f"{full_name} - {self.dni}"
 
+    def nombre_completo_sin_dni(self):
+        """
+        Devuelve el nombre completo del operario sin el DNI.
+        Útil para reportes donde el DNI ya está en una columna separada.
+        """
+        full_name = f"{self.apellido}"
+        if self.seg_apellido:
+            full_name += f" {self.seg_apellido}"
+        full_name += f", {self.nombre}"
+        if self.seg_nombre:
+            full_name += f" {self.seg_nombre}"
+        return full_name
+
 
 def validate_file_extension(value):
     ext = os.path.splitext(value.name)[1]  # Obtener la extensión
