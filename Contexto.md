@@ -1,7 +1,7 @@
 El contexto de este proyecto es el siguiente: 
 
 He creado un sistema de "Fichadas" para una empresa que sirve para controlar los horarios de entrada, salida, descansos (movimientos transitorios).
-El sistema funciona correctamente en producción, está corriendo en un servidor con la dirección "192.168.10.39:5080".
+El sistema funciona correctamente en producción, está corriendo en un servidor con la dirección "192.168.10.39:5080 (Frontend)".
 
 Actualmente estamos trabajando en el proyecto de pruebas, ya que estamos trabajando para mejorarlo y añadir funciones que el proyecto del servidor producción actualmente no tiene.
 

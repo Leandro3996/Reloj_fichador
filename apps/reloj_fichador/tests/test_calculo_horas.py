@@ -473,4 +473,333 @@ class SaturdayGroupDetectionTest(TestCase):
 
         # operario1 no tiene registro el segundo sábado
         tiene_intercambio = hay_intercambio_sabado(self.operario1, self.segundo_sabado.date())
-        self.assertFalse(tiene_intercambio) 
+        self.assertFalse(tiene_intercambio)
+
+
+class CorreccionHorasNegativasTest(TestCase):
+    """
+    Tests para verificar la corrección del bug de horas negativas.
+
+    Bug original: Registros duplicados o entrada redondeada >= salida
+    causaban horas negativas en Horas_trabajadas.
+
+    Corrección: Validación de pares entrada-salida y entrada < salida.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        """Configuración inicial para todas las pruebas"""
+        cls.area = Area.objects.create(nombre="Producción")
+        cls.operario = Operario.objects.create(
+            dni=41697878,
+            nombre="Maico",
+            apellido="Tisera",
+            fecha_nacimiento="1990-05-15",
+            fecha_ingreso_empresa="2015-08-01",
+            activo=True
+        )
+        cls.operario.areas.add(cls.area)
+
+    def test_registros_duplicados_entrada_entrada_no_causan_horas_negativas(self):
+        """
+        Test Caso 1: Registros duplicados (entrada-entrada).
+
+        Escenario: Un operario ficha entrada dos veces seguidas.
+        Comportamiento esperado: El sistema debe saltar el par inválido
+        y no generar horas negativas.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha = datetime(2025, 11, 5).date()
+
+        # Crear dos entradas seguidas (como en el bug original)
+        with suppress_signal():
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 5, 15, 52, 56)),
+                valido=True,
+                inconsistencia=True  # Marcado como inconsistencia
+            )
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 5, 15, 53, 5)),
+                valido=True,
+                inconsistencia=True  # Marcado como inconsistencia
+            )
+
+        # Calcular horas trabajadas
+        horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
+            self.operario, fecha
+        )
+
+        # Verificar que NO hay horas negativas
+        self.assertGreaterEqual(horas_normales, timedelta(0),
+            "Las horas normales no deben ser negativas")
+        self.assertGreaterEqual(horas_nocturnas, timedelta(0),
+            "Las horas nocturnas no deben ser negativas")
+        self.assertGreaterEqual(horas_extras, timedelta(0),
+            "Las horas extras no deben ser negativas")
+
+        # Verificar que el resultado es 0 (porque no hay par válido)
+        self.assertEqual(horas_normales, timedelta(0))
+        self.assertEqual(horas_nocturnas, timedelta(0))
+        self.assertEqual(horas_extras, timedelta(0))
+
+    def test_entrada_redondeada_mayor_que_salida_no_causa_horas_negativas(self):
+        """
+        Test Caso 2: Entrada redondeada >= Salida.
+
+        Escenario: Entrada a las 15:52:56 (redondea a 16:00), Salida a las 15:53:05.
+        Comportamiento esperado: El sistema debe detectar entrada >= salida y saltar el par.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha = datetime(2025, 11, 5).date()
+
+        # Crear entrada y salida muy cercanas (salida antes de entrada redondeada)
+        with suppress_signal():
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 5, 15, 52, 56)),
+                valido=True
+            )
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 5, 15, 53, 5)),
+                valido=True
+            )
+
+        # Calcular horas trabajadas
+        horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
+            self.operario, fecha
+        )
+
+        # Verificar que NO hay horas negativas
+        self.assertGreaterEqual(horas_normales, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas, timedelta(0))
+        self.assertGreaterEqual(horas_extras, timedelta(0))
+
+    def test_caso_martin_registros_con_inconsistencia_procesados_correctamente(self):
+        """
+        Test Caso 3: Flujo real de corrección manual (Caso Martín).
+
+        Escenario:
+        - Día 1: Entrada sin salida (olvida fichar)
+        - Día 2: Entrada con inconsistencia (porque falta salida del día anterior)
+        - Responsable añade manualmente la salida del Día 1
+
+        Comportamiento esperado: El Día 2 debe procesarse correctamente aunque
+        tenga inconsistencia=True, porque después de la corrección manual forma
+        un par válido.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha_dia1 = datetime(2025, 11, 11).date()
+        fecha_dia2 = datetime(2025, 11, 12).date()
+
+        with suppress_signal():
+            # Día 1: Entrada a las 6:59 AM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 11, 6, 59, 0)),
+                valido=True
+            )
+
+            # Día 2: Entrada con inconsistencia a las 6:57 AM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 12, 6, 57, 0)),
+                valido=True,
+                inconsistencia=True  # Marcado porque falta salida del día anterior
+            )
+
+            # Día 2: Salida normal a las 5:00 PM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 12, 17, 0, 0)),
+                valido=True
+            )
+
+            # Responsable añade manualmente la salida del Día 1 a las 5:00 PM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 11, 17, 0, 0)),
+                valido=True
+            )
+
+        # Calcular horas del Día 1
+        horas_normales_dia1, horas_nocturnas_dia1, horas_extras_dia1 = \
+            Horas_trabajadas.calcular_horas_trabajadas(self.operario, fecha_dia1)
+
+        # Calcular horas del Día 2
+        horas_normales_dia2, horas_nocturnas_dia2, horas_extras_dia2 = \
+            Horas_trabajadas.calcular_horas_trabajadas(self.operario, fecha_dia2)
+
+        # Verificar Día 1: Debe calcular correctamente (6:59 AM -> 5:00 PM)
+        # Entrada redondea a 7:00 AM, salida 5:00 PM = 10 horas
+        # 8 horas normales + 2 horas extras
+        self.assertGreater(horas_normales_dia1, timedelta(0),
+            "El Día 1 debe tener horas normales después de la corrección manual")
+        self.assertGreaterEqual(horas_normales_dia1, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas_dia1, timedelta(0))
+
+        # Verificar Día 2: Debe calcular correctamente aunque tenga inconsistencia
+        # Entrada redondea a 7:00 AM, salida 5:00 PM = 10 horas
+        self.assertGreater(horas_normales_dia2, timedelta(0),
+            "El Día 2 debe procesarse aunque tenga inconsistencia porque forma par válido")
+        self.assertGreaterEqual(horas_normales_dia2, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas_dia2, timedelta(0))
+
+    def test_casos_normales_siguen_funcionando(self):
+        """
+        Test Caso 4: Casos normales.
+
+        Escenario: Registros normales de entrada-salida válidos.
+        Comportamiento esperado: Deben seguir funcionando correctamente.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha = datetime(2025, 11, 13).date()
+
+        with suppress_signal():
+            # Entrada normal a las 8:00 AM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 13, 8, 0, 0)),
+                valido=True
+            )
+
+            # Salida normal a las 5:00 PM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 13, 17, 0, 0)),
+                valido=True
+            )
+
+        # Calcular horas trabajadas
+        horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
+            self.operario, fecha
+        )
+
+        # Verificar cálculo correcto: 8:00 AM a 5:00 PM = 9 horas
+        # 8 horas normales + 1 hora extra
+        self.assertEqual(horas_normales, timedelta(hours=8))
+        self.assertEqual(horas_nocturnas, timedelta(hours=0))
+        self.assertEqual(horas_extras, timedelta(hours=1))
+
+        # Verificar NO hay horas negativas
+        self.assertGreaterEqual(horas_normales, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas, timedelta(0))
+        self.assertGreaterEqual(horas_extras, timedelta(0))
+
+    def test_multiples_pares_entrada_salida_uno_invalido(self):
+        """
+        Test Caso 5: Múltiples pares entrada-salida, uno inválido.
+
+        Escenario: Dos pares de entrada-salida en el mismo día, uno válido y uno inválido.
+        Comportamiento esperado: Debe procesar el par válido e ignorar el inválido,
+        sin generar horas negativas.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha = datetime(2025, 11, 14).date()
+
+        with suppress_signal():
+            # PAR 1: VÁLIDO - Entrada 8:00 AM, Salida 12:00 PM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 14, 8, 0, 0)),
+                valido=True
+            )
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 14, 12, 0, 0)),
+                valido=True
+            )
+
+            # PAR 2: INVÁLIDO - Entrada 15:52:56, Salida 15:53:05 (salida antes de entrada redondeada)
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 14, 15, 52, 56)),
+                valido=True,
+                inconsistencia=True
+            )
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 14, 15, 53, 5)),
+                valido=True,
+                inconsistencia=True
+            )
+
+        # Calcular horas trabajadas
+        horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
+            self.operario, fecha
+        )
+
+        # Verificar que solo se contó el primer par (4 horas)
+        self.assertEqual(horas_normales, timedelta(hours=4))
+        self.assertEqual(horas_nocturnas, timedelta(hours=0))
+        self.assertEqual(horas_extras, timedelta(hours=0))
+
+        # Verificar que NO hay horas negativas
+        self.assertGreaterEqual(horas_normales, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas, timedelta(0))
+        self.assertGreaterEqual(horas_extras, timedelta(0))
+
+    def test_turno_nocturno_no_genera_horas_negativas(self):
+        """
+        Test Caso 6: Turno nocturno dentro del mismo día.
+
+        Escenario: Entrada a las 10:00 PM, salida a las 11:59 PM del mismo día.
+        Comportamiento esperado: Debe calcular horas nocturnas sin problemas.
+        """
+        from apps.reloj_fichador.utils import suppress_signal
+
+        fecha = datetime(2025, 11, 15).date()
+
+        with suppress_signal():
+            # Entrada a las 10:00 PM
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='entrada',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 15, 22, 0, 0)),
+                valido=True
+            )
+
+            # Salida a las 11:59 PM del mismo día
+            RegistroDiario.objects.create(
+                operario=self.operario,
+                tipo_movimiento='salida',
+                hora_fichada=timezone.make_aware(datetime(2025, 11, 15, 23, 59, 0)),
+                valido=True
+            )
+
+        # Calcular horas trabajadas
+        horas_normales, horas_nocturnas, horas_extras = Horas_trabajadas.calcular_horas_trabajadas(
+            self.operario, fecha
+        )
+
+        # Verificar que se calcularon horas nocturnas (aproximadamente 2 horas)
+        self.assertEqual(horas_normales, timedelta(hours=0))
+        self.assertGreater(horas_nocturnas, timedelta(hours=0),
+            "Debe haber horas nocturnas para turno que inicia después de las 20:00")
+        self.assertEqual(horas_extras, timedelta(hours=0))
+
+        # Verificar que NO hay horas negativas
+        self.assertGreaterEqual(horas_normales, timedelta(0))
+        self.assertGreaterEqual(horas_nocturnas, timedelta(0))
+        self.assertGreaterEqual(horas_extras, timedelta(0)) 

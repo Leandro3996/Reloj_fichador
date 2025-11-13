@@ -628,10 +628,48 @@ class Horas_trabajadas(models.Model):
         total_normales = timedelta()
         total_nocturnas = timedelta()
         for entrada, salida in zip(day_records[::2], day_records[1::2]):
+            # Validación 1: Verificar que sea realmente un par entrada-salida
+            if entrada.tipo_movimiento != 'entrada':
+                logger.warning(
+                    f"Registro esperado como entrada no es entrada para {operario} en {fecha}. "
+                    f"ID: {entrada.id_registro}, Tipo: {entrada.tipo_movimiento}. Saltando este par."
+                )
+                continue
+
+            if salida.tipo_movimiento != 'salida':
+                logger.warning(
+                    f"Registro esperado como salida no es salida para {operario} en {fecha}. "
+                    f"ID: {salida.id_registro}, Tipo: {salida.tipo_movimiento}. Saltando este par."
+                )
+                continue
+
             entrada_redondeada = redondear_entrada(entrada.hora_fichada)
             salida_real = salida.hora_fichada
+
+            # Validación 2: Verificar que entrada < salida para evitar horas negativas
+            if entrada_redondeada >= salida_real:
+                logger.warning(
+                    f"Entrada redondeada >= Salida para {operario} en {fecha}. "
+                    f"Entrada original: {entrada.hora_fichada}, Redondeada: {entrada_redondeada}, "
+                    f"Salida: {salida_real}. Diferencia: {(salida_real - entrada_redondeada).total_seconds()}s. "
+                    f"Saltando este par (IDs: {entrada.id_registro}-{salida.id_registro})."
+                )
+                continue
+
             # Usar la lógica simplificada para clasificar el bloque
             normales, nocturnas = calcular_horas_por_franjas(entrada_redondeada, salida_real)
+
+            # Validación 3: Asegurar que no sean negativos (protección extra)
+            if normales < timedelta() or nocturnas < timedelta():
+                logger.error(
+                    f"Horas negativas calculadas para {operario} en {fecha}. "
+                    f"Normales: {normales}, Nocturnas: {nocturnas}. "
+                    f"Entrada redondeada: {entrada_redondeada}, Salida: {salida_real}. "
+                    f"Estableciendo valores negativos a 0."
+                )
+                normales = max(timedelta(), normales)
+                nocturnas = max(timedelta(), nocturnas)
+
             total_normales += normales
             total_nocturnas += nocturnas
 
