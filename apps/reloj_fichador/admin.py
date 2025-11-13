@@ -401,7 +401,7 @@ class OperarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
     list_filter = ('areas', ('fecha_nacimiento', DateRangeFilter), ('fecha_ingreso_empresa', DateRangeFilter), 'titulo_tecnico', ActivoInactivoFilter)
     search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico')
     filter_horizontal = ('areas',)
-    actions = ['asignar_area', 'generar_reporte', 'exportar_excel', 'exportar_pdf', 'exportar_seleccionados_excel']
+    actions = ['asignar_area', 'exportar_excel', 'exportar_pdf', 'exportar_seleccionados_excel']
 
     fieldsets = (
         (_("Información Personal"), {
@@ -439,45 +439,6 @@ class OperarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
             )
         return ""
     view_history_button.short_description = "Historial"
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)
-        total_registros = Operario.objects.count()
-        items_por_pagina = 30
-
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha Nacimiento', 'Fecha Ingreso',]
-
-        filas = []
-        for registro in registros:
-            fila = [
-                registro.dni,
-                registro.nombre,
-                registro.apellido,
-                registro.fecha_nacimiento.strftime('%d/%m/%Y'),
-                registro.fecha_ingreso_empresa.strftime('%d/%m/%Y'),               
-            ]
-            filas.append(fila)
-
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-        # Definir el título dinámico
-        titulo_reporte = "Reporte de Operarios"
-
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,
-            'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,
-            'total_pages': total_pages,
-            'num_items_filtrados': len(registros),
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte
-
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
 
     def exportar_excel(self, request, queryset):
         import openpyxl
@@ -518,7 +479,7 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmi
                     'origen_fichada', 'mostrar_inconsistencia', 'mostrar_valido', 'view_history_button')
     list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas', 'exportar_seleccionados_excel']
+    actions = ['exportar_excel', 'exportar_pdf', 'recalcular_horas', 'exportar_seleccionados_excel']
 
     fieldsets = (
         (_("Información del Registro"), {
@@ -595,61 +556,6 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmi
             )
         return ""
     view_history_button.short_description = "Historial"
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)  # Convertir a lista para poder trabajar con slicing
-        total_registros = RegistroDiario.objects.count()  # Total sin filtrar
-        items_por_pagina = 30  # Limitar a 30 ítems por página
-
-        # Definir los encabezados manualmente
-        encabezados = ['DNI', 'Nombre', 'Apellido','Hora Fichada', 'Tipo Movimiento', 'Origen Fichada']
-
-        # Preparar zona horaria de Argentina
-        argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
-
-        # Filas con valores de cada campo
-        filas = []
-        for registro in registros:
-            # Convertir hora a zona horaria de Argentina
-            hora_local = registro.hora_fichada
-            if hora_local.tzinfo is not None:
-                hora_local = hora_local.astimezone(argentina_tz)
-            
-            fila = [
-                registro.operario.dni,
-                registro.operario.nombre,
-                registro.operario.apellido,
-                hora_local.strftime('%d/%m/%Y %H:%M:%S'),
-                registro.tipo_movimiento.replace('_', ' ').capitalize(),
-                registro.origen_fichada.capitalize(),
-            ]
-            filas.append(fila)
-
-        # Dividir las filas en páginas de 30 ítems
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-        # Definir el título dinámico
-        titulo_reporte = "Reporte de Registro Diario"
-
-        # Obtener hora actual en Argentina para el reporte
-        hora_actual = timezone.now().astimezone(argentina_tz)
-
-        # Renderizar el template HTML con los datos dinámicos
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,  # Pasamos las filas ya divididas por páginas
-            'num_columnas': len(encabezados),
-            'current_date': hora_actual.strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,  # Este valor se puede manejar mejor dentro del template
-            'total_pages': total_pages,  # Total de páginas
-            'num_items_filtrados': len(registros),  # Número de registros filtrados
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte          # Número total de registros
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
-
 
     def exportar_excel(self, request, queryset):
         import openpyxl
@@ -781,7 +687,7 @@ class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas', 'exportar_seleccionados_excel']
+    actions = ['exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas', 'exportar_seleccionados_excel']
     change_list_template = 'admin/reloj_fichador/horas_trabajadas/change_list.html'
 
     fieldsets = (
@@ -817,45 +723,6 @@ class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
         return f"{hours}h {minutes}m"
 
     get_horas_nocturnas.short_description = 'Horas Nocturnas'
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)
-        total_registros = Horas_trabajadas.objects.count()
-        items_por_pagina = 30
-
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Trabajadas', 'Horas Nocturnas']
-        filas = []
-        for registro in registros:
-            fila = [
-                registro.operario.dni,
-                registro.operario.nombre,
-                registro.operario.apellido,
-                registro.fecha.strftime('%d/%m/%Y'),
-                self.get_horas_normales(registro),
-                self.get_horas_nocturnas(registro),
-            ]
-            filas.append(fila)
-
-        # Dividir las filas en páginas de 30 ítems
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-        # Definir el título dinámico
-        titulo_reporte = "Reporte de Horas Trabajadas"
-
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,
-            'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,
-            'total_pages': total_pages,
-            'num_items_filtrados': len(registros),
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
 
     def exportar_excel(self, request, queryset):
         import openpyxl
@@ -957,7 +824,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('operario', 'fecha', 'get_horas_extras')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['exportar_excel', 'exportar_pdf']
 
     def get_queryset(self, request):
         """
@@ -975,44 +842,6 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
         return f"{hours}h {minutes}m"
 
     get_horas_extras.short_description = 'Horas Extras'
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)
-        total_registros = Horas_extras.objects.count()
-        items_por_pagina = 30
-
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Fecha', 'Horas Extras']
-        filas = []
-        for registro in registros:
-            fila = [
-                registro.operario.dni,
-                registro.operario.nombre,
-                registro.operario.apellido,
-                registro.fecha.strftime('%d/%m/%Y'),
-                self.get_horas_extras(registro),
-            ]
-            filas.append(fila)
-
-        # Dividir las filas en páginas de 30 ítems
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-         # Definir el título dinámico
-        titulo_reporte = "Reporte de Horas Extras"
-
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,
-            'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,
-            'total_pages': total_pages,
-            'num_items_filtrados': len(registros),
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
 
     def exportar_excel(self, request, queryset):
         import openpyxl
@@ -1055,7 +884,7 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('get_dni', 'operario','get_mes', 'get_horas_normales', 'get_horas_nocturnas', 'get_horas_extras', 'get_horas_feriado', 'get_horas_enfermedad')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('mes_actual',)
-    actions = ['recalcular_registros_seleccionados', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['recalcular_registros_seleccionados', 'exportar_excel', 'exportar_pdf']
     change_list_template = 'admin/reloj_fichador/horas_totales/change_list.html'
 
     fieldsets = (
@@ -1123,47 +952,6 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
         minutes = int((total_seconds % 3600) // 60)
         return f"{hours}h {minutes}m"
     get_horas_enfermedad.short_description = 'Horas Enfermedad'
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)
-        total_registros = Horas_totales.objects.count()
-        items_por_pagina = 30
-
-        encabezados = ['DNI', 'Nombre', 'Apellido', 'Horas Normales', 'Horas Nocturnas', 'Horas Extras', 'Horas Feriado', 'Horas Enfermedad']
-        filas = []
-        for registro in registros:
-            fila = [
-                registro.operario.dni,
-                registro.operario.nombre,
-                registro.operario.apellido,
-                self.get_horas_normales(registro),
-                self.get_horas_nocturnas(registro),
-                self.get_horas_extras(registro),
-                self.get_horas_feriado(registro),
-                self.get_horas_enfermedad(registro),
-            ]
-            filas.append(fila)
-
-        # Dividir las filas en páginas de 30 ítems
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-        # Definir el título dinámico
-        titulo_reporte = "Reporte de Horas Extras"
-
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,
-            'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,
-            'total_pages': total_pages,
-            'num_items_filtrados': len(registros),
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
 
     def exportar_excel(self, request, queryset):
         import openpyxl
@@ -1283,7 +1071,7 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
     )
     list_filter = ('estado_asistencia', 'estado_justificacion', 'fecha')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    actions = ['marcar_justificado', 'marcar_no_justificado', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['marcar_justificado', 'marcar_no_justificado', 'exportar_excel', 'exportar_pdf']
 
     fieldsets = (
         (_("Información de Asistencia"), {
@@ -1341,45 +1129,6 @@ class RegistroAsistenciaAdmin(ExportMixin, admin.ModelAdmin):
             form = LicenciaForm()
 
         return render(request, 'admin/cargar_licencia_v2.html', {'form': form, 'registro_asistencia': registro_asistencia})
-
-    def generar_reporte(self, request, queryset):
-        registros = list(queryset)
-        total_registros = RegistroAsistencia.objects.count()
-        items_por_pagina = 20
-
-        encabezados = ['Operario', 'Fecha', 'Estado Asistencia', 'Justificación', 'Descripción']
-
-        filas = []
-        for registro in registros:
-            fila = [
-                registro.operario,
-                registro.fecha.strftime('%d/%m/%Y'),
-                registro.estado_asistencia.capitalize(),
-                '✅' if registro.estado_justificacion else '❌',
-                registro.descripcion or ''
-            ]
-            filas.append(fila)
-
-        # Dividir las filas en páginas de 30 ítems
-        page_filas = [filas[i:i + items_por_pagina] for i in range(0, len(filas), items_por_pagina)]
-        total_pages = len(page_filas)
-
-        # Definir el título dinámico
-        titulo_reporte = "Reporte de Asistencias"
-
-        context = {
-            'encabezados': encabezados,
-            'page_filas': page_filas,
-            'num_columnas': len(encabezados),
-            'current_date': datetime.now().strftime('%d/%m/%Y %H:%M'),
-            'current_page': 1,
-            'total_pages': total_pages,
-            'num_items_filtrados': len(registros),
-            'total_items': total_registros,
-            'titulo_reporte': titulo_reporte
-        }
-
-        return render(request, 'reloj_fichador/reporte.html', context)
 
     def exportar_excel(self, request, queryset):
         import openpyxl
