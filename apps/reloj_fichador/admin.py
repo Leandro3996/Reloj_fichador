@@ -28,6 +28,10 @@ from .forms import LicenciaForm
 from .utils import generar_pdf, generar_excel
 from import_export.admin import ExportMixin, ImportExportMixin
 from import_export import resources, fields
+from .export_widgets import (
+    NombreCompletoWidget, SiNoWidget, FechaHoraWidget,
+    ChoiceDisplayWidget, FechaWidget, TimeDeltaWidget
+)
 from datetime import datetime
 from django.http import HttpResponse
 import os
@@ -38,6 +42,216 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin as BaseGroupAdmin
 from django.http import HttpResponseRedirect
 import pytz
 from .signals import actualizar_horas_despues_de_guardar
+
+
+# ============================================
+# RESOURCES PARA IMPORT/EXPORT
+# ============================================
+# Resource para importación/exportación de RegistroDiario
+class RegistroDiarioResource(resources.ModelResource):
+    """
+    Resource para manejar importación/exportación de RegistroDiario
+
+    ✨ MEJORAS 2025: Exporta datos LEGIBLES (nombres en vez de IDs)
+
+    GUÍA RÁPIDA PARA USUARIOS:
+
+    ✅ EXPORTAR REGISTROS:
+    - Haga clic en "EXPORT" en la parte superior del listado
+    - Seleccione el formato (Excel recomendado)
+    - Los datos se exportan con nombres legibles:
+      * Operario: "Apellido, Nombre" (NO el ID)
+      * Tipo: "Entrada" / "Salida" (NO códigos)
+      * Válido: "Sí" / "No" (NO True/False)
+      * Fecha: "dd/mm/yyyy hh:mm:ss" (formato español)
+
+    ✅ IMPORTAR REGISTROS:
+    - Prepare un archivo Excel con las mismas columnas exportadas
+    - El sistema acepta múltiples formatos:
+      * Operario: Por nombre, DNI o ID
+      * Válido: "Sí", "Si", "Yes", "True", "1"
+      * Fechas: dd/mm/yyyy o yyyy-mm-dd
+    - El sistema recalculará automáticamente las horas
+    """
+
+    # ============================================
+    # CAMPOS CON WIDGETS (datos legibles)
+    # ============================================
+
+    operario = fields.Field(
+        column_name='Operario',
+        attribute='operario',
+        widget=NombreCompletoWidget(Operario)  # Exporta "Apellido, Nombre"
+    )
+
+    tipo_movimiento = fields.Field(
+        column_name='Tipo de Movimiento',
+        attribute='tipo_movimiento',
+        widget=ChoiceDisplayWidget(RegistroDiario.TIPO_MOVIMIENTO)  # Exporta "Entrada"/"Salida"
+    )
+
+    hora_fichada = fields.Field(
+        column_name='Fecha y Hora',
+        attribute='hora_fichada',
+        widget=FechaHoraWidget()  # Exporta "dd/mm/yyyy hh:mm:ss"
+    )
+
+    valido = fields.Field(
+        column_name='Válido',
+        attribute='valido',
+        widget=SiNoWidget()  # Exporta "Sí"/"No"
+    )
+
+    inconsistencia = fields.Field(
+        column_name='Inconsistencia',
+        attribute='inconsistencia',
+        widget=SiNoWidget()  # Exporta "Sí"/"No"
+    )
+
+    origen_fichada = fields.Field(
+        column_name='Origen',
+        attribute='origen_fichada'
+        # No necesita widget - es un campo de texto simple
+    )
+
+    descripcion_inconsistencia = fields.Field(
+        column_name='Descripción Inconsistencia',
+        attribute='descripcion_inconsistencia'
+    )
+
+    class Meta:
+        model = RegistroDiario
+        fields = (
+            'id',
+            'operario',
+            'tipo_movimiento',
+            'hora_fichada',
+            'valido',
+            'inconsistencia',
+            'descripcion_inconsistencia',
+            'origen_fichada',
+        )
+        export_order = fields
+        import_id_fields = ['id']  # Usar ID para actualizaciones
+        skip_unchanged = True
+        report_skipped = True
+
+    def after_save_instance(self, instance, using_transactions, dry_run):
+        """Después de guardar, recalcular horas si no es dry_run"""
+        if not dry_run:
+            # Recalcular horas trabajadas para este registro
+            actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=instance)
+
+    # El resto de la lógica de importación la manejan los widgets automáticamente
+
+
+# ============================================
+# RESOURCE PARA HORAS TRABAJADAS
+# ============================================
+class HorasTrabajadasResource(resources.ModelResource):
+    """
+    Resource para exportar Horas Trabajadas con datos legibles
+    """
+
+    operario = fields.Field(
+        column_name='Operario',
+        attribute='operario',
+        widget=NombreCompletoWidget(Operario)
+    )
+
+    fecha = fields.Field(
+        column_name='Fecha',
+        attribute='fecha',
+        widget=FechaWidget()
+    )
+
+    horas_normales = fields.Field(
+        column_name='Horas Normales',
+        attribute='horas_normales',
+        widget=TimeDeltaWidget()
+    )
+
+    horas_nocturnas = fields.Field(
+        column_name='Horas Nocturnas',
+        attribute='horas_nocturnas',
+        widget=TimeDeltaWidget()
+    )
+
+    horas_extras = fields.Field(
+        column_name='Horas Extras',
+        attribute='horas_extras',
+        widget=TimeDeltaWidget()
+    )
+
+    horas_feriado_campo = fields.Field(
+        column_name='Horas Feriado',
+        attribute='horas_feriado',
+        widget=TimeDeltaWidget()
+    )
+
+    class Meta:
+        model = Horas_trabajadas
+        fields = (
+            'id',
+            'operario',
+            'fecha',
+            'horas_normales',
+            'horas_nocturnas',
+            'horas_extras',
+            'horas_feriado_campo',
+        )
+        export_order = fields
+
+
+# ============================================
+# RESOURCE PARA OPERARIOS
+# ============================================
+class OperarioResource(resources.ModelResource):
+    """
+    Resource para exportar Operarios
+    """
+
+    fecha_nacimiento = fields.Field(
+        column_name='Fecha de Nacimiento',
+        attribute='fecha_nacimiento',
+        widget=FechaWidget()
+    )
+
+    fecha_ingreso = fields.Field(
+        column_name='Fecha de Ingreso',
+        attribute='fecha_ingreso_empresa',
+        widget=FechaWidget()
+    )
+
+    activo = fields.Field(
+        column_name='Activo',
+        attribute='activo',
+        widget=SiNoWidget()
+    )
+
+    area = fields.Field(
+        column_name='Área',
+        attribute='area',
+        widget=NombreCompletoWidget(Area)
+    )
+
+    class Meta:
+        model = Operario
+        fields = (
+            'id',
+            'dni',
+            'nombre',
+            'apellido',
+            'fecha_nacimiento',
+            'fecha_ingreso',
+            'activo',
+            'area',
+        )
+        export_order = fields
+
+
+
+
 
 
 class Command(BaseCommand):
@@ -132,8 +346,54 @@ class ExportarPDFMixin:
         return exportar_pdf(self, request, queryset)
     exportar_pdf.short_description = "Exportar seleccionados a PDF"
 
-@admin.register(Operario)
-class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
+
+def exportar_seleccionados_excel(modeladmin, request, queryset):
+    """
+    Action para exportar SOLO los registros seleccionados a Excel.
+
+    Esta función es genérica y funciona con cualquier ModelAdmin que tenga
+    un resource_class configurado.
+
+    Diferencias:
+    - Botón EXPORT (arriba): Exporta TODOS los registros (con filtros aplicados)
+    - Esta acción: Exporta SOLO los registros que seleccionaste con el checkbox
+    """
+    # Obtener el resource_class del admin
+    resource_class = modeladmin.resource_class
+    resource = resource_class()
+
+    # Crear el dataset solo con los registros seleccionados
+    dataset = resource.export(queryset)
+
+    # Crear la respuesta HTTP con el archivo Excel
+    from django.http import HttpResponse
+    from datetime import datetime
+
+    response = HttpResponse(
+        dataset.xlsx,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    # Nombre del archivo con timestamp
+    model_name = queryset.model._meta.verbose_name_plural
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'{model_name}_seleccionados_{timestamp}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Mensaje de confirmación
+    count = queryset.count()
+    modeladmin.message_user(
+        request,
+        f'✅ {count} registros exportados exitosamente a Excel.'
+    )
+
+    return response
+
+exportar_seleccionados_excel.short_description = "📊 Exportar seleccionados a Excel (legible)"
+
+
+class OperarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
+    resource_class = OperarioResource
     inlines = [LicenciaInline]
     list_display = (
         'dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo', 'view_history_button'
@@ -141,7 +401,7 @@ class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
     list_filter = ('areas', ('fecha_nacimiento', DateRangeFilter), ('fecha_ingreso_empresa', DateRangeFilter), 'titulo_tecnico', ActivoInactivoFilter)
     search_fields = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', 'fecha_ingreso_empresa', 'titulo_tecnico')
     filter_horizontal = ('areas',)
-    actions = ['asignar_area', 'generar_reporte', 'exportar_excel', 'exportar_pdf']
+    actions = ['asignar_area', 'generar_reporte', 'exportar_excel', 'exportar_pdf', 'exportar_seleccionados_excel']
 
     fieldsets = (
         (_("Información Personal"), {
@@ -250,297 +510,6 @@ class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
     exportar_excel.short_description = "Exportar a Excel"
 
 
-# Resource para importación/exportación de RegistroDiario
-class RegistroDiarioResource(resources.ModelResource):
-    """
-    Resource para manejar importación/exportación de RegistroDiario
-    
-    GUÍA RÁPIDA PARA USUARIOS:
-    
-    ✅ EXPORTAR REGISTROS:
-    - Haga clic en "EXPORT" en la parte superior del listado
-    - Seleccione el formato (Excel recomendado para usuarios básicos)
-    - Descargue el archivo con todos los registros
-    
-    ✅ IMPORTAR REGISTROS:
-    - Prepare un archivo Excel con estas columnas:
-      * operario__dni: DNI del empleado (ej: 12345678)
-      * tipo_movimiento: "entrada" o "salida" 
-      * hora_fichada: Fecha y hora (ej: 2025-06-26 08:00:00)
-      * valido: "True" o "False"
-    
-    - Haga clic en "IMPORT" en la parte superior
-    - Seleccione su archivo Excel
-    - Revise la vista previa antes de confirmar
-    - El sistema recalculará automáticamente las horas
-    """
-    
-    # Campos personalizados para exportación/importación
-    operario__dni = resources.Field(
-        column_name='operario__dni',
-        attribute='operario__dni',
-        readonly=False
-    )
-    
-    operario__nombre = resources.Field(
-        column_name='operario__nombre',
-        attribute='operario__nombre',
-        readonly=True
-    )
-    
-    operario__apellido = resources.Field(
-        column_name='operario__apellido', 
-        attribute='operario__apellido',
-        readonly=True
-    )
-    
-    class Meta:
-        model = RegistroDiario
-        fields = ('operario__dni', 'operario__nombre', 'operario__apellido', 
-                 'tipo_movimiento', 'hora_fichada', 'valido', 'inconsistencia', 
-                 'descripcion_inconsistencia', 'origen_fichada')
-        export_order = fields
-        # Para determinar si un registro es nuevo o actualización, usar combinación única
-        # Nota: Como operario__dni se mapea a operario durante la importación,
-        # usaremos campos reales del modelo para identificación
-        import_id_fields = []  # Vacío para que siempre cree nuevos registros
-        skip_unchanged = True
-        report_skipped = True
-    
-    def dehydrate_operario__dni(self, obj):
-        """Exportar el DNI del operario en lugar del ID"""
-        return obj.operario.dni if obj.operario else ''
-    
-    def dehydrate_operario__nombre(self, obj):
-        """Exportar el nombre del operario"""
-        return obj.operario.nombre if obj.operario else ''
-    
-    def dehydrate_operario__apellido(self, obj):
-        """Exportar el apellido del operario"""
-        return obj.operario.apellido if obj.operario else ''
-    
-    def dehydrate_tipo_movimiento(self, obj):
-        """Convertir tipos complejos a tipos simples para importación"""
-        # Convertir tipos complejos del sistema a tipos simples
-        tipo_map = {
-            'entrada_transitoria': 'entrada',
-            'salida_transitoria': 'salida',
-            'entrada': 'entrada',
-            'salida': 'salida'
-        }
-        return tipo_map.get(obj.tipo_movimiento, obj.tipo_movimiento)
-    
-    def dehydrate_valido(self, obj):
-        """Exportar como True/False string"""
-        return 'True' if obj.valido else 'False'
-    
-    def dehydrate_inconsistencia(self, obj):
-        """Exportar como True/False string"""
-        return 'True' if obj.inconsistencia else 'False'
-    
-    def before_import_row(self, row, **kwargs):
-        """Procesamiento antes de importar cada fila"""
-        # Primero verificar que hay datos válidos en la fila
-        if not any(value for value in row.values() if value):
-            # Fila vacía, saltarla
-            return
-        
-        # Buscar operario por DNI y asignar el ID
-        dni_field = None
-        for key in row.keys():
-            if 'dni' in str(key).lower():
-                dni_field = key
-                break
-        
-        if dni_field and row[dni_field]:
-            # Limpiar el DNI (remover espacios y caracteres no numéricos excepto guiones)
-            dni = str(row[dni_field]).strip().replace('-', '').replace('.', '').replace(' ', '')
-            
-            try:
-                # Buscar operario por DNI
-                operario = Operario.objects.get(dni=dni)
-                # Asignar el ID del operario encontrado al campo correcto para la base de datos
-                row['operario_id'] = operario.id
-                
-                # Remover campos de DNI y otros campos de solo exportación
-                if dni_field in row:
-                    del row[dni_field]
-                    
-            except Operario.DoesNotExist:
-                # Mensaje de error amigable con sugerencias
-                raise ValueError(f"❌ Error: No se encontró un operario con DNI '{dni}'. "
-                               f"Verifique que:\n"
-                               f"• El operario esté registrado en el sistema\n"
-                               f"• El DNI esté escrito correctamente\n"
-                               f"• No haya espacios o caracteres adicionales")
-            except Operario.MultipleObjectsReturned:
-                raise ValueError(f"❌ Error: Se encontraron múltiples operarios con DNI '{dni}'. "
-                               f"Por favor contacte al administrador para resolver esta duplicación.")
-        else:
-            # Si no hay DNI, verificar si hay ID de operario directo
-            if 'operario_id' not in row or not row['operario_id']:
-                raise ValueError("❌ Error: Debe proporcionar el DNI del operario (operario__dni) o el ID del operario.")
-        
-        # Validar y convertir tipo de movimiento
-        if 'tipo_movimiento' in row and row['tipo_movimiento']:
-            tipo_original = str(row['tipo_movimiento']).lower().strip()
-            
-            # Mapear tipos simples a tipos del sistema
-            tipo_map = {
-                'entrada': 'entrada',
-                'salida': 'salida',
-                'entrada_transitoria': 'entrada_transitoria',
-                'salida_transitoria': 'salida_transitoria'
-            }
-            
-            if tipo_original in tipo_map:
-                row['tipo_movimiento'] = tipo_map[tipo_original]
-            else:
-                raise ValueError(f"❌ Error: '{row['tipo_movimiento']}' no es un tipo válido. "
-                               f"Use uno de: 'entrada', 'salida', 'entrada_transitoria' o 'salida_transitoria'.")
-        else:
-            raise ValueError("❌ Error: El campo 'tipo_movimiento' es obligatorio.")
-        
-        # Validar formato de fecha
-        if 'hora_fichada' in row and row['hora_fichada']:
-            try:
-                # Intentar parsear la fecha
-                from datetime import datetime
-                if isinstance(row['hora_fichada'], str):
-                    # Intentar varios formatos comunes
-                    formatos_fecha = [
-                        '%Y-%m-%d %H:%M:%S',
-                        '%d/%m/%Y %H:%M:%S',
-                        '%d-%m-%Y %H:%M:%S',
-                        '%Y-%m-%d %H:%M',
-                        '%d/%m/%Y %H:%M',
-                        '%d-%m-%Y %H:%M'
-                    ]
-                    
-                    fecha_parseada = None
-                    for formato in formatos_fecha:
-                        try:
-                            fecha_parseada = datetime.strptime(row['hora_fichada'], formato)
-                            # Convertir al formato estándar
-                            row['hora_fichada'] = fecha_parseada.strftime('%Y-%m-%d %H:%M:%S')
-                            break
-                        except ValueError:
-                            continue
-                    
-                    if not fecha_parseada:
-                        raise ValueError("Formato no reconocido")
-                        
-            except ValueError:
-                raise ValueError(f"❌ Error: Formato de fecha incorrecto '{row['hora_fichada']}'. "
-                               f"Use uno de estos formatos:\n"
-                               f"• YYYY-MM-DD HH:MM:SS (ej: 2025-06-26 08:30:00)\n"
-                               f"• DD/MM/YYYY HH:MM:SS (ej: 26/06/2025 08:30:00)\n"
-                               f"• DD-MM-YYYY HH:MM:SS (ej: 26-06-2025 08:30:00)")
-        else:
-            raise ValueError("❌ Error: El campo 'hora_fichada' es obligatorio.")
-        
-        # Convertir strings de booleanos
-        for field in ['valido', 'inconsistencia']:
-            if field in row and row[field] is not None and row[field] != '':
-                if isinstance(row[field], str):
-                    value = str(row[field]).lower().strip()
-                    if value in ['true', '1', 'sí', 'si', 'verdadero', 'yes']:
-                        row[field] = True
-                    elif value in ['false', '0', 'no', 'falso', 'false']:
-                        row[field] = False
-                    else:
-                        # Dejar el valor por defecto
-                        if field == 'valido':
-                            row[field] = True  # Por defecto válido
-                        else:
-                            row[field] = False  # Por defecto sin inconsistencias
-                elif row[field] == '':
-                    # Campo vacío
-                    if field == 'valido':
-                        row[field] = True
-                    else:
-                        row[field] = False
-        
-        # Limpiar campos que son solo para exportación
-        campos_readonly = ['operario__nombre', 'operario__apellido', 'id', 'ID']
-        for campo in campos_readonly:
-            if campo in row:
-                del row[campo]
-        
-        # Asegurar que descripcion_inconsistencia tenga un valor por defecto si está vacío
-        if 'descripcion_inconsistencia' in row and not row['descripcion_inconsistencia']:
-            row['descripcion_inconsistencia'] = ''
-
-    def get_or_init_instance(self, instance_loader, row):
-        """
-        Buscar instancia existente o crear nueva basándose en operario y hora_fichada
-        """
-        try:
-            # Si tenemos operario_id y hora_fichada, buscar registro existente
-            if 'operario_id' in row and 'hora_fichada' in row:
-                operario_id = row['operario_id']
-                hora_fichada = row['hora_fichada']
-                
-                # Convertir hora_fichada a datetime si es string
-                if isinstance(hora_fichada, str):
-                    from datetime import datetime
-                    hora_fichada = datetime.strptime(hora_fichada, '%Y-%m-%d %H:%M:%S')
-                
-                try:
-                    # Buscar registro existente
-                    instance = RegistroDiario.objects.get(
-                        operario_id=operario_id,
-                        hora_fichada=hora_fichada
-                    )
-                    return instance, False  # Existente, no es nuevo
-                except RegistroDiario.DoesNotExist:
-                    # No existe, crear nuevo
-                    pass
-                except RegistroDiario.MultipleObjectsReturned:
-                    # Si hay múltiples, tomar el primero y continuar
-                    instance = RegistroDiario.objects.filter(
-                        operario_id=operario_id,
-                        hora_fichada=hora_fichada
-                    ).first()
-                    return instance, False
-        except Exception:
-            # Si hay cualquier error, crear nueva instancia
-            pass
-        
-        # Crear nueva instancia
-        return self._meta.model(), True
-    
-    def after_import_instance(self, instance, new, row_dict=None, **kwargs):
-        """Procesamiento después de importar cada instancia"""
-        # Asegurar que tenemos un origen_fichada para registros nuevos importados
-        if new and not instance.origen_fichada:
-            instance.origen_fichada = 'Importado'
-        
-        # Asegurar valores por defecto
-        if instance.valido is None:
-            instance.valido = True
-        if instance.inconsistencia is None:
-            instance.inconsistencia = False
-        if not instance.descripcion_inconsistencia:
-            instance.descripcion_inconsistencia = ''
-    
-    def after_save_instance(self, instance, using_transactions, dry_run):
-        """Después de guardar, recalcular horas si no es dry_run"""
-        if not dry_run:
-            # Recalcular horas trabajadas para este registro
-            actualizar_horas_despues_de_guardar(sender=RegistroDiario, instance=instance)
-    
-    def get_import_headers(self):
-        """Personalizar encabezados de importación con explicaciones"""
-        headers = super().get_import_headers()
-        return [
-            'operario__dni (DNI del empleado - solo números)',
-            'tipo_movimiento (entrada o salida)',
-            'hora_fichada (YYYY-MM-DD HH:MM:SS)',
-            'valido (True o False)',
-            'descripcion_inconsistencia (opcional)',
-        ]
-
 
 @admin.register(RegistroDiario)
 class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
@@ -549,7 +518,7 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmi
                     'origen_fichada', 'mostrar_inconsistencia', 'mostrar_valido', 'view_history_button')
     list_filter = ('inconsistencia','valido','tipo_movimiento', ('hora_fichada', DateRangeFilter),'origen_fichada',)
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas', 'exportar_seleccionados_excel']
 
     fieldsets = (
         (_("Información del Registro"), {
@@ -807,11 +776,12 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmi
     recalcular_horas_trabajadas.short_description = "Recalcular horas seleccionadas"
 
 @admin.register(Horas_trabajadas)
-class HorasTrabajadasAdmin(ExportMixin, admin.ModelAdmin):
+class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
+    resource_class = HorasTrabajadasResource
     list_display = ('operario', 'fecha', 'get_horas_normales', 'get_horas_nocturnas')
     search_fields = ('operario__dni', 'operario__nombre', 'operario__apellido')
     list_filter = ('fecha', ('fecha', DateRangeFilter))
-    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas']
+    actions = ['generar_reporte', 'exportar_excel', 'exportar_pdf', 'recalcular_horas_trabajadas', 'exportar_seleccionados_excel']
     change_list_template = 'admin/reloj_fichador/horas_trabajadas/change_list.html'
 
     fieldsets = (
