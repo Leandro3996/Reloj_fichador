@@ -134,6 +134,12 @@
     border-bottom: 1px solid #dee2e6;
 }
 
+/* Estilo específico para columna Total Horas */
+.registros-tabla thead tr th:last-child {
+    background: #34495e !important;
+    color: white !important;
+}
+
 .registros-tabla td {
     padding: 1rem;
     border-bottom: 1px solid #dee2e6;
@@ -292,8 +298,8 @@
     text-align: center;
 }
 
-/* FORCE CACHE REFRESH - v4.0.1 */
-.force-refresh-4-0-1 { display: none; }
+/* FORCE CACHE REFRESH - v4.0.2 - FIX TOTAL HORAS COLOR */
+.force-refresh-4-0-2 { display: none; }
 </style>
 {% endblock %}
 
@@ -492,7 +498,7 @@
                         <th style="color: #87CEEB;">Horas Nocturnas</th>
                         <th style="color: #FFB347;">Horas Extras</th>
                         <th>Días Trabajados</th>
-                        <th style="background: #34495e;">Total Horas</th>
+                        <th style="background: #34495e !important; color: white !important;">Total Horas</th>
                     </tr>
                 </thead>
                 <tbody>
