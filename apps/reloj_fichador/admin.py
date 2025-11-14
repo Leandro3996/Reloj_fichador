@@ -3060,7 +3060,7 @@ class GrupoSabadoAdmin(admin.ModelAdmin):
     list_display = ('operario', 'grupo_display', 'fecha_inicio', 'fecha_fin_display', 'es_activo', 'tiene_intercambios')
     list_filter = ('grupo', 'fecha_inicio', 'operario')
     search_fields = ('operario__apellido', 'operario__nombre')
-    actions = ['detectar_grupo_automaticamente']
+    actions = ['detectar_grupo_automaticamente', 'asignar_grupo_a_masivo', 'asignar_grupo_b_masivo']
 
     fieldsets = (
         ('Asignación', {
@@ -3229,6 +3229,101 @@ class GrupoSabadoAdmin(admin.ModelAdmin):
         messages.success(request, mensaje)
 
     detectar_grupo_automaticamente.short_description = '🔍 Detectar grupo automáticamente desde RegistroDiario'
+
+    def asignar_grupo_a_masivo(self, request, queryset):
+        """Acción para asignar Grupo A a múltiples operarios"""
+        from django.contrib import messages
+        from django.utils import timezone
+        from datetime import timedelta
+
+        hoy = timezone.now().date()
+        actualizados = 0
+        creados = 0
+
+        for grupo_sabado in queryset:
+            operario = grupo_sabado.operario
+
+            # Buscar si existe asignación activa
+            grupo_activo = GrupoSabado.objects.filter(
+                operario=operario,
+                fecha_inicio__lte=hoy
+            ).exclude(
+                fecha_fin__isnull=False,
+                fecha_fin__lt=hoy
+            ).first()
+
+            if grupo_activo and grupo_activo.id != grupo_sabado.id:
+                # Cerrar asignación activa anterior
+                grupo_activo.fecha_fin = hoy - timedelta(days=1)
+                grupo_activo.save()
+
+            # Si el registro seleccionado es diferente, actualizarlo
+            if grupo_sabado.grupo != 'A':
+                grupo_sabado.grupo = 'A'
+                grupo_sabado.fecha_inicio = hoy
+                grupo_sabado.fecha_fin = None
+                grupo_sabado.descripcion = 'Asignado masivamente por el administrador'
+                grupo_sabado.save()
+                actualizados += 1
+            else:
+                # Ya tiene grupo A, solo actualizamos la fecha
+                grupo_sabado.fecha_inicio = hoy
+                grupo_sabado.fecha_fin = None
+                grupo_sabado.descripcion = 'Reasignado masivamente por el administrador'
+                grupo_sabado.save()
+                actualizados += 1
+
+        mensaje = f'✅ {actualizados} operarios asignados al Grupo A'
+        messages.success(request, mensaje)
+
+    asignar_grupo_a_masivo.short_description = '🟣 Asignar Grupo A a operarios seleccionados'
+
+    def asignar_grupo_b_masivo(self, request, queryset):
+        """Acción para asignar Grupo B a múltiples operarios"""
+        from django.contrib import messages
+        from django.utils import timezone
+        from datetime import timedelta
+
+        hoy = timezone.now().date()
+        actualizados = 0
+
+        for grupo_sabado in queryset:
+            operario = grupo_sabado.operario
+
+            # Buscar si existe asignación activa
+            grupo_activo = GrupoSabado.objects.filter(
+                operario=operario,
+                fecha_inicio__lte=hoy
+            ).exclude(
+                fecha_fin__isnull=False,
+                fecha_fin__lt=hoy
+            ).first()
+
+            if grupo_activo and grupo_activo.id != grupo_sabado.id:
+                # Cerrar asignación activa anterior
+                grupo_activo.fecha_fin = hoy - timedelta(days=1)
+                grupo_activo.save()
+
+            # Si el registro seleccionado es diferente, actualizarlo
+            if grupo_sabado.grupo != 'B':
+                grupo_sabado.grupo = 'B'
+                grupo_sabado.fecha_inicio = hoy
+                grupo_sabado.fecha_fin = None
+                grupo_sabado.descripcion = 'Asignado masivamente por el administrador'
+                grupo_sabado.save()
+                actualizados += 1
+            else:
+                # Ya tiene grupo B, solo actualizamos la fecha
+                grupo_sabado.fecha_inicio = hoy
+                grupo_sabado.fecha_fin = None
+                grupo_sabado.descripcion = 'Reasignado masivamente por el administrador'
+                grupo_sabado.save()
+                actualizados += 1
+
+        mensaje = f'✅ {actualizados} operarios asignados al Grupo B'
+        messages.success(request, mensaje)
+
+    asignar_grupo_b_masivo.short_description = '🔵 Asignar Grupo B a operarios seleccionados'
 
     ordering = ('-fecha_inicio',)
 
