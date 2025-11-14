@@ -6,67 +6,80 @@
     <style>
         @page {
             size: A4;
-            margin: 1cm;
+            margin: 1cm 1cm 1.5cm 1cm;
         }
-        
+
         body {
             font-family: Arial, sans-serif;
             font-size: 10px;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
-        
+
         .header {
             text-align: center;
             border-bottom: 2px solid #417690;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 3px;
+            margin-bottom: 8px;
         }
-        
+
         .header h1 {
             color: #417690;
-            margin: 0;
-            font-size: 18px;
+            margin: 0 0 2px 0;
+            font-size: 16px;
         }
-        
+
         .header p {
-            margin: 5px 0;
+            margin: 1px 0;
             color: #666;
+            font-size: 9px;
         }
-        
+
         .info-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 10px;
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 6px 8px;
+            border-radius: 3px;
+            font-size: 9px;
         }
-        
+
+        .info-meta table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-meta td {
+            padding: 1px 5px;
+            vertical-align: top;
+        }
+
         .operario-seccion {
-            margin-bottom: 30px;
-            page-break-inside: avoid;
+            margin-bottom: 12px;
         }
-        
+
         .operario-header {
             background: #417690;
             color: white;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 4px 4px 0 0;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
+            page-break-after: avoid;
         }
-        
+
         .operario-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #ddd;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        
+
         .operario-table th,
         .operario-table td {
             border: 1px solid #ddd;
-            padding: 6px;
+            padding: 4px 5px;
             text-align: left;
             font-size: 9px;
         }
@@ -88,14 +101,14 @@
         
         .footer {
             position: fixed;
-            bottom: 1cm;
+            bottom: 0.5cm;
             left: 1cm;
             right: 1cm;
             text-align: center;
-            font-size: 8px;
+            font-size: 7px;
             color: #666;
             border-top: 1px solid #ddd;
-            padding-top: 5px;
+            padding-top: 3px;
         }
         
         .resumen {
@@ -120,14 +133,16 @@
     </div>
     
     <div class="info-meta">
-        <div>
-            <strong>Período:</strong> {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}<br>
-            <strong>Operarios:</strong> {{ operarios_filtro }}
-        </div>
-        <div>
-            <strong>Total operarios:</strong> {{ reporte_data|length }}<br>
-            <strong>Sistema:</strong> Reloj Fichador
-        </div>
+        <table>
+            <tr>
+                <td style="width: 50%;"><strong>Período:</strong> {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}</td>
+                <td style="width: 50%; text-align: right;"><strong>Total operarios:</strong> {{ reporte_data|length }}</td>
+            </tr>
+            <tr>
+                <td><strong>Operarios:</strong> {{ operarios_filtro }}</td>
+                <td style="text-align: right;"><strong>Sistema:</strong> Reloj Fichador</td>
+            </tr>
+        </table>
     </div>
     
     {% if reporte_data %}
@@ -203,52 +218,52 @@
                 </tbody>
             </table>
             
-            <div style="text-align: right; font-size: 8px; color: #666; margin-bottom: 10px;">
+            <div style="text-align: right; font-size: 8px; color: #666; margin-bottom: 5px;">
                 <strong>Total registros:</strong> {{ data.registros|length }}
             </div>
         </div>
         {% endfor %}
-        
+
         <!-- Resumen de Horas Trabajadas -->
-        <div style="margin-top: 30px; page-break-before: auto;">
-            <h2 style="color: #417690; border-bottom: 2px solid #417690; padding-bottom: 5px;">
+        <div style="margin-top: 10px; page-break-before: auto;">
+            <h2 style="color: #417690; border-bottom: 2px solid #417690; padding-bottom: 3px; margin: 0 0 5px 0; font-size: 14px;">
                 ⏱️ Resumen de Horas Trabajadas
             </h2>
-            <p style="margin: 5px 0 15px 0; color: #666;">
+            <p style="margin: 3px 0 8px 0; color: #666; font-size: 9px;">
                 Período: {{ fecha_inicio|date:'d/m/Y' }} - {{ fecha_fin|date:'d/m/Y' }}
             </p>
             
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
                 <thead>
                     <tr style="background-color: #417690; color: white;">
-                        <th style="padding: 8px; border: 1px solid #ddd;">Empleado</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">DNI</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">H. Normales</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">H. Nocturnas</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">H. Extras</th>
-                        <th style="padding: 8px; border: 1px solid #ddd;">Días Trab.</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; background: #34495e; color: white;">Total</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">Empleado</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">DNI</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">H. Normales</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">H. Nocturnas</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">H. Extras</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; font-size: 9px;">Días Trab.</th>
+                        <th style="padding: 5px 6px; border: 1px solid #ddd; background: #34495e; color: white; font-size: 9px;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for operario, data in reporte_data.items %}
                         {% if data.resumen_horas %}
                         <tr>
-                            <td style="padding: 6px; border: 1px solid #ddd;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
-                            <td style="padding: 6px; border: 1px solid #ddd;">{{ operario.dni }}</td>
-                            <td style="padding: 6px; border: 1px solid #ddd; color: #28a745; font-weight: bold;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; font-size: 9px;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; font-size: 9px;">{{ operario.dni }}</td>
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; color: #28a745; font-weight: bold; font-size: 9px;">
                                 {{ data.resumen_horas.total_horas_normales|horas_formato }}
                             </td>
-                            <td style="padding: 6px; border: 1px solid #ddd; color: #17a2b8; font-weight: bold;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; color: #17a2b8; font-weight: bold; font-size: 9px;">
                                 {{ data.resumen_horas.total_horas_nocturnas|horas_formato }}
                             </td>
-                            <td style="padding: 6px; border: 1px solid #ddd; color: #fd7e14; font-weight: bold;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; color: #fd7e14; font-weight: bold; font-size: 9px;">
                                 {{ data.resumen_horas.total_horas_extras|horas_formato }}
                             </td>
-                            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; text-align: center; font-size: 9px;">
                                 {{ data.resumen_horas.dias_trabajados|default:"0" }}
                             </td>
-                            <td style="padding: 6px; border: 1px solid #ddd; background: #f8f9fa; font-weight: bold;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; background: #f8f9fa; font-weight: bold; font-size: 9px;">
                                 {% with total_horas=data.resumen_horas.total_horas_normales|default:0 %}
                                     {% with total_horas=total_horas|add:data.resumen_horas.total_horas_nocturnas|default:0 %}
                                         {% with total_horas=total_horas|add:data.resumen_horas.total_horas_extras|default:0 %}
@@ -260,9 +275,9 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td style="padding: 6px; border: 1px solid #ddd;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
-                            <td style="padding: 6px; border: 1px solid #ddd;">{{ operario.dni }}</td>
-                            <td colspan="5" style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #6c757d; font-style: italic;">
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; font-size: 9px;"><strong>{{ operario.apellido }}, {{ operario.nombre }}</strong></td>
+                            <td style="padding: 4px 5px; border: 1px solid #ddd; font-size: 9px;">{{ operario.dni }}</td>
+                            <td colspan="5" style="padding: 4px 5px; border: 1px solid #ddd; text-align: center; color: #6c757d; font-style: italic; font-size: 9px;">
                                 Sin datos de horas para este período
                             </td>
                         </tr>
