@@ -407,3 +407,74 @@ def prueba_tarea():
     """
     print("¡La tarea de Celery se ejecutó correctamente!")
     return "Tarea completada"
+
+@shared_task(name='corregir_horas_negativas_automatico')
+def corregir_horas_negativas_automatico():
+    """
+    Tarea periódica para detectar y corregir registros con horas negativas.
+
+    Esta tarea ejecuta el management command 'corregir_horas_negativas' de forma
+    automática según el schedule configurado en Celery Beat.
+
+    El comando busca y corrige:
+    - Registros en Horas_trabajadas con valores negativos
+    - Registros en Horas_totales con valores negativos
+
+    Retorna:
+        str: Mensaje con el resultado de la corrección
+
+    Raises:
+        Exception: Si ocurre algún error durante la ejecución
+    """
+    from django.core.management import call_command
+    from django.core.mail import mail_admins
+    from io import StringIO
+
+    try:
+        logger.info("Iniciando corrección automática de horas negativas...")
+
+        # Capturar output del comando
+        out = StringIO()
+        call_command('corregir_horas_negativas', verbosity=2, stdout=out)
+        output = out.getvalue()
+
+        # Analizar si hubo correcciones
+        correcciones_realizadas = False
+        if "Horas_trabajadas corregidas:" in output:
+            # Extraer número de correcciones
+            try:
+                horas_trabajadas_line = [line for line in output.split('\n') if 'Horas_trabajadas corregidas:' in line][0]
+                num_horas_trabajadas = int(horas_trabajadas_line.split(':')[1].strip())
+
+                horas_totales_line = [line for line in output.split('\n') if 'Horas_totales corregidas:' in line][0]
+                num_horas_totales = int(horas_totales_line.split(':')[1].strip())
+
+                if num_horas_trabajadas > 0 or num_horas_totales > 0:
+                    correcciones_realizadas = True
+            except (IndexError, ValueError):
+                pass
+
+        # Si hubo correcciones, enviar email a admins
+        if correcciones_realizadas:
+            mail_admins(
+                subject='[Reloj Fichador] Horas negativas corregidas automáticamente',
+                message=f"Se ejecutó la corrección automática de horas negativas.\n\n{output}",
+                fail_silently=True
+            )
+            logger.warning(f"Horas negativas detectadas y corregidas:\n{output}")
+        else:
+            logger.info("Corrección automática completada: No se encontraron registros negativos")
+
+        return output
+
+    except Exception as e:
+        error_msg = f"Error en corrección automática de horas negativas: {str(e)}"
+        logger.error(error_msg)
+
+        # Notificar a admins sobre el error
+        mail_admins(
+            subject='[ERROR] Corrección automática de horas negativas falló',
+            message=error_msg,
+            fail_silently=True
+        )
+        raise

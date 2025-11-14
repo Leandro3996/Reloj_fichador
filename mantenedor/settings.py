@@ -161,6 +161,21 @@ CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://redis:6379/5')
 CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379/5')
 CELERY_BEAT_SCHEDULER = env('CELERY_BEAT_SCHEDULER', default='django_celery_beat.schedulers:DatabaseScheduler')
 
+# Configuración de tareas programadas con Celery Beat
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    # Corrección automática de horas negativas
+    # Se ejecuta diariamente a las 2 AM para garantizar integridad de datos
+    'corregir-horas-negativas-diario': {
+        'task': 'corregir_horas_negativas_automatico',
+        'schedule': crontab(hour=2, minute=0),  # Todos los días a las 2 AM
+        'options': {
+            'expires': 3600,  # Expira en 1 hora si no se ejecuta
+        },
+    },
+}
+
 # Configuración para HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
