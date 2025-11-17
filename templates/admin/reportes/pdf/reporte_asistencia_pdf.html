@@ -6,7 +6,18 @@
     <style>
         @page {
             size: A4;
-            margin: 1cm 1cm 1.5cm 1cm;
+            margin: 1cm 1cm 2cm 1cm;
+
+            @bottom-center {
+                content: "👥 Reporte generado por Sistema de Reloj Fichador • " string(fecha-gen) " • Página " counter(page) " de " counter(pages);
+                font-size: 7px;
+                color: #666;
+            }
+        }
+
+        .fecha-generacion {
+            string-set: fecha-gen content();
+            display: none;
         }
 
         body {
@@ -98,19 +109,7 @@
         .tipo-salida { color: #dc3545; font-weight: bold; }
         .tipo-entrada_transitoria { color: #17a2b8; font-weight: bold; }
         .tipo-salida_transitoria { color: #fd7e14; font-weight: bold; }
-        
-        .footer {
-            position: fixed;
-            bottom: 0.5cm;
-            left: 1cm;
-            right: 1cm;
-            text-align: center;
-            font-size: 7px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 3px;
-        }
-        
+
         .resumen {
             background: #e9ecef;
             padding: 15px;
@@ -126,6 +125,7 @@
 </head>
 <body>
     {% load reporte_filters %}
+    <span class="fecha-generacion">{{ fecha_generacion }}</span>
     <div class="header">
         <h1>👥 REPORTE DE ASISTENCIA</h1>
         <p><strong>Del {{ fecha_inicio|date:'d/m/Y' }} al {{ fecha_fin|date:'d/m/Y' }}</strong></p>
@@ -293,9 +293,5 @@
         <p>No se encontraron registros de asistencia para el período seleccionado.</p>
     </div>
     {% endif %}
-    
-    <div class="footer">
-        <p>👥 Reporte generado por Sistema de Reloj Fichador • {{ fecha_generacion }} • Página 1</p>
-    </div>
 </body>
 </html>
