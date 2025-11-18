@@ -25,7 +25,7 @@ from django.urls import path, reverse
 from datetime import timedelta
 from django.utils.translation import gettext_lazy as _
 from .forms import LicenciaForm
-from .utils import generar_pdf, generar_excel
+from .utils import generar_pdf, generar_excel, formatear_timedelta_horas_redondeado
 from import_export.admin import ExportMixin, ImportExportMixin
 from import_export import resources, fields
 from .export_widgets import (
@@ -713,18 +713,12 @@ class HorasTrabajadasAdmin(ImportExportMixin, admin.ModelAdmin):
     get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_normales(self, obj):
-        total_seconds = obj.horas_normales.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_normales)
 
     get_horas_normales.short_description = 'Horas Normales'
 
     def get_horas_nocturnas(self, obj):
-        total_seconds = obj.horas_nocturnas.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_nocturnas)
 
     get_horas_nocturnas.short_description = 'Horas Nocturnas'
 
@@ -843,10 +837,7 @@ class HorasExtrasAdmin(ExportMixin, admin.ModelAdmin):
     get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_extras(self, obj):
-        total_seconds = obj.horas_extras.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_extras)
 
     get_horas_extras.short_description = 'Horas Extras'
 
@@ -930,38 +921,23 @@ class HorasTotalesAdmin(ExportMixin, admin.ModelAdmin):
     get_operario_sin_dni.short_description = 'Operario'
 
     def get_horas_normales(self, obj):
-        total_seconds = obj.horas_normales.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_normales)
     get_horas_normales.short_description = 'Horas Normales'
 
     def get_horas_nocturnas(self, obj):
-        total_seconds = obj.horas_nocturnas.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_nocturnas)
     get_horas_nocturnas.short_description = 'Horas Nocturnas'
 
     def get_horas_extras(self, obj):
-        total_seconds = obj.horas_extras.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_extras)
     get_horas_extras.short_description = 'Horas Extras'
 
     def get_horas_feriado(self, obj):
-        total_seconds = obj.horas_feriado.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_feriado)
     get_horas_feriado.short_description = 'Horas Feriado'
 
     def get_horas_enfermedad(self, obj):
-        total_seconds = obj.horas_enfermedad.total_seconds()
-        hours = int(total_seconds // 3600)
-        minutes = int((total_seconds % 3600) // 60)
-        return f"{hours}h {minutes}m"
+        return formatear_timedelta_horas_redondeado(obj.horas_enfermedad)
     get_horas_enfermedad.short_description = 'Horas Enfermedad'
 
     def exportar_excel(self, request, queryset):

@@ -25,6 +25,56 @@ def suppress_signal():
         _thread_locals.in_save = False
 
 
+def redondear_a_30_minutos(valor):
+    """
+    Redondea un timedelta a bloques de 30 minutos.
+
+    Reglas de redondeo:
+    - 0-14 minutos → 0 minutos
+    - 15-44 minutos → 30 minutos
+    - 45-59 minutos → hora siguiente (0 minutos)
+
+    Args:
+        valor: timedelta object
+
+    Returns:
+        timedelta: Valor redondeado a bloques de 30 minutos
+
+    Ejemplos:
+        >>> redondear_a_30_minutos(timedelta(hours=45, minutes=33))
+        timedelta(hours=45, minutes=30)
+        >>> redondear_a_30_minutos(timedelta(hours=44, minutes=59))
+        timedelta(hours=45, minutes=0)
+        >>> redondear_a_30_minutos(timedelta(hours=37, minutes=1))
+        timedelta(hours=37, minutes=0)
+    """
+    if valor is None:
+        return timedelta()
+
+    if not isinstance(valor, timedelta):
+        return valor
+
+    # Convertir a minutos totales
+    total_segundos = int(valor.total_seconds())
+    total_minutos = total_segundos // 60
+
+    # Extraer horas y minutos
+    horas = total_minutos // 60
+    minutos = total_minutos % 60
+
+    # Aplicar reglas de redondeo
+    if minutos < 15:
+        minutos_redondeados = 0
+    elif minutos < 45:
+        minutos_redondeados = 30
+    else:
+        # 45-59 minutos → hora siguiente
+        horas += 1
+        minutos_redondeados = 0
+
+    return timedelta(hours=horas, minutes=minutos_redondeados)
+
+
 def formatear_timedelta_horas(valor):
     """
     Formatea un timedelta a formato de horas totales "XXh YYm"
@@ -53,6 +103,31 @@ def formatear_timedelta_horas(valor):
     minutos = (total_segundos % 3600) // 60
 
     return f"{horas:02d}h {minutos:02d}m"
+
+
+def formatear_timedelta_horas_redondeado(valor):
+    """
+    Redondea un timedelta a bloques de 30 minutos y lo formatea a "XXh YYm".
+
+    Esta función combina redondear_a_30_minutos() y formatear_timedelta_horas()
+    para mostrar horas redondeadas en reportes y visualizaciones.
+
+    Args:
+        valor: timedelta object
+
+    Returns:
+        str: Formato "XXh YYm" con valores redondeados a 30 min (ej: "45h 30m")
+
+    Ejemplos:
+        >>> formatear_timedelta_horas_redondeado(timedelta(hours=45, minutes=33))
+        "45h 30m"
+        >>> formatear_timedelta_horas_redondeado(timedelta(hours=44, minutes=59))
+        "45h 00m"
+        >>> formatear_timedelta_horas_redondeado(timedelta(hours=37, minutes=1))
+        "37h 00m"
+    """
+    valor_redondeado = redondear_a_30_minutos(valor)
+    return formatear_timedelta_horas(valor_redondeado)
 
 
 # Helper para calcular el ancho de columnas basado en el contenido
@@ -418,11 +493,8 @@ def generar_pdf(modeladmin, request, queryset, campos, encabezados, titulo,
             elif isinstance(valor, date):
                 valor = valor.strftime('%d/%m/%Y')
             elif isinstance(valor, timedelta):
-                # Formato más legible para duraciones
-                total_segundos = int(valor.total_seconds())
-                horas = total_segundos // 3600
-                minutos = (total_segundos % 3600) // 60
-                valor = f"{horas:02d}h {minutos:02d}m"
+                # Formatear con redondeo a bloques de 30 minutos
+                valor = formatear_timedelta_horas_redondeado(valor)
             
             # Limpiar HTML
             if hasattr(valor, '__html__') or (isinstance(valor, str) and ('<span' in valor.lower() or '<div' in valor.lower())):
@@ -525,13 +597,9 @@ def generar_pdf(modeladmin, request, queryset, campos, encabezados, titulo,
                     nombre_columna = encabezados[col_idx]
                     total_headers[col_idx] = Paragraph(f"Total {nombre_columna}:", custom_styles['total_label'])
                     
-                    # Formatear el valor total de horas
+                    # Formatear el valor total de horas con redondeo a 30 minutos
                     total_td = column_totals[col_idx]
-                    total_seconds = int(total_td.total_seconds())
-                    total_hours = total_seconds // 3600
-                    total_minutes = (total_seconds % 3600) // 60
-                    
-                    formatted_total = f"{total_hours:02d}h {total_minutes:02d}m"
+                    formatted_total = formatear_timedelta_horas_redondeado(total_td)
                     total_values[col_idx] = Paragraph(formatted_total, custom_styles['total_value'])
         
         # Solo añadir la tabla de totales si hay al menos un total que mostrar
@@ -633,8 +701,8 @@ def generar_excel(modeladmin, request, queryset, campos, encabezados, titulo):
             elif isinstance(valor, date):
                 valor = valor.strftime('%d/%m/%Y')
             elif isinstance(valor, timedelta):
-                # Formatear timedelta a horas totales
-                valor = formatear_timedelta_horas(valor)
+                # Formatear timedelta a horas totales con redondeo a 30 minutos
+                valor = formatear_timedelta_horas_redondeado(valor)
             else:
                 # Limpiar HTML si existe
                 valor_str = str(valor)
