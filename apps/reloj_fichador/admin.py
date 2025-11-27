@@ -1784,7 +1784,8 @@ class ReporteAdmin(admin.ModelAdmin):
             # Obtener horas de enfermedad del mes para cada operario
             mes_periodo = f"{año}-{mes:02d}"
             horas_enfermedad_por_operario = {}
-            from .models import HorasEnfermedad
+            from .models import HorasEnfermedad, Licencia
+            from .utils import es_dia_laboral
             horas_enf_qs = HorasEnfermedad.objects.filter(
                 mes_periodo=mes_periodo
             ).values('operario_id').annotate(
@@ -1792,6 +1793,43 @@ class ReporteAdmin(admin.ModelAdmin):
             )
             for item in horas_enf_qs:
                 horas_enfermedad_por_operario[item['operario_id']] = item['total_enfermedad'] or timedelta()
+
+            # Obtener días de licencia por operario para mostrar en el reporte
+            # Buscamos licencias aprobadas que incluyan días en este mes
+            from datetime import date
+            mes_inicio = date(año, mes, 1)
+            if mes == 12:
+                mes_fin = date(año + 1, 1, 1) - timedelta(days=1)
+            else:
+                mes_fin = date(año, mes + 1, 1) - timedelta(days=1)
+
+            dias_licencia_por_operario = {}
+            licencias_mes = Licencia.objects.filter(
+                estado='aprobada',
+                aplicar_a_asistencia=True,
+                fecha_inicio__lte=mes_fin,
+                fecha_fin__gte=mes_inicio
+            ).select_related('operario')
+
+            for licencia in licencias_mes:
+                operario_id = licencia.operario.id
+                if operario_id not in dias_licencia_por_operario:
+                    dias_licencia_por_operario[operario_id] = []
+
+                # Iterar por los días de la licencia que caen en este mes
+                fecha_actual = max(licencia.fecha_inicio, mes_inicio)
+                fecha_limite = min(licencia.fecha_fin, mes_fin)
+
+                while fecha_actual <= fecha_limite:
+                    # Solo contar días laborales (no domingos ni feriados)
+                    if es_dia_laboral(fecha_actual):
+                        dias_licencia_por_operario[operario_id].append({
+                            'fecha': fecha_actual,
+                            'horas_enfermedad': timedelta(hours=8),
+                            'licencia_id': licencia.pk,
+                            'descripcion': licencia.descripcion or 'Licencia médica'
+                        })
+                    fecha_actual += timedelta(days=1)
 
             # Agrupar por operario y calcular subtotales
             if horas_trabajadas:
@@ -1801,7 +1839,7 @@ class ReporteAdmin(admin.ModelAdmin):
                 total_nocturnas = timedelta()
                 total_extras = timedelta()
                 total_enfermedad = timedelta()
-                
+
                 for hora in horas_trabajadas:
                     operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
 
@@ -1811,6 +1849,7 @@ class ReporteAdmin(admin.ModelAdmin):
                         horas_agrupadas[operario_key] = {
                             'operario': hora.operario,
                             'registros': [],
+                            'registros_enfermedad': dias_licencia_por_operario.get(hora.operario.id, []),
                             'subtotal_normales': timedelta(),
                             'subtotal_nocturnas': timedelta(),
                             'subtotal_extras': timedelta(),
@@ -2262,7 +2301,8 @@ class ReporteAdmin(admin.ModelAdmin):
         # Obtener horas de enfermedad del mes para cada operario
         mes_periodo = f"{año}-{mes:02d}"
         horas_enfermedad_por_operario = {}
-        from .models import HorasEnfermedad
+        from .models import HorasEnfermedad, Licencia
+        from .utils import es_dia_laboral
         horas_enf_qs = HorasEnfermedad.objects.filter(
             mes_periodo=mes_periodo
         ).values('operario_id').annotate(
@@ -2270,6 +2310,39 @@ class ReporteAdmin(admin.ModelAdmin):
         )
         for item in horas_enf_qs:
             horas_enfermedad_por_operario[item['operario_id']] = item['total_enfermedad'] or timedelta()
+
+        # Obtener días de licencia por operario para mostrar en el reporte
+        mes_inicio = date(año, mes, 1)
+        if mes == 12:
+            mes_fin = date(año + 1, 1, 1) - timedelta(days=1)
+        else:
+            mes_fin = date(año, mes + 1, 1) - timedelta(days=1)
+
+        dias_licencia_por_operario = {}
+        licencias_mes = Licencia.objects.filter(
+            estado='aprobada',
+            aplicar_a_asistencia=True,
+            fecha_inicio__lte=mes_fin,
+            fecha_fin__gte=mes_inicio
+        ).select_related('operario')
+
+        for licencia in licencias_mes:
+            operario_id = licencia.operario.id
+            if operario_id not in dias_licencia_por_operario:
+                dias_licencia_por_operario[operario_id] = []
+
+            fecha_actual = max(licencia.fecha_inicio, mes_inicio)
+            fecha_limite = min(licencia.fecha_fin, mes_fin)
+
+            while fecha_actual <= fecha_limite:
+                if es_dia_laboral(fecha_actual):
+                    dias_licencia_por_operario[operario_id].append({
+                        'fecha': fecha_actual,
+                        'horas_enfermedad': timedelta(hours=8),
+                        'licencia_id': licencia.pk,
+                        'descripcion': licencia.descripcion or 'Licencia médica'
+                    })
+                fecha_actual += timedelta(days=1)
 
         # Agrupar por operario y calcular subtotales (misma lógica que HTML)
         horas_agrupadas = None
@@ -2291,19 +2364,20 @@ class ReporteAdmin(admin.ModelAdmin):
                     horas_agrupadas[operario_key] = {
                         'operario': hora.operario,
                         'registros': [],
+                        'registros_enfermedad': dias_licencia_por_operario.get(hora.operario.id, []),
                         'subtotal_normales': timedelta(),
                         'subtotal_nocturnas': timedelta(),
                         'subtotal_extras': timedelta(),
                         'subtotal_enfermedad': horas_enf_operario,
                     }
-                
+
                 # Obtener movimientos de entrada y salida para esta fecha (excluyendo transitorios)
                 registros_dia = RegistroDiario.objects.filter(
                     operario=hora.operario,
                     hora_fichada__date=hora.fecha,
                     tipo_movimiento__in=['entrada', 'salida']
                 ).order_by('hora_fichada')
-                
+
                 # Separar entradas y salidas
                 entradas = [r for r in registros_dia if r.tipo_movimiento == 'entrada']
                 salidas = [r for r in registros_dia if r.tipo_movimiento == 'salida']

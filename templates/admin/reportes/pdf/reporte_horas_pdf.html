@@ -246,7 +246,28 @@
                     </td>
                 </tr>
                 {% endfor %}
-                
+
+                <!-- Días de enfermedad/licencia del operario -->
+                {% for dia_enf in operario_data.registros_enfermedad %}
+                <tr style="background-color: #fff5f5;">
+                    <td class="operario-registro" style="color: #dc3545; font-style: italic;">
+                        Licencia médica
+                    </td>
+                    <td colspan="2" style="color: #6c757d; font-size: 8px;">
+                        {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }}
+                    </td>
+                    <td class="horas-normales">-</td>
+                    <td class="horas-nocturnas">-</td>
+                    <td class="horas-extras">-</td>
+                    <td class="horas-enfermedad">
+                        {{ dia_enf.horas_enfermedad|horas_formato }}
+                    </td>
+                    <td class="total-diario">
+                        {{ dia_enf.horas_enfermedad|horas_formato }}
+                    </td>
+                </tr>
+                {% endfor %}
+
                 <!-- Subtotal del operario -->
                 <tr class="subtotal-operario">
                     <td colspan="3"><strong>Subtotal {{ operario_nombre }}</strong></td>
