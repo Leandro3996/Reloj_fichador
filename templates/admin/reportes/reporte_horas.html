@@ -418,8 +418,8 @@
                    class="btn-exportar btn-excel" title="Descargar Excel">
                     📊 Excel
                 </a>
-                <a href="{% url 'admin:exportar_horas_pdf' %}?{{ request.GET.urlencode }}" 
-                   class="btn-exportar btn-pdf" title="Descargar PDF">
+                <a href="{% url 'admin:exportar_horas_pdf' %}?{{ request.GET.urlencode }}"
+                   class="btn-exportar btn-pdf" title="Descargar PDF" target="_blank">
                     📋 PDF
                 </a>
             </div>

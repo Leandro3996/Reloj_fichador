@@ -6,7 +6,13 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 1.5cm 1cm 2cm 1cm;
+            margin: 1.5cm 1cm 2.5cm 1cm;  /* Mayor margen inferior para el footer */
+
+            @bottom-center {
+                content: "Reporte generado por Sistema de Reloj Fichador";
+                font-size: 8px;
+                color: #666;
+            }
         }
         
         body {
@@ -77,16 +83,7 @@
         .total-diario { font-weight: bold; color: #343a40; }
         
         .footer {
-            position: fixed;
-            bottom: 0.5cm;
-            left: 1cm;
-            right: 1cm;
-            text-align: center;
-            font-size: 8px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 5px;
-            background: white;
+            display: none;  /* Usamos @page footer en su lugar */
         }
         
         .resumen {
@@ -114,26 +111,31 @@
         }
         
         .totales-section {
-            margin-top: 20px;
+            margin-top: 30px;
+            margin-bottom: 40px;  /* Espacio para el footer */
             background: #e9ecef;
             padding: 15px;
             border-radius: 5px;
             border-left: 4px solid #417690;
             page-break-inside: avoid;
+            clear: both;
         }
         
         .operario-header {
-            background-color: #17a2b8 !important;
-            color: white !important;
+            background: #34495e;
+            page-break-inside: avoid;
+        }
+
+        .operario-header td {
+            background: #34495e;
+            color: #ffffff;
             font-weight: bold;
             font-size: 11px;
+            border: 1px solid #2c3e50;
+            padding: 10px 8px;
+            letter-spacing: 0.5px;
         }
-        
-        .operario-header td {
-            background-color: #17a2b8 !important;
-            color: white !important;
-            border: 2px solid #138496;
-        }
+
         
         .subtotal-operario {
             background-color: #e8f4fd !important;
@@ -154,7 +156,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>📊 REPORTE DE HORAS TRABAJADAS</h1>
+        <h1>REPORTE DE HORAS TRABAJADAS</h1>
         <p><strong>{{ mes_nombre }} {{ año }}</strong></p>
         <p>Generado el {{ fecha_generacion }}</p>
     </div>
@@ -186,9 +188,9 @@
         <tbody>
             {% for operario_nombre, operario_data in horas_agrupadas.items %}
                 <!-- Cabecera del operario -->
-                <tr class="operario-header">
-                    <td colspan="7">
-                        <strong>{{ operario_nombre }}</strong>
+                <tr style="background: #34495e !important;">
+                    <td colspan="7" style="background: #34495e !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 10px 8px; border: 1px solid #2c3e50;">
+                        {{ operario_nombre }}
                     </td>
                 </tr>
                 
@@ -257,9 +259,9 @@
                     </td>
                 </tr>
             {% endfor %}
-        </tbody>
-        {% if totales %}
-        <tfoot>
+
+            {% if totales %}
+            <!-- Fila TOTALES al final del tbody para evitar repetición en cada página -->
             <tr class="totales-row">
                 <td colspan="3"><strong>TOTALES</strong></td>
                 <td class="horas-normales">
@@ -275,13 +277,13 @@
                     <strong>{{ totales.total_general|horas_formato }}</strong>
                 </td>
             </tr>
-        </tfoot>
-        {% endif %}
+            {% endif %}
+        </tbody>
     </table>
     
     {% if totales %}
     <div class="totales-section">
-        <h3>📊 RESUMEN TOTAL DEL PERÍODO</h3>
+        <h3>RESUMEN TOTAL DEL PERÍODO</h3>
         <div style="display: flex; justify-content: space-around; text-align: center;">
             <div>
                 <strong>Horas Normales</strong><br>
@@ -319,7 +321,7 @@
     {% endif %}
     
     <div class="footer">
-        <p>📊 Reporte generado por Sistema de Reloj Fichador • {{ fecha_generacion }}</p>
+        <p>Reporte generado por Sistema de Reloj Fichador - {{ fecha_generacion }}</p>
     </div>
 </body>
 </html>
