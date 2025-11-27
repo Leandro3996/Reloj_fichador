@@ -80,6 +80,7 @@
         .horas-normales { color: #28a745; }
         .horas-nocturnas { color: #17a2b8; }
         .horas-extras { color: #fd7e14; }
+        .horas-enfermedad { color: #dc3545; }
         .total-diario { font-weight: bold; color: #343a40; }
         
         .footer {
@@ -176,20 +177,21 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 15%">Empleado</th>
-                <th style="width: 20%">Fecha Entrada</th>
-                <th style="width: 20%">Fecha Salida</th>
-                <th style="width: 12%">Horas Normales</th>
-                <th style="width: 12%">Horas Nocturnas</th>
-                <th style="width: 12%">Horas Extras</th>
-                <th style="width: 9%">Total Diario</th>
+                <th style="width: 14%">Empleado</th>
+                <th style="width: 17%">Fecha Entrada</th>
+                <th style="width: 17%">Fecha Salida</th>
+                <th style="width: 11%">H. Normales</th>
+                <th style="width: 11%">H. Nocturnas</th>
+                <th style="width: 10%">H. Extras</th>
+                <th style="width: 11%">H. Enfermedad</th>
+                <th style="width: 9%">Total</th>
             </tr>
         </thead>
         <tbody>
             {% for operario_nombre, operario_data in horas_agrupadas.items %}
                 <!-- Cabecera del operario -->
                 <tr style="background: #34495e !important;">
-                    <td colspan="7" style="background: #34495e !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 10px 8px; border: 1px solid #2c3e50;">
+                    <td colspan="8" style="background: #34495e !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 10px 8px; border: 1px solid #2c3e50;">
                         {{ operario_nombre }}
                     </td>
                 </tr>
@@ -226,6 +228,9 @@
                             -
                         {% endif %}
                     </td>
+                    <td class="horas-enfermedad">
+                        -
+                    </td>
                     <td class="total-diario">
                         {% if registro.es_primera_fila %}
                             {% with total_horas=registro.hora.horas_normales|default:0 %}
@@ -253,6 +258,9 @@
                     </td>
                     <td class="horas-extras">
                         <strong>{{ operario_data.subtotal_extras|horas_formato }}</strong>
+                    </td>
+                    <td class="horas-enfermedad">
+                        <strong>{{ operario_data.subtotal_enfermedad|horas_formato }}</strong>
                     </td>
                     <td class="total-diario">
                         <strong>{{ operario_data.subtotal_general|horas_formato }}</strong>

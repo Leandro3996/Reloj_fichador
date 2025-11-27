@@ -1754,12 +1754,13 @@ class ReporteAdmin(admin.ModelAdmin):
         """Vista para generar reporte de horas trabajadas"""
         from django.shortcuts import render
         from datetime import datetime, date, timedelta
-        
+        from django.db.models import Sum
+
         # Parámetros
         mes = request.GET.get('mes')
         año = request.GET.get('año')
         operario_ids = request.GET.getlist('operarios')
-        
+
         # Convertir a enteros
         try:
             mes = int(mes) if mes else date.today().month
@@ -1767,19 +1768,31 @@ class ReporteAdmin(admin.ModelAdmin):
         except:
             mes = date.today().month
             año = date.today().year
-        
+
         # Operarios seleccionados
         operarios = None
         if operario_ids:
             operarios = Operario.objects.filter(id__in=operario_ids)
-        
+
         # Generar reporte
         horas_trabajadas = None
         horas_agrupadas = None
         totales = None
         if 'generar' in request.GET:
             horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
-            
+
+            # Obtener horas de enfermedad del mes para cada operario
+            mes_periodo = f"{año}-{mes:02d}"
+            horas_enfermedad_por_operario = {}
+            from .models import HorasEnfermedad
+            horas_enf_qs = HorasEnfermedad.objects.filter(
+                mes_periodo=mes_periodo
+            ).values('operario_id').annotate(
+                total_enfermedad=Sum('horas_enfermedad')
+            )
+            for item in horas_enf_qs:
+                horas_enfermedad_por_operario[item['operario_id']] = item['total_enfermedad'] or timedelta()
+
             # Agrupar por operario y calcular subtotales
             if horas_trabajadas:
                 from collections import OrderedDict
@@ -1787,17 +1800,21 @@ class ReporteAdmin(admin.ModelAdmin):
                 total_normales = timedelta()
                 total_nocturnas = timedelta()
                 total_extras = timedelta()
+                total_enfermedad = timedelta()
                 
                 for hora in horas_trabajadas:
                     operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
-                    
+
                     if operario_key not in horas_agrupadas:
+                        # Obtener horas de enfermedad de este operario
+                        horas_enf_operario = horas_enfermedad_por_operario.get(hora.operario.id, timedelta())
                         horas_agrupadas[operario_key] = {
                             'operario': hora.operario,
                             'registros': [],
                             'subtotal_normales': timedelta(),
                             'subtotal_nocturnas': timedelta(),
                             'subtotal_extras': timedelta(),
+                            'subtotal_enfermedad': horas_enf_operario,
                         }
                     
                     # Obtener movimientos de entrada y salida para esta fecha (solo principales, no transitorios)
@@ -1853,19 +1870,22 @@ class ReporteAdmin(admin.ModelAdmin):
                         horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
                         total_extras += hora.horas_extras
                 
-                # Calcular total general para cada operario
+                # Calcular total general para cada operario y sumar enfermedad al total
                 for operario_data in horas_agrupadas.values():
                     operario_data['subtotal_general'] = (
-                        operario_data['subtotal_normales'] + 
-                        operario_data['subtotal_nocturnas'] + 
-                        operario_data['subtotal_extras']
+                        operario_data['subtotal_normales'] +
+                        operario_data['subtotal_nocturnas'] +
+                        operario_data['subtotal_extras'] +
+                        operario_data['subtotal_enfermedad']
                     )
-                
+                    total_enfermedad += operario_data['subtotal_enfermedad']
+
                 totales = {
                     'total_normales': total_normales,
                     'total_nocturnas': total_nocturnas,
                     'total_extras': total_extras,
-                    'total_general': total_normales + total_nocturnas + total_extras
+                    'total_enfermedad': total_enfermedad,
+                    'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
                 }
         
         # Nombres de meses en español
@@ -2217,27 +2237,40 @@ class ReporteAdmin(admin.ModelAdmin):
         from django.utils import timezone
         from weasyprint import HTML
         from datetime import datetime, date, timedelta
+        from django.db.models import Sum
         import tempfile
-        
+
         # Obtener los mismos parámetros que en reporte_horas
         mes = request.GET.get('mes')
         año = request.GET.get('año')
         operario_ids = request.GET.getlist('operarios')
-        
+
         try:
             mes = int(mes) if mes else date.today().month
             año = int(año) if año else date.today().year
         except:
             mes = date.today().month
             año = date.today().year
-        
+
         operarios = None
         if operario_ids:
             operarios = Operario.objects.filter(id__in=operario_ids)
-        
+
         # Generar los datos
         horas_trabajadas, mes, año = ReporteManager.generar_reporte_horas(mes, año, operarios)
-        
+
+        # Obtener horas de enfermedad del mes para cada operario
+        mes_periodo = f"{año}-{mes:02d}"
+        horas_enfermedad_por_operario = {}
+        from .models import HorasEnfermedad
+        horas_enf_qs = HorasEnfermedad.objects.filter(
+            mes_periodo=mes_periodo
+        ).values('operario_id').annotate(
+            total_enfermedad=Sum('horas_enfermedad')
+        )
+        for item in horas_enf_qs:
+            horas_enfermedad_por_operario[item['operario_id']] = item['total_enfermedad'] or timedelta()
+
         # Agrupar por operario y calcular subtotales (misma lógica que HTML)
         horas_agrupadas = None
         totales = None
@@ -2247,17 +2280,21 @@ class ReporteAdmin(admin.ModelAdmin):
             total_normales = timedelta()
             total_nocturnas = timedelta()
             total_extras = timedelta()
-            
+            total_enfermedad = timedelta()
+
             for hora in horas_trabajadas:
                 operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
-                
+
                 if operario_key not in horas_agrupadas:
+                    # Obtener horas de enfermedad de este operario
+                    horas_enf_operario = horas_enfermedad_por_operario.get(hora.operario.id, timedelta())
                     horas_agrupadas[operario_key] = {
                         'operario': hora.operario,
                         'registros': [],
                         'subtotal_normales': timedelta(),
                         'subtotal_nocturnas': timedelta(),
                         'subtotal_extras': timedelta(),
+                        'subtotal_enfermedad': horas_enf_operario,
                     }
                 
                 # Obtener movimientos de entrada y salida para esta fecha (excluyendo transitorios)
@@ -2297,25 +2334,28 @@ class ReporteAdmin(admin.ModelAdmin):
                     horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
                     total_extras += hora.horas_extras
             
-            # Calcular total general para cada operario
+            # Calcular total general para cada operario y sumar enfermedad al total
             for operario_data in horas_agrupadas.values():
                 operario_data['subtotal_general'] = (
-                    operario_data['subtotal_normales'] + 
-                    operario_data['subtotal_nocturnas'] + 
-                    operario_data['subtotal_extras']
+                    operario_data['subtotal_normales'] +
+                    operario_data['subtotal_nocturnas'] +
+                    operario_data['subtotal_extras'] +
+                    operario_data['subtotal_enfermedad']
                 )
-            
+                total_enfermedad += operario_data['subtotal_enfermedad']
+
             totales = {
                 'total_normales': total_normales,
                 'total_nocturnas': total_nocturnas,
                 'total_extras': total_extras,
-                'total_general': total_normales + total_nocturnas + total_extras
+                'total_enfermedad': total_enfermedad,
+                'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
             }
-        
+
         # Nombres de meses en español
-        meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+        meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        
+
         # Contexto para el template
         context = {
             'horas_trabajadas': horas_trabajadas,

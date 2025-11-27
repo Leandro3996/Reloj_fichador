@@ -139,6 +139,7 @@
 .horas-normales { color: #28a745; font-weight: 500; }
 .horas-nocturnas { color: #6f42c1; font-weight: 500; }
 .horas-extras { color: #fd7e14; font-weight: 500; }
+.horas-enfermedad { color: #dc3545; font-weight: 500; }
 
 .totales-row {
     background: #f8f9fa !important;
@@ -447,15 +448,16 @@
                     <th>Horas Normales</th>
                     <th>Horas Nocturnas</th>
                     <th>Horas Extras</th>
-                    <th>Total Diario</th>
+                    <th>Horas Enfermedad</th>
+                    <th>Total</th>
                 </tr>
             </thead>
             <tbody>
                 {% for operario_nombre, operario_data in horas_agrupadas.items %}
                     <!-- Cabecera del operario -->
                     <tr class="operario-header">
-                        <td colspan="7">
-                            <strong>👤 {{ operario_nombre }}</strong>
+                        <td colspan="8">
+                            <strong>{{ operario_nombre }}</strong>
                         </td>
                     </tr>
                     
@@ -496,6 +498,9 @@
                                 -
                             {% endif %}
                         </td>
+                        <td class="horas-enfermedad">
+                            -
+                        </td>
                         <td>
                             {% if registro.es_primera_fila %}
                                 {% widthratio registro.hora.horas_normales.total_seconds 3600 1 as normales_h %}
@@ -511,7 +516,7 @@
                     
                     <!-- Subtotal del operario -->
                     <tr class="subtotal-operario">
-                        <td colspan="3"><strong>📊 Subtotal {{ operario_nombre }}</strong></td>
+                        <td colspan="3"><strong>Subtotal {{ operario_nombre }}</strong></td>
                         <td class="horas-normales">
                             <strong>
                                 {% if operario_data.subtotal_normales.total_seconds %}
@@ -539,6 +544,15 @@
                                 {% endif %}
                             </strong>
                         </td>
+                        <td class="horas-enfermedad">
+                            <strong>
+                                {% if operario_data.subtotal_enfermedad.total_seconds %}
+                                    {% widthratio operario_data.subtotal_enfermedad.total_seconds 3600 1 %}h
+                                {% else %}
+                                    0h
+                                {% endif %}
+                            </strong>
+                        </td>
                         <td>
                             <strong>
                                 {% if operario_data.subtotal_general.total_seconds %}
@@ -554,7 +568,7 @@
             {% if totales %}
             <tfoot>
                 <tr class="totales-row">
-                    <td colspan="3"><strong>🔢 TOTALES</strong></td>
+                    <td colspan="3"><strong>TOTALES</strong></td>
                     <td class="horas-normales">
                         <strong>
                             {% if totales.total_normales.total_seconds %}
@@ -577,6 +591,15 @@
                         <strong>
                             {% if totales.total_extras.total_seconds %}
                                 {% widthratio totales.total_extras.total_seconds 3600 1 %}h
+                            {% else %}
+                                0h
+                            {% endif %}
+                        </strong>
+                    </td>
+                    <td class="horas-enfermedad">
+                        <strong>
+                            {% if totales.total_enfermedad.total_seconds %}
+                                {% widthratio totales.total_enfermedad.total_seconds 3600 1 %}h
                             {% else %}
                                 0h
                             {% endif %}
