@@ -281,6 +281,9 @@
                 <td class="horas-extras">
                     <strong>{{ totales.total_extras|horas_formato }}</strong>
                 </td>
+                <td class="horas-enfermedad">
+                    <strong>{{ totales.total_enfermedad|horas_formato }}</strong>
+                </td>
                 <td class="total-diario">
                     <strong>{{ totales.total_general|horas_formato }}</strong>
                 </td>
@@ -309,6 +312,12 @@
                 <strong>Horas Extras</strong><br>
                 <span style="font-size: 12px; color: #fd7e14;">
                     {{ totales.total_extras|horas_formato }}
+                </span>
+            </div>
+            <div>
+                <strong>Horas Enfermedad</strong><br>
+                <span style="font-size: 12px; color: #dc3545;">
+                    {{ totales.total_enfermedad|horas_formato }}
                 </span>
             </div>
             <div>
