@@ -224,7 +224,7 @@ class Licencia(models.Model):
     fecha_fin = models.DateField(null=True, blank=True, help_text="Fecha de fin de la licencia")
     
     # Nuevos campos para integración con asistencia
-    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente', 
+    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='aprobada',
                              help_text="Estado de aprobación de la licencia")
     aplicar_a_asistencia = models.BooleanField(default=True, 
                                              help_text="Si está marcado, justificará automáticamente las ausencias en el período")
@@ -272,6 +272,8 @@ class Licencia(models.Model):
     def save(self, *args, **kwargs):
         # Si se está aprobando la licencia, registrar fecha y procesar con Celery
         es_aprobacion_nueva = False
+        es_licencia_nueva = not self.pk
+
         if self.pk:
             try:
                 original = Licencia.objects.get(pk=self.pk)
@@ -280,11 +282,14 @@ class Licencia(models.Model):
                     es_aprobacion_nueva = True
             except Licencia.DoesNotExist:
                 pass
+        elif self.estado == 'aprobada':
+            # Licencia nueva creada directamente como aprobada
+            self.fecha_aprobacion = timezone.now()
+            es_aprobacion_nueva = True
 
         super().save(*args, **kwargs)
 
-        # Procesar asistencia de forma asíncrona después de guardar
-        # (Celery ejecutará después, pero también procesa de forma síncrona para visibilidad)
+        # Procesar asistencia después de guardar si es aprobación nueva o licencia nueva aprobada
         if es_aprobacion_nueva:
             from .tasks import procesar_licencia_aprobada
             # Ejecutar de forma síncrona para que el usuario vea los cambios inmediatamente

@@ -1,10 +1,10 @@
 # signals.py
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete, pre_save
 from django.dispatch import receiver
 from .models import (
     RegistroDiario, RegistroAsistencia,
-    Horas_trabajadas, Horas_extras, Horas_totales, Licencia
+    Horas_trabajadas, Horas_extras, Horas_totales, Licencia, HorasEnfermedad
 )
 from .utils import suppress_signal, _thread_locals
 from datetime import timedelta
@@ -152,3 +152,138 @@ def recalcular_horas_al_aprobar_licencia(sender, instance, created, **kwargs):
 
     except Exception as e:
         logger.error(f'Error en signal de recalcular licencia {instance.id}: {str(e)}')
+
+
+@receiver(pre_delete, sender=Licencia)
+def limpiar_datos_al_eliminar_licencia(sender, instance, **kwargs):
+    """
+    Cuando se elimina una licencia:
+    1. Elimina los registros de HorasEnfermedad asociados
+    2. Des-justifica los RegistroAsistencia que estaban vinculados a esta licencia
+    3. Recalcula Horas_totales de los meses afectados
+    """
+    try:
+        operario = instance.operario
+        meses_afectados = set()
+
+        # 1. Recopilar meses afectados antes de eliminar
+        if instance.fecha_inicio and instance.fecha_fin:
+            fecha_actual = instance.fecha_inicio
+            while fecha_actual <= instance.fecha_fin:
+                meses_afectados.add(fecha_actual.strftime('%Y-%m'))
+                fecha_actual += timedelta(days=1)
+
+        # 2. Eliminar HorasEnfermedad asociadas
+        horas_eliminadas = HorasEnfermedad.objects.filter(licencia=instance).delete()
+        logger.info(f'Eliminados {horas_eliminadas[0]} registros de HorasEnfermedad para licencia {instance.id}')
+
+        # 3. Des-justificar RegistroAsistencia vinculados a esta licencia
+        registros_actualizados = RegistroAsistencia.objects.filter(
+            licencia_relacionada=instance
+        ).update(
+            estado_justificacion=False,
+            licencia_relacionada=None,
+            descripcion=None
+        )
+        logger.info(f'Des-justificados {registros_actualizados} registros de asistencia para licencia {instance.id}')
+
+        # 4. Recalcular Horas_totales de los meses afectados
+        for mes_str in meses_afectados:
+            try:
+                Horas_totales.calcular_horas_totales(operario, mes_str)
+                logger.info(f'Recalculadas Horas_totales para {operario} en {mes_str} (licencia {instance.id} eliminada)')
+            except Exception as e:
+                logger.error(f'Error recalculando Horas_totales para {operario} {mes_str}: {str(e)}')
+
+    except Exception as e:
+        logger.error(f'Error en signal pre_delete de licencia {instance.id}: {str(e)}')
+
+
+# Variable para almacenar fechas originales antes del save
+_licencia_fechas_originales = {}
+
+
+@receiver(pre_save, sender=Licencia)
+def guardar_fechas_originales_licencia(sender, instance, **kwargs):
+    """
+    Antes de guardar una licencia, guarda las fechas originales
+    para detectar si cambiaron después del save.
+    """
+    if instance.pk:
+        try:
+            original = Licencia.objects.get(pk=instance.pk)
+            _licencia_fechas_originales[instance.pk] = {
+                'fecha_inicio': original.fecha_inicio,
+                'fecha_fin': original.fecha_fin,
+                'estado': original.estado,
+            }
+        except Licencia.DoesNotExist:
+            pass
+
+
+@receiver(post_save, sender=Licencia)
+def reprocesar_si_cambiaron_fechas(sender, instance, created, **kwargs):
+    """
+    Después de guardar una licencia, si las fechas cambiaron:
+    1. Limpia los datos del período anterior
+    2. Re-procesa el nuevo período
+    """
+    if created:
+        # Las licencias nuevas ya se procesan en el método save() del modelo
+        return
+
+    original = _licencia_fechas_originales.pop(instance.pk, None)
+    if not original:
+        return
+
+    fechas_cambiaron = (
+        original['fecha_inicio'] != instance.fecha_inicio or
+        original['fecha_fin'] != instance.fecha_fin
+    )
+
+    if not fechas_cambiaron:
+        return
+
+    if instance.estado != 'aprobada':
+        return
+
+    try:
+        operario = instance.operario
+        logger.info(f'Detectado cambio de fechas en licencia {instance.id}: '
+                   f'{original["fecha_inicio"]}-{original["fecha_fin"]} → '
+                   f'{instance.fecha_inicio}-{instance.fecha_fin}')
+
+        # 1. Eliminar HorasEnfermedad anteriores de esta licencia
+        HorasEnfermedad.objects.filter(licencia=instance).delete()
+
+        # 2. Des-justificar registros del período ANTERIOR
+        if original['fecha_inicio'] and original['fecha_fin']:
+            RegistroAsistencia.objects.filter(
+                operario=operario,
+                fecha__gte=original['fecha_inicio'],
+                fecha__lte=original['fecha_fin'],
+                licencia_relacionada=instance
+            ).update(
+                estado_justificacion=False,
+                licencia_relacionada=None,
+                descripcion=None
+            )
+
+            # Recalcular Horas_totales del período anterior
+            meses_anteriores = set()
+            fecha_actual = original['fecha_inicio']
+            while fecha_actual <= original['fecha_fin']:
+                meses_anteriores.add(fecha_actual.strftime('%Y-%m'))
+                fecha_actual += timedelta(days=1)
+
+            for mes_str in meses_anteriores:
+                Horas_totales.calcular_horas_totales(operario, mes_str)
+
+        # 3. Re-procesar el nuevo período
+        if instance.fecha_inicio and instance.fecha_fin and instance.aplicar_a_asistencia:
+            from .tasks import procesar_licencia_aprobada
+            procesar_licencia_aprobada(instance.pk)
+            logger.info(f'Re-procesada licencia {instance.id} con nuevas fechas')
+
+    except Exception as e:
+        logger.error(f'Error re-procesando licencia {instance.id} por cambio de fechas: {str(e)}')

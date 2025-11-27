@@ -392,6 +392,7 @@ def exportar_seleccionados_excel(modeladmin, request, queryset):
 exportar_seleccionados_excel.short_description = "📊 Exportar seleccionados a Excel (legible)"
 
 
+@admin.register(Operario)
 class OperarioAdmin(ImportExportMixin, SimpleHistoryAdmin, admin.ModelAdmin):
     resource_class = OperarioResource
     inlines = [LicenciaInline]
@@ -2701,15 +2702,8 @@ class LicenciaAdmin(SimpleHistoryAdmin, admin.ModelAdmin):
         ('📅 Período de Licencia', {
             'fields': ('fecha_inicio', 'fecha_fin', 'duracion_display')
         }),
-        ('⚙️ Configuración', {
-            'fields': ('estado', 'aplicar_a_asistencia')
-        }),
-        ('✅ Aprobación', {
-            'fields': ('aprobada_por', 'fecha_aprobacion', 'observaciones'),
-            'classes': ('collapse',)
-        }),
         ('📊 Metadatos', {
-            'fields': ('fecha_subida', 'historia_cambios'),
+            'fields': ('fecha_subida',),
             'classes': ('collapse',)
         })
     )
