@@ -2826,8 +2826,14 @@ class LicenciaAdmin(SimpleHistoryAdmin, admin.ModelAdmin):
     ordering = ['-fecha_subida', '-fecha_inicio']
     
     list_per_page = 25
-    
+
     actions = ['aprobar_licencias_masivo', 'rechazar_licencias_masivo', 'exportar_excel_licencias']
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """Filtrar operarios para mostrar solo los activos"""
+        if db_field.name == "operario":
+            kwargs["queryset"] = Operario.objects.filter(activo=True).order_by('apellido', 'nombre')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_operario_info(self, obj):
         """Información completa del operario"""
