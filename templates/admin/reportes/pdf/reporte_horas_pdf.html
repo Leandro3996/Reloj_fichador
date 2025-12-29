@@ -310,45 +310,7 @@
         </table>
     </div>
     {% endfor %}
-    
-    {% if totales %}
-    <div class="totales-section">
-        <h3>RESUMEN TOTAL DEL PERÍODO</h3>
-        <div style="display: flex; justify-content: space-around; text-align: center;">
-            <div>
-                <strong>Horas Normales</strong><br>
-                <span style="font-size: 12px; color: #28a745;">
-                    {{ totales.total_normales|horas_formato }}
-                </span>
-            </div>
-            <div>
-                <strong>Horas Nocturnas</strong><br>
-                <span style="font-size: 12px; color: #17a2b8;">
-                    {{ totales.total_nocturnas|horas_formato }}
-                </span>
-            </div>
-            <div>
-                <strong>Horas Extras</strong><br>
-                <span style="font-size: 12px; color: #fd7e14;">
-                    {{ totales.total_extras|horas_formato }}
-                </span>
-            </div>
-            <div>
-                <strong>Horas Enfermedad</strong><br>
-                <span style="font-size: 12px; color: #dc3545;">
-                    {{ totales.total_enfermedad|horas_formato }}
-                </span>
-            </div>
-            <div>
-                <strong>TOTAL GENERAL</strong><br>
-                <span style="font-size: 14px; color: #343a40; font-weight: bold;">
-                    {{ totales.total_general|horas_formato }}
-                </span>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    
+
     {% else %}
     <div class="resumen">
         <h3>⚠️ Sin datos</h3>
