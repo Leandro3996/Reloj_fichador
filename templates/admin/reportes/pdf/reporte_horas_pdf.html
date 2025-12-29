@@ -6,13 +6,35 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 0.8cm 0.6cm 1.2cm 0.6cm;
+            margin: 3.8cm 0.6cm 1.2cm 0.6cm;
+
+            @top-left {
+                content: element(pageHeader);
+                width: 100%;
+            }
+
+            @top-center {
+                content: "";
+            }
+
+            @top-right {
+                content: "";
+            }
 
             @bottom-center {
                 content: "Reporte generado por Sistema de Reloj Fichador";
                 font-size: 7px;
                 color: #888;
             }
+        }
+
+        /* Encabezado repetido en todas las páginas */
+        .page-header {
+            position: running(pageHeader);
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            color: #333;
+            width: 100%;
         }
 
         body {
@@ -184,23 +206,26 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>REPORTE DE HORAS TRABAJADAS</h1>
-        <p><strong>{{ mes_nombre }} {{ año }}</strong></p>
-        <p>Generado el {{ fecha_generacion }}</p>
-    </div>
-    
-    <div class="info-meta">
-        <div>
-            <strong>Período:</strong> {{ mes_nombre }} {{ año }}<br>
-            <strong>Operarios:</strong> {{ operarios_filtro }}
+    <!-- Encabezado que se repite en todas las páginas -->
+    <div class="page-header">
+        <div class="header">
+            <h1>REPORTE DE HORAS TRABAJADAS</h1>
+            <p><strong>{{ mes_nombre }} {{ año }}</strong></p>
+            <p>Generado el {{ fecha_generacion }}</p>
         </div>
-        <div>
-            <strong>Total registros:</strong> {{ horas_trabajadas|length }}<br>
-            <strong>Sistema:</strong> Reloj Fichador
+
+        <div class="info-meta">
+            <div>
+                <strong>Período:</strong> {{ mes_nombre }} {{ año }}<br>
+                <strong>Operarios:</strong> {{ operarios_filtro }}
+            </div>
+            <div>
+                <strong>Total registros:</strong> {{ horas_trabajadas|length }}<br>
+                <strong>Sistema:</strong> Reloj Fichador
+            </div>
         </div>
     </div>
-    
+
     {% if horas_agrupadas %}
     {% load reporte_filters %}
     {% for operario_nombre, operario_data in horas_agrupadas.items %}
