@@ -1945,6 +1945,7 @@ class ReporteAdmin(admin.ModelAdmin):
             'horas_trabajadas': horas_trabajadas,
             'horas_agrupadas': horas_agrupadas,
             'totales': totales,
+            'generar_solicitado': 'generar' in request.GET,
         }
         
         return render(request, 'admin/reportes/reporte_horas.html', context)

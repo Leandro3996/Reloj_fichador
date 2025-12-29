@@ -183,6 +183,40 @@
     font-style: italic;
 }
 
+.sin-datos-mensaje {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.sin-datos-mensaje .icono-sin-datos {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.sin-datos-mensaje h3 {
+    color: #856404;
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+}
+
+.sin-datos-mensaje p {
+    color: #856404;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.sin-datos-mensaje .sugerencia {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
 .resumen-mes {
     background: #e3f2fd;
     padding: 1rem 1.5rem;
@@ -644,6 +678,24 @@
             No se encontraron horas trabajadas para los filtros seleccionados
         </div>
         {% endif %}
+    </div>
+    {% elif generar_solicitado %}
+    <!-- El usuario hizo clic en Generar pero no hay datos -->
+    <div class="sin-datos-mensaje">
+        <div class="icono-sin-datos">📭</div>
+        <h3>No hay datos para este período</h3>
+        <p>No se encontraron registros de horas trabajadas para
+            {% for num_mes, nombre_mes in meses %}
+                {% if num_mes == mes %}<strong>{{ nombre_mes }}</strong>{% endif %}
+            {% endfor %}
+            <strong>{{ año }}</strong>
+            {% if operarios_seleccionados %}
+                para los {{ operarios_seleccionados.count }} operario{{ operarios_seleccionados.count|pluralize:"s" }} seleccionado{{ operarios_seleccionados.count|pluralize:"s" }}.
+            {% else %}
+                para ningún operario.
+            {% endif %}
+        </p>
+        <p class="sugerencia">💡 Intenta seleccionar otro mes o verificar que existan fichajes para el período seleccionado.</p>
     </div>
     {% endif %}
 </div>
