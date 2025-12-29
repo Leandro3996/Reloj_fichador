@@ -232,7 +232,7 @@ LIMIT 20;
 ### Dashboard de Monitoreo (Opcional)
 
 - [ ] Modificar `mantenedor/utils.py` para incluir estadísticas de horas negativas
-- [ ] Crear widget en el dashboard de Django Unfold
+- [ ] Crear widget en el dashboard del admin
 - [ ] Agregar link directo al filtro de registros negativos
 
 ### Análisis de Datos (Investigación futura)

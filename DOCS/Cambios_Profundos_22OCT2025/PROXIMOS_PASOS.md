@@ -149,7 +149,7 @@ horas_enfermedad_total = calcular_horas_enfermedad_laborales(
 
 ```python
 @admin.register(CalendarioLaboral)
-class CalendarioLaboralAdmin(UnfoldModelAdmin):
+class CalendarioLaboralAdmin(ModelAdmin):
     list_display = ['fecha', 'es_laborable', 'descripcion']
     list_filter = ['es_laborable', 'fecha']
     search_fields = ['descripcion']

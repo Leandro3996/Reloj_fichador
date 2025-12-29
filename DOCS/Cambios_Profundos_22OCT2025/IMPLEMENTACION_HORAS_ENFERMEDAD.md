@@ -174,7 +174,7 @@ HorasEnfermedad  # Agregado a los imports
 **Línea 1634-1681:** Nuevo `HorasEnfermedadAdmin`
 ```python
 @admin.register(HorasEnfermedad)
-class HorasEnfermedadAdmin(UnfoldModelAdmin):
+class HorasEnfermedadAdmin(ModelAdmin):
     # Lista de horas enfermedad con formateo legible
     # Campos read-only (sin edición manual)
     # Enlaces a licencias relacionadas

@@ -124,7 +124,7 @@ worksheet.insert_chart('D2', chart)
 
 **Ventajas sobre ReportLab:**
 - Usa templates HTML/CSS (más fácil para diseñadores)
-- Reutiliza componentes de Unfold
+- Reutiliza componentes de admin-interface
 - Diseño responsive
 - Integración natural con Django
 

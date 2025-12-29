@@ -1,4 +1,4 @@
-# 📋 PLAN INTEGRAL: FORMULARIOS PROFESIONALES CHANGE/ADD EN DJANGO UNFOLD
+# 📋 PLAN INTEGRAL: FORMULARIOS PROFESIONALES CHANGE/ADD EN django-admin-interface
 
 **Documento Estratégico para Embellecimiento Profesional de Formularios Admin**
 
@@ -19,7 +19,7 @@
 
 ## 🎯 EXECUTIVE SUMMARY
 
-Se requiere mejorar profesionalmente los formularios **CHANGE/ADD** del panel admin de Django Unfold, priorizando:
+Se requiere mejorar profesionalmente los formularios **CHANGE/ADD** del panel admin de django-admin-interface, priorizando:
 
 1. **Claridad y Legibilidad** (Máxima Importancia) ✅
 2. **Funcionalidad / Diseño** (Alta Importancia)
@@ -27,8 +27,8 @@ Se requiere mejorar profesionalmente los formularios **CHANGE/ADD** del panel ad
 4. **Estética** (Importancia Baja)
 
 **Enfoque Recomendado**: Combinación estratégica de:
-- ✅ **Herramientas Nativas de Unfold** (Primera opción)
-- ✅ **django-crispy-forms + unfold_crispy** (Layouts complejos)
+- ✅ **Herramientas Nativas de admin-interface** (Primera opción)
+- ✅ **django-crispy-forms + bootstrap5** (Layouts complejos)
 - ✅ **Sobrescritura de Plantillas** (Contexto adicional)
 - ✅ **CSS/JavaScript Personalizados** (Interactividad)
 
@@ -38,7 +38,7 @@ Se requiere mejorar profesionalmente los formularios **CHANGE/ADD** del panel ad
 
 ### Fuentes Consultadas (Context7 - MCP)
 
-**Django Unfold** (`/unfoldadmin/django-unfold`):
+**django-admin-interface** (`/admin-interfaceadmin/django-admin-interface`):
 - ✅ Trust Score: 6.2
 - ✅ Code Snippets: 147 ejemplos
 - ✅ Documentación completa disponible
@@ -46,11 +46,11 @@ Se requiere mejorar profesionalmente los formularios **CHANGE/ADD** del panel ad
 **Django Crispy Forms** (`/django-crispy-forms/django-crispy-forms`):
 - ✅ Trust Score: 7.5
 - ✅ Code Snippets: 106 ejemplos
-- ✅ Integración oficial con unfold_crispy
+- ✅ Integración oficial con bootstrap5
 
 ### Hallazgos Clave de la Documentación Oficial
 
-#### **1. Herramientas Nativas de Unfold**
+#### **1. Herramientas Nativas de admin-interface**
 
 **Soporte Completo para Fieldsets**:
 ```python
@@ -80,11 +80,11 @@ conditional_fields = {
 }
 ```
 
-**Widgets Personalizados de Unfold**:
+**Widgets Personalizados de admin-interface**:
 - ✅ `WysiwygWidget`: Editor de texto enriquecido
 - ✅ `ArrayWidget`: Para campos PostgreSQL ArrayField
-- ✅ `UnfoldAdminTextInputWidget`: Input estilizado
-- ✅ `UnfoldAdminSplitDateTimeWidget`: DateTime mejorado
+- ✅ `admin-interfaceAdminTextInputWidget`: Input estilizado
+- ✅ `admin-interfaceAdminSplitDateTimeWidget`: DateTime mejorado
 
 **Fieldset Tabs** (Pestañas):
 ```python
@@ -102,25 +102,25 @@ fieldsets = (
 )
 ```
 
-#### **2. Django Crispy Forms + unfold_crispy**
+#### **2. Django Crispy Forms + bootstrap5**
 
 **Configuración Obligatoria** (CRÍTICA):
 ```python
 # settings.py - EVITA ERRORES TemplateDoesNotExist
 INSTALLED_APPS = [
-    "unfold",  # DEBE IR PRIMERO
+    "admin_interface",  # DEBE IR PRIMERO
     "crispy_forms",
     ...
 ]
 
-CRISPY_TEMPLATE_PACK = "unfold_crispy"  # MANDATORIO
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
+CRISPY_TEMPLATE_PACK = "bootstrap5"  # MANDATORIO
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
 ```
 
 **Problemas Conocidos Documentados**:
-- ⚠️ Si `CRISPY_TEMPLATE_PACK` != "unfold_crispy" → Error TemplateDoesNotExist
-- ⚠️ Si `unfold` no va PRIMERO en INSTALLED_APPS → Estilos no cargan
-- ⚠️ No usar bootstrap5, bootstrap4, etc. con Unfold
+- ⚠️ Si `CRISPY_TEMPLATE_PACK` != "bootstrap5" → Error TemplateDoesNotExist
+- ⚠️ Si `admin-interface` no va PRIMERO en INSTALLED_APPS → Estilos no cargan
+- ⚠️ No usar bootstrap5, bootstrap4, etc. con admin-interface
 
 **Layouts Complejos con Crispy Forms**:
 ```python
@@ -147,14 +147,14 @@ class YourFormHelper(FormHelper):
 **Template Rendering con Crispy**:
 ```html
 {% load crispy_forms_tags %}
-{% crispy form "unfold_crispy" %}  <!-- Especificar pack explícitamente -->
+{% crispy form "bootstrap5" %}  <!-- Especificar pack explícitamente -->
 ```
 
 #### **3. Sobrescritura de Plantillas (change_form.html)**
 
 **Estructura Correcta**:
 ```html
-{% extends "unfold/change_form.html" %}  <!-- EXTEND desde Unfold, no admin -->
+{% extends "admin/change_form.html" %}  <!-- EXTEND desde admin-interface, no admin -->
 {% load crispy_forms_tags %}
 
 {% block after_field_sets %}
@@ -185,7 +185,7 @@ class MyModelAdmin(ModelAdmin):
 
 **Método 2: Configuración Global en settings.py**:
 ```python
-UNFOLD = {
+admin-interface = {
     "STYLES": [
         lambda request: static("css/global_override.css"),
     ],
@@ -195,7 +195,7 @@ UNFOLD = {
 }
 ```
 
-**Stack Frontend de Unfold** (ya disponible):
+**Stack Frontend de admin-interface** (ya disponible):
 - ✅ **TailwindCSS**: Clases utilitarias
 - ✅ **Alpine.js**: Reactividad ligera (x-data, x-show, etc.)
 - ✅ **HTMX**: Actualizaciones AJAX dinámicas
@@ -207,42 +207,42 @@ UNFOLD = {
 ### Documento 1: Analisis_error_no_template.md
 
 **Lección Principal**:
-- ✅ Error `TemplateDoesNotExist: unfold_crispy/whole_uni_form.html` = Configuración incorrecta
-- ✅ Causa #1: `CRISPY_TEMPLATE_PACK` no establecido a "unfold_crispy"
-- ✅ Causa #2: `unfold` no en INSTALLED_APPS
+- ✅ Error `TemplateDoesNotExist: bootstrap5/whole_uni_form.html` = Configuración incorrecta
+- ✅ Causa #1: `CRISPY_TEMPLATE_PACK` no establecido a "bootstrap5"
+- ✅ Causa #2: `admin-interface` no en INSTALLED_APPS
 - ✅ Causa #3: Archivos estáticos no compilados
 
 **Protecciones para Implementar**:
 ```python
 # VERIFICAR ANTES DE USAR CRISPY:
-INSTALLED_APPS = ["unfold", ..., "crispy_forms"]  # ✅ Correcto
-CRISPY_TEMPLATE_PACK = "unfold_crispy"            # ✅ Correcto
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"] # ✅ Correcto
+INSTALLED_APPS = ["admin_interface", ..., "crispy_forms"]  # ✅ Correcto
+CRISPY_TEMPLATE_PACK = "bootstrap5"            # ✅ Correcto
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"] # ✅ Correcto
 ```
 
 **Protocolo de Debugging** (si ocurren errores):
 ```bash
 # 1. Verificar instalación
-pip freeze | grep -E 'django-unfold|django-crispy'
+pip freeze | grep -E 'django-admin-interface|django-crispy'
 
 # 2. Probar en shell de Django
 python manage.py shell
 from django.template import loader
-loader.get_template('unfold_crispy/whole_uni_form.html')  # Debe funcionar
+loader.get_template('bootstrap5/whole_uni_form.html')  # Debe funcionar
 ```
 
-### Documento 2: Django_unfold_ADD_EDIT.md
+### Documento 2: Django_admin-interface_ADD_EDIT.md
 
 **Estrategia de 4 Pilares Documentada**:
 
-1. **Herramientas Nativas de Unfold** (Recomendado primero)
+1. **Herramientas Nativas de admin-interface** (Recomendado primero)
    - fieldsets, conditional_fields, WysiwygWidget
    - Baja complejidad, máxima compatibilidad
 
 2. **django-crispy-forms** (Cuando se necesite layout complejo)
    - Row/Column layouts
    - Fieldsets programáticos
-   - Integración con unfold_crispy
+   - Integración con bootstrap5
 
 3. **Sobrescritura de Plantillas** (Contexto adicional)
    - change_form.html, delete_confirmation.html
@@ -272,7 +272,7 @@ loader.get_template('unfold_crispy/whole_uni_form.html')  # Debe funcionar
 
 Basándome en los requisitos (Claridad → Funcionalidad → Accesibilidad → Estética):
 
-#### **PASO 1: Herramientas Nativas de Unfold** ⭐ Prioridad 1
+#### **PASO 1: Herramientas Nativas de admin-interface** ⭐ Prioridad 1
 
 **Aplicar a TODOS los ModelAdmin**:
 
@@ -310,7 +310,7 @@ class OperarioAdmin(ModelAdmin):
 
 **Beneficios**:
 - ✅ Sin depender de crispy-forms
-- ✅ Máxima compatibilidad con Unfold
+- ✅ Máxima compatibilidad con admin-interface
 - ✅ Fácil de mantener
 - ✅ Resuelve 80% de necesidades
 
@@ -350,9 +350,9 @@ class OperarioAdmin(ModelAdmin):
 ```
 
 **Requisitos Criticos**:
-- ✅ settings.py: `CRISPY_TEMPLATE_PACK = "unfold_crispy"`
-- ✅ settings.py: `CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]`
-- ✅ INSTALLED_APPS: `"unfold"` PRIMERO, luego `"crispy_forms"`
+- ✅ settings.py: `CRISPY_TEMPLATE_PACK = "bootstrap5"`
+- ✅ settings.py: `CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]`
+- ✅ INSTALLED_APPS: `"admin_interface"` PRIMERO, luego `"crispy_forms"`
 
 #### **PASO 3: Sobrescritura de Plantillas** ⭐ Prioridad 3
 
@@ -360,7 +360,7 @@ class OperarioAdmin(ModelAdmin):
 
 ```html
 <!-- templates/admin/reloj_fichador/operario/change_form.html -->
-{% extends "unfold/change_form.html" %}
+{% extends "admin/change_form.html" %}
 {% load i18n %}
 
 {% block after_field_sets %}
@@ -445,7 +445,7 @@ conditional_fields = {
 - ✅ Navegación por teclado funcional
 - ✅ Mensajes de error claros
 
-**Implementación Automática** (Unfold maneja):
+**Implementación Automática** (admin-interface maneja):
 - ✅ Labels HTML correctos
 - ✅ ARIA labels donde aplique
 - ✅ Focus visible en inputs
@@ -454,13 +454,13 @@ conditional_fields = {
 ### R4: Estética (Importancia Baja)
 
 **Criterios**:
-- ✅ Consistencia visual con tema Unfold
+- ✅ Consistencia visual con tema admin-interface
 - ✅ Iconografía apropiada
 - ✅ Animaciones suaves (no distractoras)
 - ✅ Alineación y espaciado consistentes
 
 **Implementación**:
-- Heredar estilos de Unfold automáticamente
+- Heredar estilos de admin-interface automáticamente
 - Usar clases Tailwind cuando sea necesario
 - No sobreescribir estilos base
 
@@ -472,16 +472,16 @@ conditional_fields = {
 
 ```bash
 # 1. Verificar instalación
-pip freeze | grep -E 'django-unfold|django-crispy'
-# Debe mostrar: django-unfold==0.42.0, django-crispy-forms==2.x
+pip freeze | grep -E 'django-admin-interface|django-crispy'
+# Debe mostrar: django-admin-interface==0.42.0, django-crispy-forms==2.x
 
 # 2. Verificar settings.py
 grep -n "CRISPY_TEMPLATE_PACK\|CRISPY_ALLOWED" mantenedor/settings.py
 # Debe estar presente
 
 # 3. Verificar INSTALLED_APPS
-grep -n "unfold\|crispy_forms" mantenedor/settings.py
-# Debe tener "unfold" PRIMERO
+grep -n "admin-interface\|crispy_forms" mantenedor/settings.py
+# Debe tener "admin_interface" PRIMERO
 ```
 
 ### Fase 2: Aplicar Herramientas Nativas (Prioritario)
@@ -528,7 +528,7 @@ grep -n "unfold\|crispy_forms" mantenedor/settings.py
 
 **Solo para datos relacionados**:
 1. Crear `templates/admin/app_name/model_name/change_form.html`
-2. Extender desde `unfold/change_form.html`
+2. Extender desde `admin/change_form.html`
 3. Inyectar contenido en `{% block after_field_sets %}`
 
 ### Fase 5: CSS/JavaScript (Interactividad)
@@ -578,7 +578,7 @@ grep -n "unfold\|crispy_forms" mantenedor/settings.py
 
 - [ ] Crear templates personalizadas donde necesites contexto
 - [ ] Inyectar datos relacionados (tablas, gráficos)
-- [ ] Mantener herencia de `unfold/change_form.html`
+- [ ] Mantener herencia de `admin/change_form.html`
 - [ ] Verificar responsive design
 
 ### Sprint 5: Interactividad (Día 6 - Si Aplica)
@@ -603,29 +603,29 @@ grep -n "unfold\|crispy_forms" mantenedor/settings.py
 
 ### Conflicto 1: Error TemplateDoesNotExist
 
-**Problema**: `TemplateDoesNotExist: unfold_crispy/whole_uni_form.html`
+**Problema**: `TemplateDoesNotExist: bootstrap5/whole_uni_form.html`
 
 **Causas Comunes**:
 1. ❌ CRISPY_TEMPLATE_PACK no establecido o incorrecto
-2. ❌ "unfold" no en INSTALLED_APPS
-3. ❌ "unfold" no es la PRIMERA aplicación
+2. ❌ "admin_interface" no en INSTALLED_APPS
+3. ❌ "admin_interface" no es la PRIMERA aplicación
 4. ❌ crispy_forms no instalado
 
 **Prevención**:
 ```python
 # settings.py
 INSTALLED_APPS = [
-    "unfold",  # ⭐ DEBE SER PRIMERO
-    "unfold.contrib.import_export",
-    "unfold.contrib.simple_history",
+    "admin_interface",  # ⭐ DEBE SER PRIMERO
+    "admin-interface.contrib.import_export",
+    "admin-interface.contrib.simple_history",
     "django.contrib.admin",
     ...
     "crispy_forms",
     ...
 ]
 
-CRISPY_TEMPLATE_PACK = "unfold_crispy"  # ⭐ OBLIGATORIO
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
+CRISPY_TEMPLATE_PACK = "bootstrap5"  # ⭐ OBLIGATORIO
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
 ```
 
 **Debug si ocurre**:
@@ -633,13 +633,13 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
 python manage.py shell
 from django.template import loader
 try:
-    loader.get_template('unfold_crispy/whole_uni_form.html')
+    loader.get_template('bootstrap5/whole_uni_form.html')
     print("✅ Template found")
 except:
     print("❌ Template not found - check settings.py")
 ```
 
-### Conflicto 2: Heredar de admin.ModelAdmin en lugar de unfold.admin.ModelAdmin
+### Conflicto 2: Heredar de admin.ModelAdmin en lugar de admin-interface.admin.ModelAdmin
 
 **Problema**: Formularios sin estilos, aspecto genérico
 
@@ -649,12 +649,12 @@ except:
 from django.contrib.admin import ModelAdmin
 
 # ✅ CORRECTO
-from unfold.admin import ModelAdmin
+from admin-interface.admin import ModelAdmin
 ```
 
-### Conflicto 3: Extender desde admin/change_form.html en lugar de unfold/change_form.html
+### Conflicto 3: Extender desde admin/change_form.html en lugar de admin/change_form.html
 
-**Problema**: Pérdida de estilos y funcionalidades de Unfold
+**Problema**: Pérdida de estilos y funcionalidades de admin-interface
 
 **Prevención**:
 ```html
@@ -662,10 +662,10 @@ from unfold.admin import ModelAdmin
 {% extends "admin/change_form.html" %}
 
 <!-- ✅ CORRECTO -->
-{% extends "unfold/change_form.html" %}
+{% extends "admin/change_form.html" %}
 ```
 
-### Conflicto 4: Usar bootstrap5 con Unfold
+### Conflicto 4: Usar bootstrap5 con admin-interface
 
 **Problema**: Clases CSS incompatibles (Tailwind vs Bootstrap)
 
@@ -675,7 +675,7 @@ from unfold.admin import ModelAdmin
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # ✅ CORRECTO
-CRISPY_TEMPLATE_PACK = "unfold_crispy"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 ```
 
 ### Conflicto 5: Olvidar collectstatic en producción
@@ -705,7 +705,7 @@ python manage.py collectstatic --noinput
 
 ## 📊 MATRIZ DE HERRAMIENTAS POR MODELO
 
-| Modelo | Nativo Unfold | Crispy Forms | Template Override | Custom CSS/JS |
+| Modelo | Nativo admin-interface | Crispy Forms | Template Override | Custom CSS/JS |
 |--------|---------------|--------------|------------------|---------------|
 | Operario | ✅ fieldsets | ⚠️ si Layout complejo | ⚠️ si tabla histórico | ❌ |
 | RegistroDiario | ✅ fieldsets | ✅ Row/Column | ⚠️ tabla de inconsistencias | ✅ validación |
@@ -722,26 +722,26 @@ python manage.py collectstatic --noinput
 ### Verificaciones Técnicas
 
 - [ ] Django 4.2+ instalado
-- [ ] django-unfold==0.42.0+ instalado
+- [ ] django-admin-interface==0.42.0+ instalado
 - [ ] django-crispy-forms 2.0+ instalado
-- [ ] crispy-tailwind o unfold_crispy disponible
-- [ ] INSTALLED_APPS: "unfold" PRIMERO
+- [ ] crispy-tailwind o bootstrap5 disponible
+- [ ] INSTALLED_APPS: "admin_interface" PRIMERO
 - [ ] TEMPLATES DIRS configurado
 - [ ] Static files configurado
 
 ### Verificaciones de Configuración
 
-- [ ] CRISPY_TEMPLATE_PACK = "unfold_crispy"
-- [ ] CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
-- [ ] UNFOLD settings presente en settings.py
+- [ ] CRISPY_TEMPLATE_PACK = "bootstrap5"
+- [ ] CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
+- [ ] admin-interface settings presente en settings.py
 - [ ] DEBUG = True en desarrollo
 - [ ] STATIC_URL y STATIC_ROOT configurados
 
 ### Verificaciones de Código
 
-- [ ] Todos los ModelAdmin heredan de `unfold.admin.ModelAdmin`
+- [ ] Todos los ModelAdmin heredan de `admin-interface.admin.ModelAdmin`
 - [ ] No hay herencia de `django.contrib.admin.ModelAdmin`
-- [ ] Templates extienden desde `unfold/change_form.html`
+- [ ] Templates extienden desde `admin/change_form.html`
 - [ ] No hay templates extendiendo de `admin/change_form.html`
 
 ### Verificaciones Funcionales
@@ -758,11 +758,11 @@ python manage.py collectstatic --noinput
 
 ### Documentación Oficial Consultada
 
-1. **Django Unfold - Official Docs**
-   - Configuración: https://github.com/unfoldadmin/django-unfold/docs/configuration/settings.md
-   - Crispy Forms: https://github.com/unfoldadmin/django-unfold/docs/configuration/crispy-forms.md
-   - Fieldsets Tabs: https://github.com/unfoldadmin/django-unfold/docs/tabs/fieldsets.md
-   - Styles/Scripts: https://github.com/unfoldadmin/django-unfold/docs/styles-scripts/loading-files.md
+1. **django-admin-interface - Official Docs**
+   - Configuración: https://github.com/admin-interfaceadmin/django-admin-interface/docs/configuration/settings.md
+   - Crispy Forms: https://github.com/admin-interfaceadmin/django-admin-interface/docs/configuration/crispy-forms.md
+   - Fieldsets Tabs: https://github.com/admin-interfaceadmin/django-admin-interface/docs/tabs/fieldsets.md
+   - Styles/Scripts: https://github.com/admin-interfaceadmin/django-admin-interface/docs/styles-scripts/loading-files.md
 
 2. **Django Crispy Forms - Official Docs**
    - Layout Objects: https://django-crispy-forms.readthedocs.io/en/latest/layouts.rst
@@ -774,7 +774,7 @@ python manage.py collectstatic --noinput
    - Protocolo de debugging detallado
 
 4. **Estrategia de Cuatro Pilares**
-   - Archivo: `Django_unfold_ADD_EDIT.md`
+   - Archivo: `Django_admin-interface_ADD_EDIT.md`
    - Matriz de decisión de herramientas
 
 ---
@@ -799,13 +799,13 @@ python manage.py collectstatic --noinput
 
 **Evitar Anti-Patrones**:
 - ❌ No saltar a crispy-forms sin intentar fieldsets
-- ❌ No usar bootstrap5 con Unfold
+- ❌ No usar bootstrap5 con admin-interface
 - ❌ No olvidar {{ block.super }} en overrides
 - ❌ No heredar de admin.ModelAdmin
 
 **Mantener en Mente**:
 - 🎯 Prioridad: Claridad > Funcionalidad > Accesibilidad > Estética
-- 🎯 Unfold es una capa sobre Django admin, respeta eso
+- 🎯 admin-interface es una capa sobre Django admin, respeta eso
 - 🎯 Usa la documentación oficial como fuente de verdad
 - 🎯 Test en ambos modos: claro y oscuro
 

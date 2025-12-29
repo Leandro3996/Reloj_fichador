@@ -45,7 +45,7 @@ This is a Django-based time tracking system ("Reloj Fichador") deployed with Doc
 - **Task Queue**: Celery with Redis as broker
 - **Web Server**: Nginx with Gunicorn
 - **Deployment**: Docker Compose
-- **Admin Interface**: Django Unfold 0.42.0 (modern admin theme)
+- **Admin Interface**: django-admin-interface (customizable admin theme)
 - **MCP Servers**: MySQL (local), Context7, BrowserMCP, Chrome DevTools
 
 ### Key Models (apps/reloj_fichador/models.py)
@@ -194,7 +194,7 @@ Database: docker_horesdb
 
 ### Configuration
 - `mantenedor/settings.py` - Django settings with timezone configuration (USE_TZ=True for timezone-aware datetimes)
-- `mantenedor/utils.py` - Utility functions for Unfold callbacks (environment badges, dashboard statistics)
+- `mantenedor/utils.py` - Utility functions and callbacks
 - `docker-compose.yml` - Service orchestration
 - `.env` - Environment variables (not in repo)
 - `nginx.conf` - Web server configuration
@@ -203,7 +203,6 @@ Database: docker_horesdb
 ### Documentation
 - `documentacion/` - Comprehensive project documentation
 - `documentacion/analista/` - System analysis, design guides, and technical documentation
-- `documentacion/django-unfold-manual.md` - Complete guide for Django Unfold implementation
 
 ### Business Logic
 - `apps/reloj_fichador/models.py` - Core data models and time calculations (LINE 61-140: redondear_entrada/salida functions, LINE 504-562: Horas_trabajadas.calcular_horas_trabajadas)
@@ -242,7 +241,7 @@ docker compose exec web python manage.py migrate
 
 ### Admin Interface Customizations
 The Django admin is heavily customized with:
-- **Django Unfold Theme**: Modern, responsive interface with dark mode support
+- **django-admin-interface**: Customizable theme with dark mode support
 - Custom list displays and filters
 - Export functionality (PDF/Excel)
 - Import/export capabilities for bulk operations
@@ -340,47 +339,21 @@ The project emphasizes:
 
 For complete project rules and guidelines, see `.cursor/rules/instrucciones.mdc`
 
-## Django Unfold Implementation
+## Django Admin Interface
 
 ### Overview
-The project uses **Django Unfold 0.42.0** as a modern admin theme, replacing the default Django admin interface with a clean, responsive, and feature-rich interface.
+The project uses **django-admin-interface** as a customizable admin theme. This package allows visual customization of the Django admin directly from the admin panel.
 
-### Key Features Implemented
-- **Modern UI**: Clean, responsive design with dark mode support
-- **Custom Navigation**: Hierarchical sidebar menu with Material Design icons
-- **Dashboard**: Real-time statistics showing active operators, daily records, and attendance
-- **Environment Badge**: Visual indicator showing Development/Production environment
-- **Integration**: Seamless integration with django-import-export and django-simple-history
-- **Personalization**: Custom colors, logo, and site branding
+### Key Features
+- **Customizable UI**: Colors, logo, and theme configurable from admin
+- **Dark mode support**: Toggle between light and dark themes
+- **Logo configuration**: Upload logo directly from Admin > Admin Interface > Themes
+- **Integration**: Works seamlessly with django-import-export and django-simple-history
 
-### Configuration Location
-All Unfold configuration is centralized in `mantenedor/settings.py` under the `UNFOLD` dictionary (lines 145-377):
-- **SITE_TITLE**: "Reloj Fichador - Administración"
-- **SITE_HEADER**: "Sistema de Control de Asistencia"
-- **THEME**: Dark mode by default
-- **SIDEBAR**: Custom navigation with 7 main sections
-- **COLORS**: Purple-based color scheme (primary color: #A855F7)
-
-### Admin Classes Structure
-All admin classes in `apps/reloj_fichador/admin.py` inherit from `UnfoldModelAdmin`:
-- 15 model admins fully migrated to Unfold
-- 2 configuration admins with restricted permissions
-- Custom user and group admins integrated with Unfold
-- Historical tracking admins for audit purposes
-
-### Utility Functions
-Located in `mantenedor/utils.py`:
-- `environment_callback()`: Shows environment badge (Development/Production)
-- `dashboard_callback()`: Provides real-time statistics for the dashboard
+### Configuration
+The theme is configured directly from the admin panel:
+1. Go to Admin > Admin Interface > Themes
+2. Edit the active theme to customize colors, logo, title, etc.
 
 ### Access
 Admin interface accessible at: `http://localhost:58000/admin/` (or configured domain)
-
-### Maintenance
-When adding new models:
-1. Inherit from `UnfoldModelAdmin` instead of `admin.ModelAdmin`
-2. Import: `from unfold.admin import ModelAdmin as UnfoldModelAdmin`
-3. Use `@admin.register(YourModel)` decorator or `admin.site.register()`
-4. Collect static files: `docker compose exec web python manage.py collectstatic --noinput`
-
-For detailed Unfold configuration options, see `documentacion/django-unfold-manual.md`

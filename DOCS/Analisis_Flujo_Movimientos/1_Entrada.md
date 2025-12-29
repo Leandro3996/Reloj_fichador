@@ -2,7 +2,7 @@
 
 **Fecha:** 18 de Octubre de 2025
 **Proyecto:** Sistema de Control de Asistencia - Reloj Fichador
-**Versión del Sistema:** 2.0 (PostgreSQL + Django Unfold)
+**Versión del Sistema:** 2.0 (PostgreSQL + django-admin-interface)
 
 ---
 
@@ -1207,7 +1207,7 @@ Horas_trabajadas: Calcula usando solo #1 y #3
 | ORM | Django ORM | Built-in | Consultas y modelos |
 | Zona Horaria | pytz | 2024.1 | Manejo de timezones |
 | Auditoría | django-simple-history | 3.7.0 | Historial de cambios |
-| Admin Interface | django-unfold | 0.42.0 | Interface moderna |
+| Admin Interface | django-admin-interface | 0.42.0 | Interface moderna |
 | Frontend | JavaScript ES6 + jQuery | 3.6.0 | Interactividad |
 | HTTP Client | Fetch API | Nativo | Requests AJAX |
 | Logging | Python logging | Built-in | Trazabilidad |

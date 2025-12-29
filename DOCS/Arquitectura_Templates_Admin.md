@@ -1,6 +1,6 @@
 # 📐 ARQUITECTURA: TEMPLATES Y ADMIN
 
-**Documento de Análisis de la Estructura de Templates y Django Unfold**
+**Documento de Análisis de la Estructura de Templates y django-admin-interface**
 
 ---
 
@@ -8,7 +8,7 @@
 
 1. [Visión General](#visión-general)
 2. [Estructura de Templates](#estructura-de-templates)
-3. [Configuración Django Unfold](#configuración-django-unfold)
+3. [Configuración django-admin-interface](#configuración-django-admin-interface)
 4. [Clases Admin](#clases-admin)
 5. [Funciones de Utilidad](#funciones-de-utilidad)
 6. [Integración de Componentes](#integración-de-componentes)
@@ -18,14 +18,14 @@
 
 ## 🎯 Visión General
 
-El proyecto utiliza **Django Unfold 0.42.0** como interfaz moderna para administración de datos, con **28 templates HTML** organizados en 6 categorías y **25 clases admin** con funcionalidades avanzadas de importación/exportación, reportes y auditoría.
+El proyecto utiliza **django-admin-interface 0.42.0** como interfaz moderna para administración de datos, con **28 templates HTML** organizados en 6 categorías y **25 clases admin** con funcionalidades avanzadas de importación/exportación, reportes y auditoría.
 
 | Métrica | Valor |
 |---------|-------|
 | **Clases Admin** | 25 modelos registrados |
 | **Templates** | 28 archivos HTML |
 | **Líneas en admin.py** | 3560 |
-| **Líneas de config Unfold** | 237 |
+| **Líneas de config admin-interface** | 237 |
 | **Funciones de exportación** | 4 formatos (PDF, Excel, histórico) |
 
 ---
@@ -36,7 +36,7 @@ El proyecto utiliza **Django Unfold 0.42.0** como interfaz moderna para administ
 
 ```
 templates/
-├── admin/                          # Admin de Django + Unfold
+├── admin/                          # Admin de Django + admin-interface
 │   ├── base_site.html             # Base customizada
 │   ├── reportes/                  # Centro de reportes (6 templates)
 │   └── reloj_fichador/            # Templates por modelo
@@ -47,7 +47,7 @@ templates/
 ├── errors/                        # Manejo de errores (7 templates)
 │   └── base_error.html            # Base para errores (185 líneas)
 │
-└── unfold/                        # Personalización Unfold
+└── admin-interface/                        # Personalización admin-interface
     ├── base.html                  # Base extendida
     └── helpers/
         └── theme_switch.html      # Selector light/dark
@@ -78,7 +78,7 @@ Errores             → 7 templates
 ├── 429.html, 500.html
 └── permissions.html
 
-Unfold Custom       → 2 templates
+admin-interface Custom       → 2 templates
 ├── base.html (8 líneas)
 └── theme_switch.html
 ```
@@ -128,13 +128,13 @@ Unfold Custom       → 2 templates
 
 ---
 
-## ⚙️ CONFIGURACIÓN DJANGO UNFOLD
+## ⚙️ CONFIGURACIÓN django-admin-interface
 
 ### 📍 Ubicación: mantenedor/settings.py (líneas 161-397)
 
 #### **Información del Sitio**
 ```python
-UNFOLD = {
+admin-interface = {
     "SITE_TITLE": "Reloj Fichador - Administración",
     "SITE_HEADER": "Sistema de Control de Asistencia",
     "SITE_URL": "/",
@@ -224,34 +224,34 @@ Administración
 
 | Clase | Modelo | Mixins | Características |
 |-------|--------|--------|-----------------|
-| OperarioAdmin | Operario | Export, History, Unfold | Foto, Áreas, Acciones |
-| AreaAdmin | Area | Export, PDF, Unfold | - |
-| HorarioAdmin | Horario | Export, PDF, Unfold | - |
+| OperarioAdmin | Operario | Export, History, admin-interface | Foto, Áreas, Acciones |
+| AreaAdmin | Area | Export, PDF, admin-interface | - |
+| HorarioAdmin | Horario | Export, PDF, admin-interface | - |
 
 #### **Grupo 2: Registros de Asistencia** (4)
 
 | Clase | Modelo | Mixins | Características |
 |-------|--------|--------|-----------------|
-| RegistroDiarioAdmin | RegistroDiario | Import/Export, History, Unfold | **Importación inteligente** |
-| RegistroAsistenciaAdmin | RegistroAsistencia | Export, Unfold | Carga de licencias |
-| LicenciaAdmin | Licencia | History, Unfold | Archivos |
-| LogEntryAdmin | LogEntry | Export, PDF, Unfold | **Solo lectura (auditoría)** |
+| RegistroDiarioAdmin | RegistroDiario | Import/Export, History, admin-interface | **Importación inteligente** |
+| RegistroAsistenciaAdmin | RegistroAsistencia | Export, admin-interface | Carga de licencias |
+| LicenciaAdmin | Licencia | History, admin-interface | Archivos |
+| LogEntryAdmin | LogEntry | Export, PDF, admin-interface | **Solo lectura (auditoría)** |
 
 #### **Grupo 3: Cálculos de Horas** (4)
 
 | Clase | Modelo | Mixins | Características |
 |-------|--------|--------|-----------------|
-| HorasTrabajadasAdmin | Horas_trabajadas | Export, Unfold | Template personalizado |
-| HorasExtrasAdmin | Horas_extras | Export, Unfold | Filtra 0 horas |
-| HorasTotalesAdmin | Horas_totales | Export, Unfold | Template personalizado |
-| HorasFeriadoAdmin | Horas_feriado | Export, Unfold | - |
+| HorasTrabajadasAdmin | Horas_trabajadas | Export, admin-interface | Template personalizado |
+| HorasExtrasAdmin | Horas_extras | Export, admin-interface | Filtra 0 horas |
+| HorasTotalesAdmin | Horas_totales | Export, admin-interface | Template personalizado |
+| HorasFeriadoAdmin | Horas_feriado | Export, admin-interface | - |
 
 #### **Grupo 4: Configuración** (2)
 
 | Clase | Modelo | Mixins | Características |
 |-------|--------|--------|-----------------|
-| ConfiguracionRedondeoAdmin | ConfiguracionRedondeo | Unfold | **Solo superusuario** |
-| ConfiguracionRedondeoSalidaAdmin | ConfiguracionRedondeoSalida | Unfold | **Solo superusuario** |
+| ConfiguracionRedondeoAdmin | ConfiguracionRedondeo | admin-interface | **Solo superusuario** |
+| ConfiguracionRedondeoSalidaAdmin | ConfiguracionRedondeoSalida | admin-interface | **Solo superusuario** |
 
 #### **Grupo 5: Otros** (8)
 
@@ -374,14 +374,14 @@ def dashboard_callback(request, context):
 ```
 mantenedor/settings.py
    ↓
-   ├─ UNFOLD config (237 líneas)
+   ├─ admin-interface config (237 líneas)
    │  └─ Callbacks → mantenedor/utils.py
    │
-   ├─ Templates UNFOLD
-   │  └─ templates/unfold/
+   ├─ Templates admin-interface
+   │  └─ templates/admin-interface/
    │
    └─ INSTALLED_APPS
-      └─ 'unfold' (debe ir PRIMERO)
+      └─ 'admin_interface' (debe ir PRIMERO)
          └─ Activa admin customizado
             └─ apps/reloj_fichador/admin.py
                ├─ 25 clases admin
@@ -519,9 +519,9 @@ def has_delete_permission(self, request, obj=None):
 
 ### INSTALLED_APPS (orden importante)
 ```python
-'unfold',                              # ⭐ PRIMERO
-'unfold.contrib.import_export',
-'unfold.contrib.simple_history',
+'admin_interface',                              # ⭐ PRIMERO
+'admin-interface.contrib.import_export',
+'admin-interface.contrib.simple_history',
 'django.contrib.admin',
 'django.contrib.auth',
 ...
@@ -565,9 +565,9 @@ docker compose exec web python manage.py collectstatic --noinput
 | **Total Templates** | 28 |
 | **Clases Admin** | 25 |
 | **Líneas admin.py** | 3,560 |
-| **Líneas config UNFOLD** | 237 |
+| **Líneas config admin-interface** | 237 |
 | **Líneas utils.py** | 59 |
-| **Navegación Unfold** | 9 secciones |
+| **Navegación admin-interface** | 9 secciones |
 | **Modelos registrados** | 25 |
 | **Formatos exportación** | 4 (PDF, Excel, Histórico) |
 | **Acciones masivas** | Múltiples por admin |
@@ -577,7 +577,7 @@ docker compose exec web python manage.py collectstatic --noinput
 ## ✅ CHECKLIST DE INTEGRACIÓN
 
 ### Verificar Instalación
-- [ ] `unfold` en INSTALLED_APPS (PRIMERO)
+- [ ] `admin-interface` en INSTALLED_APPS (PRIMERO)
 - [ ] Middleware correctamente ordenado
 - [ ] Static files recopilados
 - [ ] Base de datos migrada
@@ -603,7 +603,7 @@ docker compose exec web python manage.py collectstatic --noinput
 
 La arquitectura de templates y admin del proyecto **Reloj Fichador** es **sofisticada y profesional**, proporcionando:
 
-✅ Interfaz moderna con **Django Unfold 0.42.0**
+✅ Interfaz moderna con **django-admin-interface 0.42.0**
 ✅ **25 clases admin** con funcionalidades avanzadas
 ✅ **28 templates HTML** organizados estratégicamente
 ✅ **Importación/exportación inteligente** con validación

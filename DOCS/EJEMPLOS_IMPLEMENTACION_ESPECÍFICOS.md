@@ -21,7 +21,7 @@
 ```python
 # apps/reloj_fichador/admin.py - ANTES
 @admin.register(Operario)
-class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
+class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, ModelAdmin):
     list_display = ('dni', 'nombre', 'apellido', 'fecha_nacimiento',
                     'fecha_ingreso_empresa', 'titulo_tecnico', 'get_areas', 'activo')
     search_fields = ('dni', 'nombre', 'apellido')
@@ -33,11 +33,11 @@ class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
 ```python
 # apps/reloj_fichador/admin.py - DESPUÉS
 from django.db import models
-from unfold.admin import ModelAdmin as UnfoldModelAdmin
-from unfold.contrib.forms.widgets import WysiwygWidget
+from admin-interface.admin import ModelAdmin as ModelAdmin
+from admin-interface.contrib.forms.widgets import WysiwygWidget
 
 @admin.register(Operario)
-class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
+class OperarioAdmin(ExportMixin, SimpleHistoryAdmin, ModelAdmin):
     # ✅ PASO 1: Organizar con fieldsets claros
     fieldsets = (
         (_("Información Personal"), {
@@ -159,7 +159,7 @@ list_display = ('get_dni', 'get_nombre', 'tipo_movimiento',
 
 ```python
 @admin.register(RegistroDiario)
-class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
+class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
     # ✅ Fieldsets organizados
     fieldsets = (
         (_("Información del Registro"), {
@@ -321,7 +321,7 @@ class RegistroDiarioForm(forms.ModelForm):
 
 # admin.py
 @admin.register(RegistroDiario)
-class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, UnfoldModelAdmin):
+class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, ModelAdmin):
     form = RegistroDiarioForm  # Asignar formulario crispy
     # ... resto de config
 ```
@@ -335,7 +335,7 @@ class RegistroDiarioAdmin(ImportExportMixin, SimpleHistoryAdmin, UnfoldModelAdmi
 ```python
 # admin.py
 @admin.register(RegistroAsistencia)
-class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
+class RegistroAsistenciaAdmin(ExportMixin, ModelAdmin):
     fieldsets = (
         (_("Información de Asistencia"), {
             "fields": (
@@ -396,7 +396,7 @@ class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
 
 ```html
 <!-- templates/admin/reloj_fichador/registroasistencia/change_form.html -->
-{% extends "unfold/change_form.html" %}
+{% extends "admin/change_form.html" %}
 {% load i18n %}
 
 {% block after_field_sets %}
@@ -458,7 +458,7 @@ class RegistroAsistenciaAdmin(ExportMixin, UnfoldModelAdmin):
 
 ```python
 @admin.register(Horas_trabajadas)
-class HorasTrabajadasAdmin(ExportMixin, UnfoldModelAdmin):
+class HorasTrabajadasAdmin(ExportMixin, ModelAdmin):
     # ✅ Usar fieldsets con formato "tabs"
     fieldsets = (
         ("tabs", {
@@ -566,7 +566,7 @@ class HorasTrabajadasAdmin(ExportMixin, UnfoldModelAdmin):
 
 ```python
 @admin.register(Licencia)
-class LicenciaAdmin(SimpleHistoryAdmin, UnfoldModelAdmin):
+class LicenciaAdmin(SimpleHistoryAdmin, ModelAdmin):
     fieldsets = (
         (_("Información de la Licencia"), {
             "description": _("Detalles sobre el tipo y período de licencia"),
@@ -755,8 +755,8 @@ python manage.py collectstatic --noinput
 
 ## 📝 NOTAS IMPORTANTES
 
-1. **Siempre usar `UnfoldModelAdmin`**, nunca `admin.ModelAdmin`
-2. **Siempre extender desde `unfold/change_form.html`**, nunca de `admin/change_form.html`
+1. **Siempre usar `ModelAdmin`**, nunca `admin.ModelAdmin`
+2. **Siempre extender desde `admin/change_form.html`**, nunca de `admin/change_form.html`
 3. **Usar `format_html()` para contenido HTML** en métodos display
 4. **Probar en AMBOS modos**: claro y oscuro
 5. **Documentar cambios** en docstrings y comentarios

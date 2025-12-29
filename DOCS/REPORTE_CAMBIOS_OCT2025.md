@@ -279,7 +279,7 @@ get_horas_enfermedad.short_description = 'Horas Enfermedad'
 **Configuración:**
 ```python
 @admin.register(HorasEnfermedad)
-class HorasEnfermedadAdmin(UnfoldModelAdmin):
+class HorasEnfermedadAdmin(ModelAdmin):
     list_display = ('operario', 'get_mes', 'get_licencia', 'get_horas_enfermedad')
     list_filter = ('mes_periodo',)
     search_fields = ('operario__dni', 'operario__nombre')

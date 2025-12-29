@@ -1,7 +1,7 @@
 # Análisis del Sistema de Fichado - Vista General
 
 **Sistema:** Reloj Fichador - Control de Asistencia
-**Versión:** 2.0 (PostgreSQL + Django Unfold)
+**Versión:** 2.0 (PostgreSQL + django-admin-interface)
 **Fecha:** 18 de Octubre de 2025
 
 ---
@@ -550,7 +550,7 @@ Fichado SALIDA:
 - PostgreSQL 15
 - pytz (timezone handling)
 - django-simple-history (auditoría)
-- django-unfold (admin interface)
+- django-admin-interface (admin interface)
 ```
 
 ### Infraestructura
@@ -593,7 +593,7 @@ apps/reloj_fichador/
 │   └── actualizar_horas_despues_de_guardar() (líneas 40-75)
 │
 └── admin.py            → Configuración Django Admin
-    └── 15 ModelAdmins con Django Unfold
+    └── 15 ModelAdmins con django-admin-interface
 ```
 
 ### Configuración
@@ -603,9 +603,9 @@ mantenedor/
 ├── settings.py         → Configuración Django
 │   ├── USE_TZ = True (timezone-aware)
 │   ├── TIME_ZONE = 'America/Argentina/Buenos_Aires'
-│   └── UNFOLD (configuración del admin)
+│   └── admin-interface (configuración del admin)
 │
-└── utils.py            → Utilidades para Unfold
+└── utils.py            → Utilidades para admin-interface
     ├── environment_callback()
     └── dashboard_callback()
 ```
@@ -810,7 +810,7 @@ GROUP BY hora;
 ### Documentación Oficial
 
 - **Django:** https://docs.djangoproject.com/
-- **Django Unfold:** https://github.com/unfoldadmin/django-unfold
+- **django-admin-interface:** https://github.com/admin-interfaceadmin/django-admin-interface
 - **pytz:** https://pythonhosted.org/pytz/
 - **PostgreSQL:** https://www.postgresql.org/docs/
 
@@ -819,7 +819,7 @@ GROUP BY hora;
 - [Informe Ejecutivo](../Informe_Ejecutivo.md)
 - [Configuración MCP PostgreSQL](../../CONFIGURACION_MCP_POSTGRESQL.md)
 - [Setup PostgreSQL](../../POSTGRESQL_SETUP.md)
-- [Manual Django Unfold](../../documentacion/django-unfold-manual.md)
+- [Manual django-admin-interface](../../documentacion/django-admin-interface-manual.md)
 
 ### Archivos de Referencia
 

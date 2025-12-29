@@ -1,6 +1,6 @@
 # 📋 GUÍA DE MEJORA DE FORMULARIOS CHANGE/ADD
 
-**Resumen Ejecutivo para Embellecimiento Profesional de Formularios Django Unfold**
+**Resumen Ejecutivo para Embellecimiento Profesional de Formularios django-admin-interface**
 
 ---
 
@@ -38,7 +38,7 @@ Mejorar profesionalmente los formularios **CHANGE/ADD** del panel admin prioriza
    - ✅ Análisis actual de templates y admin
    - ✅ 25 clases admin registradas
    - ✅ Estructura de 28 templates
-   - ✅ Configuración Django Unfold
+   - ✅ Configuración django-admin-interface
 
 ---
 
@@ -50,14 +50,14 @@ Mejorar profesionalmente los formularios **CHANGE/ADD** del panel admin prioriza
 cd /home/leandro/Proyectos_Docker/Reloj_fichador
 
 # Verificar instalaciones
-pip freeze | grep -E 'django-unfold|django-crispy'
+pip freeze | grep -E 'django-admin-interface|django-crispy'
 
 # Verificar settings.py
 grep "CRISPY_TEMPLATE_PACK" mantenedor/settings.py
-# Debe mostrar: CRISPY_TEMPLATE_PACK = "unfold_crispy"
+# Debe mostrar: CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Verificar INSTALLED_APPS
-grep "unfold" mantenedor/settings.py | head -1
+grep "admin_interface" mantenedor/settings.py | head -1
 # Debe estar entre los primeros
 ```
 
@@ -68,12 +68,12 @@ En `apps/reloj_fichador/admin.py`, reemplazar:
 ```python
 # ❌ ANTES
 @admin.register(Operario)
-class OperarioAdmin(UnfoldModelAdmin):
+class OperarioAdmin(ModelAdmin):
     list_display = ('dni', 'nombre', 'apellido', 'fecha_nacimiento', ...)
 
 # ✅ DESPUÉS
 @admin.register(Operario)
-class OperarioAdmin(UnfoldModelAdmin):
+class OperarioAdmin(ModelAdmin):
     fieldsets = (
         (_("Información Personal"), {
             "fields": ("dni", "nombre", "apellido", "fecha_nacimiento"),
@@ -124,7 +124,7 @@ form = CustomForm               # Con FormHelper y Layout
 
 ### Nivel 3: Template Override (SI APLICA)
 ```html
-{% extends "unfold/change_form.html" %}
+{% extends "admin/change_form.html" %}
 {% block after_field_sets %}
     {# Inyectar tablas, gráficos, contexto #}
 {% endblock %}
@@ -151,21 +151,21 @@ class Media:
 **Causa**: CRISPY_TEMPLATE_PACK no configurado
 **Solución**: 
 ```python
-CRISPY_TEMPLATE_PACK = "unfold_crispy"
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["bootstrap5"]
 ```
 
 ### ❌ Error 2: Heredar de admin.ModelAdmin
-**Causa**: No usa estilos de Unfold
-**Solución**: Usar `from unfold.admin import ModelAdmin`
+**Causa**: No usa estilos de admin-interface
+**Solución**: Usar `from admin-interface.admin import ModelAdmin`
 
 ### ❌ Error 3: Extender de admin/change_form.html
 **Causa**: Pierde estilos y funcionalidades
-**Solución**: Extender desde `unfold/change_form.html`
+**Solución**: Extender desde `admin/change_form.html`
 
-### ❌ Error 4: Usar bootstrap5 con Unfold
+### ❌ Error 4: Usar bootstrap5 con admin-interface
 **Causa**: Incompatibilidad Tailwind vs Bootstrap
-**Solución**: Solo usar `"unfold_crispy"`
+**Solución**: Solo usar `"bootstrap5"`
 
 ---
 
@@ -173,10 +173,10 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
 
 ### Pre-Implementación
 - [ ] Django 4.2+ instalado
-- [ ] django-unfold 0.42.0+ instalado
+- [ ] django-admin-interface 0.42.0+ instalado
 - [ ] django-crispy-forms 2.0+ instalado
-- [ ] CRISPY_TEMPLATE_PACK = "unfold_crispy" en settings
-- [ ] INSTALLED_APPS: "unfold" PRIMERO
+- [ ] CRISPY_TEMPLATE_PACK = "bootstrap5" en settings
+- [ ] INSTALLED_APPS: "admin_interface" PRIMERO
 
 ### Durante Implementación
 - [ ] Crear fieldsets por modelo
@@ -214,7 +214,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
 ## 🔗 REFERENCIAS RÁPIDAS
 
 ### Documentación Oficial
-- Django Unfold: https://unfoldadmin.com/docs/
+- django-admin-interface: https://admin-interfaceadmin.com/docs/
 - Django Crispy Forms: https://django-crispy-forms.readthedocs.io/
 - Django Admin: https://docs.djangoproject.com/en/5.2/ref/contrib/admin/
 
@@ -224,9 +224,9 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
 - `Arquitectura_Templates_Admin.md`: Análisis actual
 
 ### Stack Tecnológico Disponible
-- TailwindCSS (ya incluido en Unfold)
-- Alpine.js (ya incluido en Unfold)
-- HTMX (ya incluido en Unfold)
+- TailwindCSS (ya incluido en admin-interface)
+- Alpine.js (ya incluido en admin-interface)
+- HTMX (ya incluido en admin-interface)
 
 ---
 
@@ -243,7 +243,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
    ```bash
    python manage.py shell
    from django.template import loader
-   loader.get_template('unfold_crispy/whole_uni_form.html')
+   loader.get_template('bootstrap5/whole_uni_form.html')
    ```
 
 3. **Consultar documentación de análisis**
