@@ -5,123 +5,152 @@
     <title>Reporte de Horas Trabajadas</title>
     <style>
         @page {
-            size: A4 landscape;
-            margin: 1.5cm 1cm 2.5cm 1cm;  /* Mayor margen inferior para el footer */
+            size: A4 portrait;
+            margin: 0.8cm 0.6cm 1.2cm 0.6cm;
 
             @bottom-center {
                 content: "Reporte generado por Sistema de Reloj Fichador";
-                font-size: 8px;
-                color: #666;
+                font-size: 7px;
+                color: #888;
             }
         }
-        
+
         body {
             font-family: Arial, sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             color: #333;
             margin: 0;
             padding: 0;
         }
-        
+
         .header {
             text-align: center;
             border-bottom: 2px solid #417690;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
-        
+
         .header h1 {
             color: #417690;
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
         }
-        
+
         .header p {
-            margin: 5px 0;
+            margin: 3px 0;
             color: #666;
+            font-size: 10px;
         }
-        
+
         .info-meta {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             background: #f8f9fa;
-            padding: 10px;
+            padding: 8px;
             border-radius: 5px;
+            font-size: 9px;
         }
-        
+
+        /* Contenedor de cada operario con salto de página */
+        .operario-section {
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+
+        .operario-section:last-of-type {
+            page-break-after: auto;
+        }
+
+        .operario-titulo {
+            background: #34495e;
+            color: #fff;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 0;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 0;
         }
-        
+
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 6px 4px;
             text-align: left;
+            font-size: 8px;
         }
-        
+
         th {
             background-color: #417690;
             color: white;
             font-weight: bold;
             text-align: center;
+            font-size: 8px;
         }
-        
+
         td {
-            font-size: 9px;
+            font-size: 8px;
         }
-        
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        
+
         .horas-normales { color: #28a745; }
         .horas-nocturnas { color: #17a2b8; }
         .horas-extras { color: #fd7e14; }
         .horas-enfermedad { color: #dc3545; }
         .total-diario { font-weight: bold; color: #343a40; }
-        
+
         .footer {
-            display: none;  /* Usamos @page footer en su lugar */
+            display: none;
         }
-        
+
         .resumen {
             background: #e9ecef;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
-        
+
         .resumen h3 {
             margin: 0 0 10px 0;
             color: #495057;
         }
-        
+
         .totales-row {
             background-color: #f8f9fa !important;
             border-top: 3px solid #417690;
             font-weight: bold;
         }
-        
+
         .totales-row td {
             background-color: #f8f9fa !important;
             border: 2px solid #417690;
             font-weight: bold;
         }
-        
+
         .totales-section {
-            margin-top: 30px;
-            margin-bottom: 40px;  /* Espacio para el footer */
+            margin-top: 20px;
+            margin-bottom: 30px;
             background: #e9ecef;
-            padding: 15px;
+            padding: 12px;
             border-radius: 5px;
             border-left: 4px solid #417690;
             page-break-inside: avoid;
             clear: both;
         }
-        
+
+        .totales-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 11px;
+        }
+
         .operario-header {
             background: #34495e;
             page-break-inside: avoid;
@@ -131,27 +160,26 @@
             background: #34495e;
             color: #ffffff;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 10px;
             border: 1px solid #2c3e50;
-            padding: 10px 8px;
+            padding: 8px 6px;
             letter-spacing: 0.5px;
         }
 
-        
         .subtotal-operario {
             background-color: #e8f4fd !important;
             border-top: 2px solid #17a2b8;
             font-weight: bold;
             font-style: italic;
         }
-        
+
         .subtotal-operario td {
             background-color: #e8f4fd !important;
             border: 1px solid #17a2b8;
         }
-        
+
         .operario-registro {
-            padding-left: 15px !important;
+            padding-left: 10px !important;
         }
     </style>
 </head>
@@ -174,33 +202,27 @@
     </div>
     
     {% if horas_agrupadas %}
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 14%">Empleado</th>
-                <th style="width: 17%">Fecha Entrada</th>
-                <th style="width: 17%">Fecha Salida</th>
-                <th style="width: 11%">H. Normales</th>
-                <th style="width: 11%">H. Nocturnas</th>
-                <th style="width: 10%">H. Extras</th>
-                <th style="width: 11%">H. Enfermedad</th>
-                <th style="width: 9%">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for operario_nombre, operario_data in horas_agrupadas.items %}
-                <!-- Cabecera del operario -->
-                <tr style="background: #34495e !important;">
-                    <td colspan="8" style="background: #34495e !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 10px 8px; border: 1px solid #2c3e50;">
-                        {{ operario_nombre }}
-                    </td>
+    {% load reporte_filters %}
+    {% for operario_nombre, operario_data in horas_agrupadas.items %}
+    <!-- Sección de cada operario - una página por operario -->
+    <div class="operario-section">
+        <div class="operario-titulo">{{ operario_nombre }}</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 18%">Fecha Entrada</th>
+                    <th style="width: 18%">Fecha Salida</th>
+                    <th style="width: 13%">H. Normales</th>
+                    <th style="width: 13%">H. Nocturnas</th>
+                    <th style="width: 13%">H. Extras</th>
+                    <th style="width: 13%">H. Enfermedad</th>
+                    <th style="width: 12%">Total</th>
                 </tr>
-                
+            </thead>
+            <tbody>
                 <!-- Registros del operario -->
-                {% load reporte_filters %}
                 {% for registro in operario_data.registros %}
                 <tr>
-                    <td class="operario-registro">{{ registro.hora.operario.apellido }}, {{ registro.hora.operario.nombre }}</td>
                     <td>
                         {{ registro.entrada|fecha_completa_es }}
                     </td>
@@ -250,11 +272,8 @@
                 <!-- Días de enfermedad/licencia del operario -->
                 {% for dia_enf in operario_data.registros_enfermedad %}
                 <tr style="background-color: #fff5f5;">
-                    <td class="operario-registro" style="color: #dc3545; font-style: italic;">
-                        Licencia médica
-                    </td>
                     <td colspan="2" style="color: #6c757d; font-size: 8px;">
-                        {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }}
+                        {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }} <em style="color: #dc3545;">(Licencia médica)</em>
                     </td>
                     <td class="horas-normales">-</td>
                     <td class="horas-nocturnas">-</td>
@@ -270,7 +289,7 @@
 
                 <!-- Subtotal del operario -->
                 <tr class="subtotal-operario">
-                    <td colspan="3"><strong>Subtotal {{ operario_nombre }}</strong></td>
+                    <td colspan="2"><strong>TOTAL {{ operario_nombre }}</strong></td>
                     <td class="horas-normales">
                         <strong>{{ operario_data.subtotal_normales|horas_formato }}</strong>
                     </td>
@@ -287,31 +306,10 @@
                         <strong>{{ operario_data.subtotal_general|horas_formato }}</strong>
                     </td>
                 </tr>
-            {% endfor %}
-
-            {% if totales %}
-            <!-- Fila TOTALES al final del tbody para evitar repetición en cada página -->
-            <tr class="totales-row">
-                <td colspan="3"><strong>TOTALES</strong></td>
-                <td class="horas-normales">
-                    <strong>{{ totales.total_normales|horas_formato }}</strong>
-                </td>
-                <td class="horas-nocturnas">
-                    <strong>{{ totales.total_nocturnas|horas_formato }}</strong>
-                </td>
-                <td class="horas-extras">
-                    <strong>{{ totales.total_extras|horas_formato }}</strong>
-                </td>
-                <td class="horas-enfermedad">
-                    <strong>{{ totales.total_enfermedad|horas_formato }}</strong>
-                </td>
-                <td class="total-diario">
-                    <strong>{{ totales.total_general|horas_formato }}</strong>
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
     
     {% if totales %}
     <div class="totales-section">
