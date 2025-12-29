@@ -9,6 +9,7 @@
 |---|-----------|-------------|--------|
 | 1 | [MEJORA_UX_REPORTE_HORAS_SIN_DATOS.md](./MEJORA_UX_REPORTE_HORAS_SIN_DATOS.md) | Mensaje informativo cuando no hay datos en el reporte de horas | ✅ Completado |
 | 2 | [BUG_TEXTO_INVISIBLE_SELECTORES_CHROME.md](./BUG_TEXTO_INVISIBLE_SELECTORES_CHROME.md) | Bug: texto invisible en selectores Mes/Año en Chrome con modo oscuro | ⏳ Pendiente |
+| 3 | [MEJORA_PDF_REPORTE_HORAS.md](./MEJORA_PDF_REPORTE_HORAS.md) | PDF con encabezado repetido, formato vertical y salto por operario | ✅ Completado |
 
 ---
 
@@ -21,6 +22,16 @@
 - **Problema**: El usuario no recibía feedback cuando generaba un reporte sin datos
 - **Solución**: Nuevo mensaje visual amarillo indicando que no hay datos
 - **Archivos**: `admin.py`, `reporte_horas.html`
+
+#### PDF Reporte de Horas - Encabezado Repetido y Formato Mejorado
+- **Fecha**: 29/12/2025
+- **Mejoras implementadas**:
+  - Encabezado repetido en todas las páginas (WeasyPrint `position: running()`)
+  - Orientación vertical (portrait) A4
+  - Salto de página automático por operario
+  - Ordenamiento de registros por fecha ASC
+  - Eliminación de totales generales (solo subtotales por operario)
+- **Archivos**: `admin.py`, `reporte_horas_pdf.html`
 
 ---
 
