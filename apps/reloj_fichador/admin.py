@@ -1631,7 +1631,7 @@ class ReporteManager:
         if operarios:
             filtros &= Q(operario__in=operarios)
             
-        horas_trabajadas = Horas_trabajadas.objects.filter(filtros).select_related('operario').order_by('operario__apellido')
+        horas_trabajadas = Horas_trabajadas.objects.filter(filtros).select_related('operario').order_by('operario__apellido', 'fecha')
         
         return horas_trabajadas, mes, año
     
