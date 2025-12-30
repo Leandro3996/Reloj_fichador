@@ -1871,15 +1871,15 @@ class ReporteAdmin(admin.ModelAdmin):
                 # Obtener horas de enfermedad de este operario
                 horas_enf_operario = horas_enfermedad_por_operario.get(operario.id, timedelta())
 
-                # Obtener fechas de licencia para este operario (para excluir de "sin fichada")
-                fechas_licencia = set()
+                # Obtener licencias por fecha para este operario (para integrar en orden cronológico)
+                licencias_por_fecha = {}
                 for lic_dia in dias_licencia_por_operario.get(operario.id, []):
-                    fechas_licencia.add(lic_dia['fecha'])
+                    licencias_por_fecha[lic_dia['fecha']] = lic_dia
 
                 horas_agrupadas[operario_key] = {
                     'operario': operario,
                     'registros': [],
-                    'registros_enfermedad': dias_licencia_por_operario.get(operario.id, []),
+                    'registros_enfermedad': [],  # Ya no se usa, licencias integradas en registros
                     'subtotal_normales': timedelta(),
                     'subtotal_nocturnas': timedelta(),
                     'subtotal_extras': timedelta(),
@@ -1888,9 +1888,22 @@ class ReporteAdmin(admin.ModelAdmin):
 
                 # Iterar por TODOS los días laborables del mes
                 for dia in dias_laborables:
-                    # Verificar si este día tiene licencia (se mostrará aparte)
-                    if dia in fechas_licencia:
-                        continue  # Los días de licencia se muestran en registros_enfermedad
+                    # Verificar si este día tiene licencia (se integra en orden cronológico)
+                    if dia in licencias_por_fecha:
+                        lic_info = licencias_por_fecha[dia]
+                        registro_licencia = {
+                            'hora': None,
+                            'fecha': dia,
+                            'entrada': None,
+                            'salida': None,
+                            'es_primera_fila': True,
+                            'sin_registro': False,
+                            'es_licencia': True,  # Flag para identificar licencias
+                            'licencia_descripcion': lic_info.get('descripcion', 'Licencia médica'),
+                            'horas_enfermedad': lic_info.get('horas_enfermedad', timedelta(hours=8)),
+                        }
+                        horas_agrupadas[operario_key]['registros'].append(registro_licencia)
+                        continue  # No buscar fichadas para días de licencia
 
                     # Buscar si hay registro de Horas_trabajadas para este día
                     hora = horas_por_operario_fecha.get((operario.id, dia))
@@ -2441,14 +2454,15 @@ class ReporteAdmin(admin.ModelAdmin):
             operario_key = f"{operario.apellido}, {operario.nombre}"
             horas_enf_operario = horas_enfermedad_por_operario.get(operario.id, timedelta())
 
-            fechas_licencia = set()
+            # Obtener licencias por fecha para este operario (para integrar en orden cronológico)
+            licencias_por_fecha = {}
             for lic_dia in dias_licencia_por_operario.get(operario.id, []):
-                fechas_licencia.add(lic_dia['fecha'])
+                licencias_por_fecha[lic_dia['fecha']] = lic_dia
 
             horas_agrupadas[operario_key] = {
                 'operario': operario,
                 'registros': [],
-                'registros_enfermedad': dias_licencia_por_operario.get(operario.id, []),
+                'registros_enfermedad': [],  # Ya no se usa, licencias integradas en registros
                 'subtotal_normales': timedelta(),
                 'subtotal_nocturnas': timedelta(),
                 'subtotal_extras': timedelta(),
@@ -2456,8 +2470,22 @@ class ReporteAdmin(admin.ModelAdmin):
             }
 
             for dia in dias_laborables:
-                if dia in fechas_licencia:
-                    continue
+                # Verificar si este día tiene licencia (se integra en orden cronológico)
+                if dia in licencias_por_fecha:
+                    lic_info = licencias_por_fecha[dia]
+                    registro_licencia = {
+                        'hora': None,
+                        'fecha': dia,
+                        'entrada': None,
+                        'salida': None,
+                        'es_primera_fila': True,
+                        'sin_registro': False,
+                        'es_licencia': True,  # Flag para identificar licencias
+                        'licencia_descripcion': lic_info.get('descripcion', 'Licencia médica'),
+                        'horas_enfermedad': lic_info.get('horas_enfermedad', timedelta(hours=8)),
+                    }
+                    horas_agrupadas[operario_key]['registros'].append(registro_licencia)
+                    continue  # No buscar fichadas para días de licencia
 
                 hora = horas_por_operario_fecha.get((operario.id, dia))
 

@@ -507,8 +507,26 @@
                         </td>
                     </tr>
                     
-                    <!-- Registros del operario -->
+                    <!-- Registros del operario (incluye licencias en orden cronológico) -->
                     {% for registro in operario_data.registros %}
+                    {% if registro.es_licencia %}
+                    <!-- Fila de licencia médica -->
+                    <tr style="background-color: #fff5f5;">
+                        <td colspan="2" style="color: #6c757d;">
+                            {{ registro.fecha|date:"d/m/Y" }} - {{ registro.licencia_descripcion }} <em style="color: #dc3545;">(Licencia médica)</em>
+                        </td>
+                        <td class="horas-normales">-</td>
+                        <td class="horas-nocturnas">-</td>
+                        <td class="horas-extras">-</td>
+                        <td class="horas-enfermedad">
+                            {% widthratio registro.horas_enfermedad.total_seconds 3600 1 %}h
+                        </td>
+                        <td>
+                            {% widthratio registro.horas_enfermedad.total_seconds 3600 1 %}h
+                        </td>
+                    </tr>
+                    {% else %}
+                    <!-- Fila de registro normal o sin fichadas -->
                     <tr class="registro-fila{% if registro.sin_registro %} sin-fichadas{% endif %}">
                         <td>
                             {% if registro.sin_registro %}
@@ -573,24 +591,7 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
-
-                    <!-- Días de enfermedad/licencia del operario -->
-                    {% for dia_enf in operario_data.registros_enfermedad %}
-                    <tr style="background-color: #fff5f5;">
-                        <td colspan="2" style="color: #6c757d;">
-                            {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }} <em style="color: #dc3545;">(Licencia médica)</em>
-                        </td>
-                        <td class="horas-normales">-</td>
-                        <td class="horas-nocturnas">-</td>
-                        <td class="horas-extras">-</td>
-                        <td class="horas-enfermedad">
-                            {% widthratio dia_enf.horas_enfermedad.total_seconds 3600 1 %}h
-                        </td>
-                        <td>
-                            {% widthratio dia_enf.horas_enfermedad.total_seconds 3600 1 %}h
-                        </td>
-                    </tr>
+                    {% endif %}
                     {% endfor %}
 
                     <!-- Subtotal del operario -->
