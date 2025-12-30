@@ -247,29 +247,43 @@
             <tbody>
                 <!-- Registros del operario -->
                 {% for registro in operario_data.registros %}
-                <tr>
+                <tr{% if registro.sin_registro %} style="background-color: #fff8e1;"{% endif %}>
                     <td>
-                        {{ registro.entrada|fecha_completa_es }}
+                        {% if registro.sin_registro %}
+                            <span style="color: #856404;">{{ registro.fecha|fecha_corta_es }}</span>
+                        {% else %}
+                            {{ registro.entrada|fecha_completa_es }}
+                        {% endif %}
                     </td>
                     <td>
-                        {{ registro.salida|fecha_completa_es }}
+                        {% if registro.sin_registro %}
+                            <span style="color: #dc3545; font-weight: 500;">Sin fichadas</span>
+                        {% else %}
+                            {{ registro.salida|fecha_completa_es }}
+                        {% endif %}
                     </td>
                     <td class="horas-normales">
-                        {% if registro.es_primera_fila %}
+                        {% if registro.sin_registro %}
+                            <span style="color: #6c757d;">00h 00m</span>
+                        {% elif registro.es_primera_fila and registro.hora %}
                             {{ registro.hora.horas_normales|horas_formato }}
                         {% else %}
                             -
                         {% endif %}
                     </td>
                     <td class="horas-nocturnas">
-                        {% if registro.es_primera_fila %}
+                        {% if registro.sin_registro %}
+                            <span style="color: #6c757d;">00h 00m</span>
+                        {% elif registro.es_primera_fila and registro.hora %}
                             {{ registro.hora.horas_nocturnas|horas_formato }}
                         {% else %}
                             -
                         {% endif %}
                     </td>
                     <td class="horas-extras">
-                        {% if registro.es_primera_fila %}
+                        {% if registro.sin_registro %}
+                            <span style="color: #6c757d;">00h 00m</span>
+                        {% elif registro.es_primera_fila and registro.hora %}
                             {{ registro.hora.horas_extras|horas_formato }}
                         {% else %}
                             -
@@ -279,7 +293,9 @@
                         -
                     </td>
                     <td class="total-diario">
-                        {% if registro.es_primera_fila %}
+                        {% if registro.sin_registro %}
+                            <span style="color: #6c757d;">00h 00m</span>
+                        {% elif registro.es_primera_fila and registro.hora %}
                             {% with total_horas=registro.hora.horas_normales|default:0 %}
                                 {% with total_horas=total_horas|add:registro.hora.horas_nocturnas|default:0 %}
                                     {% with total_horas=total_horas|add:registro.hora.horas_extras|default:0 %}

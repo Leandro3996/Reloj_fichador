@@ -60,6 +60,19 @@ def fecha_completa_es(fecha):
     return f"{dia} - {fecha_str}"
 
 @register.filter
+def fecha_corta_es(fecha):
+    """
+    Formatea fecha corta en español: "Lunes 01/11/2025"
+    """
+    if not fecha:
+        return ""
+
+    dia = dia_es(fecha)
+    fecha_str = fecha.strftime('%d/%m/%Y')
+    return f"{dia} {fecha_str}"
+
+
+@register.filter
 def horas_formato(valor):
     """
     Formatea un timedelta a formato de horas totales "XXh YYm"

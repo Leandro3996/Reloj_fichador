@@ -1831,114 +1831,161 @@ class ReporteAdmin(admin.ModelAdmin):
                         })
                     fecha_actual += timedelta(days=1)
 
-            # Agrupar por operario y calcular subtotales
+            # Generar lista de todos los días laborables (lunes a sábado) del mes
+            dias_laborables = []
+            fecha_actual = mes_inicio
+            while fecha_actual <= mes_fin:
+                # weekday(): 0=Lunes, 1=Martes, ..., 5=Sábado, 6=Domingo
+                if fecha_actual.weekday() < 6:  # Lunes a Sábado
+                    dias_laborables.append(fecha_actual)
+                fecha_actual += timedelta(days=1)
+
+            # Crear diccionario de horas_trabajadas por operario y fecha para búsqueda rápida
+            horas_por_operario_fecha = {}
             if horas_trabajadas:
-                from collections import OrderedDict
-                horas_agrupadas = OrderedDict()
-                total_normales = timedelta()
-                total_nocturnas = timedelta()
-                total_extras = timedelta()
-                total_enfermedad = timedelta()
-
                 for hora in horas_trabajadas:
-                    operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
+                    key = (hora.operario.id, hora.fecha)
+                    horas_por_operario_fecha[key] = hora
 
-                    if operario_key not in horas_agrupadas:
-                        # Obtener horas de enfermedad de este operario
-                        horas_enf_operario = horas_enfermedad_por_operario.get(hora.operario.id, timedelta())
-                        horas_agrupadas[operario_key] = {
-                            'operario': hora.operario,
-                            'registros': [],
-                            'registros_enfermedad': dias_licencia_por_operario.get(hora.operario.id, []),
-                            'subtotal_normales': timedelta(),
-                            'subtotal_nocturnas': timedelta(),
-                            'subtotal_extras': timedelta(),
-                            'subtotal_enfermedad': horas_enf_operario,
-                        }
-                    
-                    # Obtener movimientos de entrada y salida para esta fecha lógica
-                    # Para turnos nocturnos, la salida puede ser del día siguiente (fecha calendario)
-                    # Por eso buscamos en un rango de fechas y filtramos por fecha_logica
-                    from datetime import timedelta as td
-                    fecha_inicio_busqueda = hora.fecha
-                    fecha_fin_busqueda = hora.fecha + td(days=1)
+            # Determinar operarios a mostrar
+            if operarios:
+                operarios_a_mostrar = list(operarios.order_by('apellido', 'nombre'))
+            elif horas_trabajadas:
+                # Si no hay operarios seleccionados, mostrar los que tienen registros
+                operarios_ids = set(h.operario.id for h in horas_trabajadas)
+                operarios_a_mostrar = list(Operario.objects.filter(id__in=operarios_ids).order_by('apellido', 'nombre'))
+            else:
+                operarios_a_mostrar = []
 
-                    registros_rango = RegistroDiario.objects.filter(
-                        operario=hora.operario,
-                        hora_fichada__date__gte=fecha_inicio_busqueda,
-                        hora_fichada__date__lte=fecha_fin_busqueda,
-                        tipo_movimiento__in=['entrada', 'salida'],
-                        valido=True
-                    ).order_by('hora_fichada')
+            # Agrupar por operario y calcular subtotales - MOSTRAR TODOS LOS DÍAS LABORABLES
+            from collections import OrderedDict
+            horas_agrupadas = OrderedDict()
+            total_normales = timedelta()
+            total_nocturnas = timedelta()
+            total_extras = timedelta()
+            total_enfermedad = timedelta()
 
-                    # Filtrar por fecha lógica (considera turnos nocturnos)
-                    registros_dia = [
-                        r for r in registros_rango
-                        if RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == hora.fecha
-                    ]
+            for operario in operarios_a_mostrar:
+                operario_key = f"{operario.apellido}, {operario.nombre}"
 
-                    entradas = []
-                    salidas = []
+                # Obtener horas de enfermedad de este operario
+                horas_enf_operario = horas_enfermedad_por_operario.get(operario.id, timedelta())
 
-                    for registro in registros_dia:
-                        if registro.tipo_movimiento == 'entrada':
-                            entradas.append(registro.hora_fichada)
-                        elif registro.tipo_movimiento == 'salida':
-                            salidas.append(registro.hora_fichada)
-                    
-                    # Crear pares entrada/salida y generar filas separadas
-                    max_movimientos = max(len(entradas), len(salidas))
-                    
-                    if max_movimientos == 0:
-                        # No hay movimientos, crear una fila vacía
-                        hora_con_movimientos = {
-                            'hora': hora,
-                            'entrada': None,
-                            'salida': None
-                        }
-                        horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
-                    else:
-                        # Crear una fila por cada par entrada/salida
-                        for i in range(max_movimientos):
-                            entrada = entradas[i] if i < len(entradas) else None
-                            salida = salidas[i] if i < len(salidas) else None
-                            
+                # Obtener fechas de licencia para este operario (para excluir de "sin fichada")
+                fechas_licencia = set()
+                for lic_dia in dias_licencia_por_operario.get(operario.id, []):
+                    fechas_licencia.add(lic_dia['fecha'])
+
+                horas_agrupadas[operario_key] = {
+                    'operario': operario,
+                    'registros': [],
+                    'registros_enfermedad': dias_licencia_por_operario.get(operario.id, []),
+                    'subtotal_normales': timedelta(),
+                    'subtotal_nocturnas': timedelta(),
+                    'subtotal_extras': timedelta(),
+                    'subtotal_enfermedad': horas_enf_operario,
+                }
+
+                # Iterar por TODOS los días laborables del mes
+                for dia in dias_laborables:
+                    # Verificar si este día tiene licencia (se mostrará aparte)
+                    if dia in fechas_licencia:
+                        continue  # Los días de licencia se muestran en registros_enfermedad
+
+                    # Buscar si hay registro de Horas_trabajadas para este día
+                    hora = horas_por_operario_fecha.get((operario.id, dia))
+
+                    if hora:
+                        # Hay registro - obtener movimientos de entrada y salida
+                        from datetime import timedelta as td
+                        fecha_inicio_busqueda = hora.fecha
+                        fecha_fin_busqueda = hora.fecha + td(days=1)
+
+                        registros_rango = RegistroDiario.objects.filter(
+                            operario=operario,
+                            hora_fichada__date__gte=fecha_inicio_busqueda,
+                            hora_fichada__date__lte=fecha_fin_busqueda,
+                            tipo_movimiento__in=['entrada', 'salida'],
+                            valido=True
+                        ).order_by('hora_fichada')
+
+                        # Filtrar por fecha lógica (considera turnos nocturnos)
+                        registros_dia = [
+                            r for r in registros_rango
+                            if RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == hora.fecha
+                        ]
+
+                        entradas = [r.hora_fichada for r in registros_dia if r.tipo_movimiento == 'entrada']
+                        salidas = [r.hora_fichada for r in registros_dia if r.tipo_movimiento == 'salida']
+
+                        # Crear pares entrada/salida y generar filas separadas
+                        max_movimientos = max(len(entradas), len(salidas))
+
+                        if max_movimientos == 0:
+                            # Tiene horas calculadas pero no hay movimientos válidos
                             hora_con_movimientos = {
                                 'hora': hora,
-                                'entrada': entrada,
-                                'salida': salida,
-                                'es_primera_fila': i == 0  # Para mostrar horas solo en la primera fila
+                                'fecha': dia,
+                                'entrada': None,
+                                'salida': None,
+                                'es_primera_fila': True,
+                                'sin_registro': False
                             }
                             horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
-                    
-                    # Sumar a subtotales del operario
-                    if hora.horas_normales:
-                        horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
-                        total_normales += hora.horas_normales
-                    if hora.horas_nocturnas:
-                        horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
-                        total_nocturnas += hora.horas_nocturnas
-                    if hora.horas_extras:
-                        horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
-                        total_extras += hora.horas_extras
-                
-                # Calcular total general para cada operario y sumar enfermedad al total
-                for operario_data in horas_agrupadas.values():
-                    operario_data['subtotal_general'] = (
-                        operario_data['subtotal_normales'] +
-                        operario_data['subtotal_nocturnas'] +
-                        operario_data['subtotal_extras'] +
-                        operario_data['subtotal_enfermedad']
-                    )
-                    total_enfermedad += operario_data['subtotal_enfermedad']
+                        else:
+                            for i in range(max_movimientos):
+                                entrada = entradas[i] if i < len(entradas) else None
+                                salida = salidas[i] if i < len(salidas) else None
 
-                totales = {
-                    'total_normales': total_normales,
-                    'total_nocturnas': total_nocturnas,
-                    'total_extras': total_extras,
-                    'total_enfermedad': total_enfermedad,
-                    'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
-                }
+                                hora_con_movimientos = {
+                                    'hora': hora,
+                                    'fecha': dia,
+                                    'entrada': entrada,
+                                    'salida': salida,
+                                    'es_primera_fila': i == 0,
+                                    'sin_registro': False
+                                }
+                                horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+
+                        # Sumar a subtotales del operario
+                        if hora.horas_normales:
+                            horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
+                            total_normales += hora.horas_normales
+                        if hora.horas_nocturnas:
+                            horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
+                            total_nocturnas += hora.horas_nocturnas
+                        if hora.horas_extras:
+                            horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
+                            total_extras += hora.horas_extras
+                    else:
+                        # No hay registro para este día - mostrar fila vacía
+                        hora_con_movimientos = {
+                            'hora': None,
+                            'fecha': dia,
+                            'entrada': None,
+                            'salida': None,
+                            'es_primera_fila': True,
+                            'sin_registro': True  # Marcador para días sin ningún registro
+                        }
+                        horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+
+            # Calcular total general para cada operario y sumar enfermedad al total
+            for operario_data in horas_agrupadas.values():
+                operario_data['subtotal_general'] = (
+                    operario_data['subtotal_normales'] +
+                    operario_data['subtotal_nocturnas'] +
+                    operario_data['subtotal_extras'] +
+                    operario_data['subtotal_enfermedad']
+                )
+                total_enfermedad += operario_data['subtotal_enfermedad']
+
+            totales = {
+                'total_normales': total_normales,
+                'total_nocturnas': total_nocturnas,
+                'total_extras': total_extras,
+                'total_enfermedad': total_enfermedad,
+                'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
+            }
         
         # Nombres de meses en español
         meses_es = [
@@ -2358,100 +2405,146 @@ class ReporteAdmin(admin.ModelAdmin):
                     })
                 fecha_actual += timedelta(days=1)
 
-        # Agrupar por operario y calcular subtotales (misma lógica que HTML)
-        horas_agrupadas = None
-        totales = None
+        # Generar lista de todos los días laborables (lunes a sábado) del mes
+        dias_laborables = []
+        fecha_actual = mes_inicio
+        while fecha_actual <= mes_fin:
+            if fecha_actual.weekday() < 6:  # Lunes a Sábado
+                dias_laborables.append(fecha_actual)
+            fecha_actual += timedelta(days=1)
+
+        # Crear diccionario de horas_trabajadas por operario y fecha para búsqueda rápida
+        horas_por_operario_fecha = {}
         if horas_trabajadas:
-            from collections import OrderedDict
-            horas_agrupadas = OrderedDict()
-            total_normales = timedelta()
-            total_nocturnas = timedelta()
-            total_extras = timedelta()
-            total_enfermedad = timedelta()
-
             for hora in horas_trabajadas:
-                operario_key = f"{hora.operario.apellido}, {hora.operario.nombre}"
+                key = (hora.operario.id, hora.fecha)
+                horas_por_operario_fecha[key] = hora
 
-                if operario_key not in horas_agrupadas:
-                    # Obtener horas de enfermedad de este operario
-                    horas_enf_operario = horas_enfermedad_por_operario.get(hora.operario.id, timedelta())
-                    horas_agrupadas[operario_key] = {
-                        'operario': hora.operario,
-                        'registros': [],
-                        'registros_enfermedad': dias_licencia_por_operario.get(hora.operario.id, []),
-                        'subtotal_normales': timedelta(),
-                        'subtotal_nocturnas': timedelta(),
-                        'subtotal_extras': timedelta(),
-                        'subtotal_enfermedad': horas_enf_operario,
-                    }
+        # Determinar operarios a mostrar
+        if operarios:
+            operarios_a_mostrar = list(operarios.order_by('apellido', 'nombre'))
+        elif horas_trabajadas:
+            operarios_ids = set(h.operario.id for h in horas_trabajadas)
+            operarios_a_mostrar = list(Operario.objects.filter(id__in=operarios_ids).order_by('apellido', 'nombre'))
+        else:
+            operarios_a_mostrar = []
 
-                # Obtener movimientos de entrada y salida para esta fecha lógica
-                # Para turnos nocturnos, la salida puede ser del día siguiente (fecha calendario)
-                from datetime import timedelta as td
-                fecha_inicio_busqueda = hora.fecha
-                fecha_fin_busqueda = hora.fecha + td(days=1)
+        # Agrupar por operario y calcular subtotales - MOSTRAR TODOS LOS DÍAS LABORABLES
+        from collections import OrderedDict
+        horas_agrupadas = OrderedDict()
+        total_normales = timedelta()
+        total_nocturnas = timedelta()
+        total_extras = timedelta()
+        total_enfermedad = timedelta()
 
-                registros_rango = RegistroDiario.objects.filter(
-                    operario=hora.operario,
-                    hora_fichada__date__gte=fecha_inicio_busqueda,
-                    hora_fichada__date__lte=fecha_fin_busqueda,
-                    tipo_movimiento__in=['entrada', 'salida'],
-                    valido=True
-                ).order_by('hora_fichada')
+        for operario in operarios_a_mostrar:
+            operario_key = f"{operario.apellido}, {operario.nombre}"
+            horas_enf_operario = horas_enfermedad_por_operario.get(operario.id, timedelta())
 
-                # Filtrar por fecha lógica (considera turnos nocturnos)
-                registros_dia = [
-                    r for r in registros_rango
-                    if RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == hora.fecha
-                ]
+            fechas_licencia = set()
+            for lic_dia in dias_licencia_por_operario.get(operario.id, []):
+                fechas_licencia.add(lic_dia['fecha'])
 
-                # Separar entradas y salidas
-                entradas = [r for r in registros_dia if r.tipo_movimiento == 'entrada']
-                salidas = [r for r in registros_dia if r.tipo_movimiento == 'salida']
-                
-                # Crear pares entrada/salida y generar filas separadas
-                max_movimientos = max(len(entradas), len(salidas)) if (entradas or salidas) else 1
-                
-                for i in range(max_movimientos):
-                    entrada = entradas[i] if i < len(entradas) else None
-                    salida = salidas[i] if i < len(salidas) else None
-                    
+            horas_agrupadas[operario_key] = {
+                'operario': operario,
+                'registros': [],
+                'registros_enfermedad': dias_licencia_por_operario.get(operario.id, []),
+                'subtotal_normales': timedelta(),
+                'subtotal_nocturnas': timedelta(),
+                'subtotal_extras': timedelta(),
+                'subtotal_enfermedad': horas_enf_operario,
+            }
+
+            for dia in dias_laborables:
+                if dia in fechas_licencia:
+                    continue
+
+                hora = horas_por_operario_fecha.get((operario.id, dia))
+
+                if hora:
+                    from datetime import timedelta as td
+                    fecha_inicio_busqueda = hora.fecha
+                    fecha_fin_busqueda = hora.fecha + td(days=1)
+
+                    registros_rango = RegistroDiario.objects.filter(
+                        operario=operario,
+                        hora_fichada__date__gte=fecha_inicio_busqueda,
+                        hora_fichada__date__lte=fecha_fin_busqueda,
+                        tipo_movimiento__in=['entrada', 'salida'],
+                        valido=True
+                    ).order_by('hora_fichada')
+
+                    registros_dia = [
+                        r for r in registros_rango
+                        if RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == hora.fecha
+                    ]
+
+                    entradas = [r.hora_fichada for r in registros_dia if r.tipo_movimiento == 'entrada']
+                    salidas = [r.hora_fichada for r in registros_dia if r.tipo_movimiento == 'salida']
+
+                    max_movimientos = max(len(entradas), len(salidas))
+
+                    if max_movimientos == 0:
+                        hora_con_movimientos = {
+                            'hora': hora,
+                            'fecha': dia,
+                            'entrada': None,
+                            'salida': None,
+                            'es_primera_fila': True,
+                            'sin_registro': False
+                        }
+                        horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+                    else:
+                        for i in range(max_movimientos):
+                            entrada = entradas[i] if i < len(entradas) else None
+                            salida = salidas[i] if i < len(salidas) else None
+
+                            hora_con_movimientos = {
+                                'hora': hora,
+                                'fecha': dia,
+                                'entrada': entrada,
+                                'salida': salida,
+                                'es_primera_fila': i == 0,
+                                'sin_registro': False
+                            }
+                            horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
+
+                    if hora.horas_normales:
+                        horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
+                        total_normales += hora.horas_normales
+                    if hora.horas_nocturnas:
+                        horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
+                        total_nocturnas += hora.horas_nocturnas
+                    if hora.horas_extras:
+                        horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
+                        total_extras += hora.horas_extras
+                else:
                     hora_con_movimientos = {
-                        'hora': hora,
-                        'entrada': entrada.hora_fichada if entrada else None,
-                        'salida': salida.hora_fichada if salida else None,
-                        'es_primera_fila': i == 0
+                        'hora': None,
+                        'fecha': dia,
+                        'entrada': None,
+                        'salida': None,
+                        'es_primera_fila': True,
+                        'sin_registro': True
                     }
                     horas_agrupadas[operario_key]['registros'].append(hora_con_movimientos)
-                
-                # Sumar a subtotales del operario (solo una vez por día)
-                if hora.horas_normales:
-                    horas_agrupadas[operario_key]['subtotal_normales'] += hora.horas_normales
-                    total_normales += hora.horas_normales
-                if hora.horas_nocturnas:
-                    horas_agrupadas[operario_key]['subtotal_nocturnas'] += hora.horas_nocturnas
-                    total_nocturnas += hora.horas_nocturnas
-                if hora.horas_extras:
-                    horas_agrupadas[operario_key]['subtotal_extras'] += hora.horas_extras
-                    total_extras += hora.horas_extras
-            
-            # Calcular total general para cada operario y sumar enfermedad al total
-            for operario_data in horas_agrupadas.values():
-                operario_data['subtotal_general'] = (
-                    operario_data['subtotal_normales'] +
-                    operario_data['subtotal_nocturnas'] +
-                    operario_data['subtotal_extras'] +
-                    operario_data['subtotal_enfermedad']
-                )
-                total_enfermedad += operario_data['subtotal_enfermedad']
 
-            totales = {
-                'total_normales': total_normales,
-                'total_nocturnas': total_nocturnas,
-                'total_extras': total_extras,
-                'total_enfermedad': total_enfermedad,
-                'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
-            }
+        for operario_data in horas_agrupadas.values():
+            operario_data['subtotal_general'] = (
+                operario_data['subtotal_normales'] +
+                operario_data['subtotal_nocturnas'] +
+                operario_data['subtotal_extras'] +
+                operario_data['subtotal_enfermedad']
+            )
+            total_enfermedad += operario_data['subtotal_enfermedad']
+
+        totales = {
+            'total_normales': total_normales,
+            'total_nocturnas': total_nocturnas,
+            'total_extras': total_extras,
+            'total_enfermedad': total_enfermedad,
+            'total_general': total_normales + total_nocturnas + total_extras + total_enfermedad
+        }
 
         # Nombres de meses en español
         meses_es = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',

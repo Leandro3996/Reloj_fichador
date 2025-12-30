@@ -497,16 +497,32 @@
                     
                     <!-- Registros del operario -->
                     {% for registro in operario_data.registros %}
-                    <tr>
-                        <td style="padding-left: 20px;">{{ registro.hora.operario.apellido }}, {{ registro.hora.operario.nombre }}</td>
-                        <td>
-                            {{ registro.entrada|fecha_completa_es }}
+                    <tr{% if registro.sin_registro %} style="background-color: #fff8e1;"{% endif %}>
+                        <td style="padding-left: 20px;">
+                            {% if registro.sin_registro %}
+                                <span style="color: #856404;">{{ registro.fecha|fecha_corta_es }}</span>
+                            {% else %}
+                                {{ registro.hora.operario.apellido }}, {{ registro.hora.operario.nombre }}
+                            {% endif %}
                         </td>
                         <td>
-                            {{ registro.salida|fecha_completa_es }}
+                            {% if registro.sin_registro %}
+                                <span style="color: #dc3545; font-weight: 500;">Sin fichadas</span>
+                            {% else %}
+                                {{ registro.entrada|fecha_completa_es }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if registro.sin_registro %}
+                                <span style="color: #dc3545; font-weight: 500;">Sin fichadas</span>
+                            {% else %}
+                                {{ registro.salida|fecha_completa_es }}
+                            {% endif %}
                         </td>
                         <td class="horas-normales">
-                            {% if registro.es_primera_fila and registro.hora.horas_normales.total_seconds %}
+                            {% if registro.sin_registro %}
+                                <span style="color: #6c757d;">0h</span>
+                            {% elif registro.es_primera_fila and registro.hora.horas_normales.total_seconds %}
                                 {% widthratio registro.hora.horas_normales.total_seconds 3600 1 %}h
                             {% elif registro.es_primera_fila %}
                                 0h
@@ -515,7 +531,9 @@
                             {% endif %}
                         </td>
                         <td class="horas-nocturnas">
-                            {% if registro.es_primera_fila and registro.hora.horas_nocturnas.total_seconds %}
+                            {% if registro.sin_registro %}
+                                <span style="color: #6c757d;">0h</span>
+                            {% elif registro.es_primera_fila and registro.hora.horas_nocturnas.total_seconds %}
                                 {% widthratio registro.hora.horas_nocturnas.total_seconds 3600 1 %}h
                             {% elif registro.es_primera_fila %}
                                 0h
@@ -524,7 +542,9 @@
                             {% endif %}
                         </td>
                         <td class="horas-extras">
-                            {% if registro.es_primera_fila and registro.hora.horas_extras.total_seconds %}
+                            {% if registro.sin_registro %}
+                                <span style="color: #6c757d;">0h</span>
+                            {% elif registro.es_primera_fila and registro.hora.horas_extras.total_seconds %}
                                 {% widthratio registro.hora.horas_extras.total_seconds 3600 1 %}h
                             {% elif registro.es_primera_fila %}
                                 0h
@@ -536,7 +556,9 @@
                             -
                         </td>
                         <td>
-                            {% if registro.es_primera_fila %}
+                            {% if registro.sin_registro %}
+                                <span style="color: #6c757d;">0h</span>
+                            {% elif registro.es_primera_fila %}
                                 {% widthratio registro.hora.horas_normales.total_seconds 3600 1 as normales_h %}
                                 {% widthratio registro.hora.horas_nocturnas.total_seconds 3600 1 as nocturnas_h %}
                                 {% widthratio registro.hora.horas_extras.total_seconds 3600 1 as extras_h %}
