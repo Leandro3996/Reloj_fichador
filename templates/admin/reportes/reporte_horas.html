@@ -136,6 +136,19 @@
     background: #f8f9fa;
 }
 
+/* Estilos para filas de registros */
+.registro-fila {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.registro-fila.sin-fichadas {
+    background-color: #fff8e1;
+}
+
+.registro-fila.sin-fichadas:hover {
+    background-color: #fff3cd;
+}
+
 .horas-normales { color: #28a745; font-weight: 500; }
 .horas-nocturnas { color: #6f42c1; font-weight: 500; }
 .horas-extras { color: #fd7e14; font-weight: 500; }
@@ -476,13 +489,12 @@
         <table class="horas-tabla">
             <thead>
                 <tr>
-                    <th>Empleado</th>
                     <th>Fecha Entrada</th>
                     <th>Fecha Salida</th>
-                    <th>Horas Normales</th>
-                    <th>Horas Nocturnas</th>
-                    <th>Horas Extras</th>
-                    <th>Horas Enfermedad</th>
+                    <th>H. Normales</th>
+                    <th>H. Nocturnas</th>
+                    <th>H. Extras</th>
+                    <th>H. Enfermedad</th>
                     <th>Total</th>
                 </tr>
             </thead>
@@ -490,24 +502,17 @@
                 {% for operario_nombre, operario_data in horas_agrupadas.items %}
                     <!-- Cabecera del operario -->
                     <tr class="operario-header">
-                        <td colspan="8">
+                        <td colspan="7">
                             <strong>{{ operario_nombre }}</strong>
                         </td>
                     </tr>
                     
                     <!-- Registros del operario -->
                     {% for registro in operario_data.registros %}
-                    <tr{% if registro.sin_registro %} style="background-color: #fff8e1;"{% endif %}>
-                        <td style="padding-left: 20px;">
-                            {% if registro.sin_registro %}
-                                <span style="color: #856404;">{{ registro.fecha|fecha_corta_es }}</span>
-                            {% else %}
-                                {{ registro.hora.operario.apellido }}, {{ registro.hora.operario.nombre }}
-                            {% endif %}
-                        </td>
+                    <tr class="registro-fila{% if registro.sin_registro %} sin-fichadas{% endif %}">
                         <td>
                             {% if registro.sin_registro %}
-                                <span style="color: #dc3545; font-weight: 500;">Sin fichadas</span>
+                                <span style="color: #856404;">{{ registro.fecha|fecha_corta_es }}</span>
                             {% else %}
                                 {{ registro.entrada|fecha_completa_es }}
                             {% endif %}
@@ -573,11 +578,8 @@
                     <!-- Días de enfermedad/licencia del operario -->
                     {% for dia_enf in operario_data.registros_enfermedad %}
                     <tr style="background-color: #fff5f5;">
-                        <td style="padding-left: 20px; color: #dc3545;">
-                            <em>Licencia médica</em>
-                        </td>
                         <td colspan="2" style="color: #6c757d;">
-                            {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }}
+                            {{ dia_enf.fecha|date:"d/m/Y" }} - {{ dia_enf.descripcion }} <em style="color: #dc3545;">(Licencia médica)</em>
                         </td>
                         <td class="horas-normales">-</td>
                         <td class="horas-nocturnas">-</td>
@@ -593,7 +595,7 @@
 
                     <!-- Subtotal del operario -->
                     <tr class="subtotal-operario">
-                        <td colspan="3"><strong>Subtotal {{ operario_nombre }}</strong></td>
+                        <td colspan="2"><strong>TOTAL {{ operario_nombre }}</strong></td>
                         <td class="horas-normales">
                             <strong>
                                 {% if operario_data.subtotal_normales.total_seconds %}
@@ -645,7 +647,7 @@
             {% if totales %}
             <tfoot>
                 <tr class="totales-row">
-                    <td colspan="3"><strong>TOTALES</strong></td>
+                    <td colspan="2"><strong>TOTALES</strong></td>
                     <td class="horas-normales">
                         <strong>
                             {% if totales.total_normales.total_seconds %}
