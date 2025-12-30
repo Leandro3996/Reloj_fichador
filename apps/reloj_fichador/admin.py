@@ -1856,17 +1856,30 @@ class ReporteAdmin(admin.ModelAdmin):
                             'subtotal_enfermedad': horas_enf_operario,
                         }
                     
-                    # Obtener movimientos de entrada y salida para esta fecha (solo principales, no transitorios)
-                    registros_dia = RegistroDiario.objects.filter(
+                    # Obtener movimientos de entrada y salida para esta fecha lógica
+                    # Para turnos nocturnos, la salida puede ser del día siguiente (fecha calendario)
+                    # Por eso buscamos en un rango de fechas y filtramos por fecha_logica
+                    from datetime import timedelta as td
+                    fecha_inicio_busqueda = hora.fecha
+                    fecha_fin_busqueda = hora.fecha + td(days=1)
+
+                    registros_rango = RegistroDiario.objects.filter(
                         operario=hora.operario,
-                        hora_fichada__date=hora.fecha,
+                        hora_fichada__date__gte=fecha_inicio_busqueda,
+                        hora_fichada__date__lte=fecha_fin_busqueda,
                         tipo_movimiento__in=['entrada', 'salida'],
                         valido=True
                     ).order_by('hora_fichada')
-                    
+
+                    # Filtrar por fecha lógica (considera turnos nocturnos)
+                    registros_dia = [
+                        r for r in registros_rango
+                        if RegistroDiario.calcular_fecha_logica(r.hora_fichada, r.tipo_movimiento) == hora.fecha
+                    ]
+
                     entradas = []
                     salidas = []
-                    
+
                     for registro in registros_dia:
                         if registro.tipo_movimiento == 'entrada':
                             entradas.append(registro.hora_fichada)
