@@ -44,7 +44,7 @@ def fecha_completa_es(fecha):
     Convierte de UTC a timezone local de Argentina
     """
     if not fecha:
-        return "-"
+        return "No registró fichada"
 
     # Convertir a timezone de Argentina si la fecha está en UTC
     if timezone.is_aware(fecha):
