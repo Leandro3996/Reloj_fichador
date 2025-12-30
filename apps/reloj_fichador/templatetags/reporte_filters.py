@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 from datetime import datetime, timedelta
 from django.utils import timezone
 import pytz
@@ -42,9 +43,10 @@ def fecha_completa_es(fecha):
     """
     Formatea fecha completa en español: "Lunes - 06/08/2025 - 06:57:27"
     Convierte de UTC a timezone local de Argentina
+    Si no hay fecha, devuelve texto en rojo
     """
     if not fecha:
-        return "No registró fichada"
+        return mark_safe('<span style="color: #dc3545; font-weight: 500;">No registró fichada</span>')
 
     # Convertir a timezone de Argentina si la fecha está en UTC
     if timezone.is_aware(fecha):
