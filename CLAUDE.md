@@ -357,3 +357,104 @@ The theme is configured directly from the admin panel:
 
 ### Access
 Admin interface accessible at: `http://localhost:58000/admin/` (or configured domain)
+
+---
+
+## 🚀 Migración de Commits a Producción
+
+### Contexto
+- **Desarrollo (local)**: `/home/leandro/Proyectos_Docker/Reloj_fichador`
+- **Producción (remoto montado)**: `/home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador`
+- **Servidor producción**: `192.168.10.39` (SSH: `sistemas@192.168.10.39`)
+
+### Procedimiento Seguro de Migración
+
+#### 1. Análisis previo
+```bash
+# Ver commits a migrar (ejemplo: commits de hoy)
+git log --oneline --since="2025-12-30 00:00:00" --until="2025-12-31 00:00:00"
+
+# Ver archivos afectados
+git diff --name-only COMMIT_INICIAL^..COMMIT_FINAL
+
+# Verificar estado en producción
+cd /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador
+git status
+```
+
+#### 2. Detectar conflictos potenciales
+Si producción tiene cambios sin commitear en los mismos archivos:
+```bash
+# Ver diferencias en producción
+cd /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador
+git diff archivo.py
+```
+
+#### 3. Crear backup de cambios en producción
+```bash
+cd /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador
+git diff > /tmp/backup_produccion_$(date +%Y%m%d_%H%M%S).patch
+```
+
+#### 4. Estrategias de migración
+
+**Opción A: Cherry-pick (si las ramas son compatibles)**
+```bash
+# Crear patches desde desarrollo
+git format-patch -N COMMIT_HASH -o /tmp/commits/
+
+# Aplicar en producción
+cd /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador
+git am /tmp/commits/*.patch
+```
+
+**Opción B: Copia directa de archivos (si cherry-pick falla)**
+```bash
+# Copiar archivos específicos
+cp apps/reloj_fichador/admin.py /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador/apps/reloj_fichador/admin.py
+
+# Crear commit consolidado en producción
+cd /home/leandro/debian-home/sistemas/Docker_proyectos/Reloj_fichador
+git add .
+git commit -m "feat: Descripción de los cambios migrados
+
+🔄 Trasladado desde rama [nombre-rama-desarrollo]"
+```
+
+#### 5. Reiniciar servicios en producción
+```bash
+# Via SSH
+ssh sistemas@192.168.10.39 "cd /home/sistemas/Docker_proyectos/Reloj_fichador && docker compose restart web"
+
+# Verificar estado
+ssh sistemas@192.168.10.39 "cd /home/sistemas/Docker_proyectos/Reloj_fichador && docker compose ps"
+```
+
+#### 6. Verificación post-migración
+```bash
+# Verificar respuesta HTTP
+curl -s -o /dev/null -w "%{http_code}" http://192.168.10.39:5080/admin/
+
+# Verificar logs sin errores
+ssh sistemas@192.168.10.39 "cd /home/sistemas/Docker_proyectos/Reloj_fichador && docker compose logs web --tail 20"
+```
+
+### Checklist de Migración
+
+- [ ] Identificar commits a migrar
+- [ ] Verificar estado de producción (cambios sin commit)
+- [ ] Crear backup si hay cambios sin commit
+- [ ] Descartar o integrar cambios existentes
+- [ ] Aplicar commits (cherry-pick o copia directa)
+- [ ] Crear commit en producción
+- [ ] Reiniciar servicios Docker
+- [ ] Verificar funcionamiento (HTTP + logs)
+- [ ] Probar funcionalidad específica en navegador
+
+### Notas Importantes
+
+1. **Nunca hacer push forzado** en producción
+2. **Siempre crear backup** antes de descartar cambios
+3. **Si cherry-pick falla**, usar copia directa de archivos
+4. **Verificar visualmente** que los cambios funcionan (usar Chrome DevTools MCP)
+5. El backup de patches se guarda en `/tmp/` por si necesitas restaurar
