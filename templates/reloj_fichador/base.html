@@ -401,7 +401,7 @@
             function syncServerTime() {
                 const beforeRequest = Date.now();
                 
-                fetch('/api/health/', {
+                fetch('{% url "health_check" %}', {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'

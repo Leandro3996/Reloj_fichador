@@ -98,7 +98,7 @@ TEMPLATES = [
     },
 ]
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/reloj/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 WSGI_APPLICATION = 'mantenedor.wsgi.application'
@@ -151,9 +151,12 @@ USE_I18N = True
 # Para mejor manejo de zonas horarias con Celery y django-celery-beat
 USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = '/reloj/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Prefijo para servir bajo subpath /reloj/ en el reverse proxy
+FORCE_SCRIPT_NAME = '/reloj'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -346,14 +349,14 @@ AXES_ENABLE_ADMIN = True
 # CONFIGURACIÓN DE REDIRECCIONES DE LOGIN/LOGOUT
 # ============================================================================
 
-# Redirigir al admin después de login exitoso
-LOGIN_REDIRECT_URL = '/admin/'
+# Redirigir al admin después de login exitoso (incluir prefijo /reloj por FORCE_SCRIPT_NAME)
+LOGIN_REDIRECT_URL = '/reloj/admin/'
 
 # Redirigir al login después de logout
-LOGOUT_REDIRECT_URL = '/admin/login/'
+LOGOUT_REDIRECT_URL = '/reloj/admin/login/'
 
 # URL de login (usado por @login_required decorator)
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/reloj/admin/login/'
 
 # ============================================================================
 # CONFIGURACIÓN DE DJANGO-CRISPY-FORMS

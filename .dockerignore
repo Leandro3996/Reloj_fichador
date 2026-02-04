@@ -91,6 +91,9 @@ staticfiles/*
 *.mov
 *.avi
 
+# Backups (evitar transferir al contexto de Docker)
+backups/
+
 # Otros
 node_modules/
 .megaignore
