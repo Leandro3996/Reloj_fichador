@@ -175,7 +175,6 @@ class Operario(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['apellido']),
-            models.Index(fields=['dni']),
         ]
 
     def __str__(self):
@@ -344,7 +343,7 @@ class RegistroDiario(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['operario']),
+            models.Index(fields=['operario', 'hora_fichada']),
             models.Index(fields=['hora_fichada']),
         ]
 
@@ -610,6 +609,9 @@ class Horas_trabajadas(models.Model):
         app_label = 'reloj_fichador'
         verbose_name = "Horas trabajadas"
         verbose_name_plural = "Horas trabajadas"
+        indexes = [
+            models.Index(fields=['operario', 'fecha']),
+        ]
 
     @classmethod
     def calcular_horas_trabajadas(cls, operario, fecha):
@@ -734,6 +736,9 @@ class Horas_feriado(models.Model):
         app_label = 'reloj_fichador'
         verbose_name = "Horas feriado"
         verbose_name_plural = "Horas feriado"
+        indexes = [
+            models.Index(fields=['operario', 'fecha']),
+        ]
 
     @classmethod
     def sumar_horas_feriado(cls, operario, fecha, es_feriado=False):
@@ -766,7 +771,6 @@ class HorasEnfermedad(models.Model):
         verbose_name_plural = "Horas enfermedad"
         indexes = [
             models.Index(fields=['operario', 'mes_periodo']),
-            models.Index(fields=['licencia']),
         ]
 
     def __str__(self):
@@ -783,6 +787,9 @@ class Horas_extras(models.Model):
         app_label = 'reloj_fichador'
         verbose_name = "Horas extras"
         verbose_name_plural = "Horas extras"
+        indexes = [
+            models.Index(fields=['operario', 'fecha']),
+        ]
 
     @classmethod
     def calcular_horas_extras(cls, operario, fecha):
@@ -815,6 +822,9 @@ class Horas_totales(models.Model):
         app_label = 'reloj_fichador'
         verbose_name = "Horas totales"
         verbose_name_plural = "Horas totales"
+        indexes = [
+            models.Index(fields=['operario', 'mes_actual']),
+        ]
 
     @classmethod
     def calcular_horas_totales(cls, operario, mes):
@@ -961,7 +971,6 @@ class RegistroAsistencia(models.Model):
     class Meta:
         unique_together = ('operario', 'fecha')
         indexes = [
-            models.Index(fields=['operario', 'fecha']),
             models.Index(fields=['estado_asistencia', 'estado_justificacion']),
         ]
 
@@ -1017,7 +1026,6 @@ class CalendarioLaboral(models.Model):
         verbose_name_plural = "Calendarios Laborales"
         ordering = ['fecha']
         indexes = [
-            models.Index(fields=['fecha']),
             models.Index(fields=['tipo_dia']),
         ]
 
