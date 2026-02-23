@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     command: >
-      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info"
+      /app/wait-for-it.sh db:3306 -t 120 -- bash -c "celery -A mantenedor worker --loglevel=info --concurrency=2 --max-tasks-per-child=100"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
